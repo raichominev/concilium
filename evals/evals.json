@@ -1,0 +1,23 @@
+{
+  "skill_name": "concilium",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I want a second opinion from a different model on this before I put it in our docs: 'Python's dict preserves insertion order as a language guarantee since 3.7, so sorting keys before iteration is never needed for deterministic output.' Have GPT/codex review it adversarially and give me a verdict I can trust.",
+      "expected_output": "Runs the codex CLI reviewer (read-only, background-appropriate), returns the five blocks (PROBE/ALT/CAVEAT/VERDICT-PROPOSAL/PHASE-LOG), then RATIFIES: checks the probe itself and assigns a final tag distinct from just relaying the proposal. The claim is subtly overbroad (deterministic output also depends on insertion order being deterministic; sets/other mappings differ) — a good review should surface a caveat rather than a flat confirm.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Set up my codex subscription as an automatic cross-model reviewer for this repo, and prove it works end to end with a cheap test before you call it done. I don't have an OpenAI API key and don't want one.",
+      "expected_output": "Checks codex login status (subscription auth, explicitly NOT attempting API-key/proxy bridges), discovers available models, runs the calibration bootstrap known-truth test (hand-trace with execution forbidden, exact-match check), reports tiers and how to invoke. Should NOT try to build a router/proxy.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Use codex to review this claim about my repo: 'every row in our users table has a unique email, the importer enforces it' — and after the main review, I want one cheap mechanical follow-up on a smaller model in the SAME codex session: ask it to list which files it actually read. Don't waste my research-tier quota on the follow-up.",
+      "expected_output": "Main review on the research tier; then resumes the SAME codex session with the full re-pin recipe (flags BEFORE session id, -m <cheaper model>, -c sandbox_mode=\"read-only\", -c model_reasoning_effort lowered) rather than bare resume or a fresh session for the follow-up. Verdict ratified, session ids visible.",
+      "files": []
+    }
+  ]
+}

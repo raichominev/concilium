@@ -1,0 +1,108 @@
+---
+name: concilium
+description: >-
+  Run an adversarial cross-model review loop (a "concilium"): a second AI model — GPT via the
+  OpenAI codex CLI on ChatGPT-subscription auth, no API key needed — independently probes a claim,
+  diff, or result with falsification attempts and proposes a verdict, which the calling session
+  then checks and ratifies. Use this whenever the user wants a second opinion from a different
+  model, cross-model or concilium review, adversarial verification of a research claim, benchmark
+  number, or experimental result, says "have GPT/codex check this", wants codex set up as a
+  reviewer, or when a single-model conclusion is load-bearing and needs independent falsification
+  before being trusted. Also covers switching codex models mid-session (park-and-resume) and
+  choosing which codex model handles which tier of work.
+---
+
+# Concilium — cross-model adversarial review
+
+A second, *different* model reviews your (or the user's) claims adversarially. Different model
+lineage means different blind spots — that's the value. The reviewer PROPOSES; the calling
+session RATIFIES. Never let either side's confidence substitute for evidence.
+
+## Prerequisites (check once per environment)
+
+1. `codex login status` → must say "Logged in using ChatGPT" (subscription OAuth — an API key is
+   NOT needed and a subscription can NOT be used as one; don't attempt proxy/router bridges).
+2. Discover available models: `codex debug models` or `~/.codex/models_cache.json`. If a model
+   errors "requires a newer version of Codex", run `codex update` and retry.
+3. First time in a new environment, run the calibration bootstrap (references/setup.md) before
+   trusting verdicts: a known-truth reasoning test, then one simple real task, then (optionally)
+   a head-to-head to pick tier models.
+
+## Tier matrix (defaults are current-day models — override per installation)
+
+| Tier | Default | Effort | Use for |
+|---|---|---|---|
+| Research | flagship (e.g. `gpt-5.6-sol`) | high | open review rounds, adversarial verification |
+| Mechanical | prev flagship (e.g. `gpt-5.5`) | medium | verify a known claim with one probe |
+| Runner | cheap tier (e.g. `gpt-5.6-terra`) | low | execute-and-report: run a script, babysit an import |
+
+Runner tasks are NOT reviews — skip the wrapper and call codex directly:
+`codex exec -m <cheap-model> -c model_reasoning_effort=low [-s read-only unless it writes] "<task>"`
+
+## Running a review
+
+Use the bundled wrappers (they carry the review contract — falsification probe, alternative
+explanation, caveat, verdict-proposal — plus provenance stamping and the schema/encoding rules).
+Both wrappers are functionally identical; pick by platform:
+
+**Linux / macOS (bash):**
+- Claim: `scripts/concilium-review.sh claim "<claim>"`
+- Diff:  `scripts/concilium-review.sh diff [base-branch]`
+- Config via env: `MODEL`, `EFFORT`, `MECHANICAL=1` (mechanical tier), `REPO_DIR`, `PROJECT_RULES` (rules file path).
+- First use after clone: `chmod +x scripts/concilium-review.sh`.
+
+**Windows (PowerShell 5.1+):**
+- Claim: `powershell -ExecutionPolicy Bypass -File scripts/concilium-review.ps1 -Claim "<claim>" [-Mechanical] [-RepoDir <path>] [-ProjectRules <file>]`
+- Diff:  `... -Diff [-Base <branch>]` — reviews the working-tree diff of `-RepoDir`.
+
+Operational rules (each one is a measured failure — the why is in references/pitfalls.md):
+
+- **Run in background with a full ~10 min timeout from the FIRST call.** Real reviews take
+  5–15+ min at high effort; a foreground timeout kills them mid-probe.
+- **Prefer a fresh session over resuming a timed-out one.** Long resumed chains hit context
+  compaction — the reviewer's early careful reading gets lossy-summarized before the final,
+  consequential step.
+- **Never bare-resume.** `codex exec resume` silently resets model AND sandbox to the user's
+  config.toml defaults. If you must resume (or want to switch models mid-session), re-pin
+  everything:
+  `codex exec resume -m <model> -c sandbox_mode="read-only" -c model_reasoning_effort=<tier> <session-id> -`
+  Flags go BEFORE the positional session id. The key is `sandbox_mode` — `-c sandbox=...` is
+  silently ignored, and there is no `-s` flag on resume. Cross-model resume retains context.
+- **The reviewer is a full agent, not a chatbot** — read-only sandbox blocks file writes, not
+  read commands or DB SELECTs. Everything it reviews goes to the second model's provider.
+
+## Ratification protocol (the calling session's job)
+
+The reviewer returns five blocks: `PROBE / ALT / CAVEAT / VERDICT-PROPOSAL / PHASE-LOG`.
+Before relaying or acting:
+
+1. **Read the actual probe** (the query/commands), not just the prose summary.
+2. **Extremal results are a tripwire**: 0% or 100% on a first attempt usually means a wrong
+   join key, wrong scope, or wrong table — not a discovery. Verify the probe's load-bearing
+   step yourself before accepting it.
+3. **Scope-check disagreements**: two probes can both be factually right at different scopes
+   (one table vs DB-wide, one source vs all sources). Name the scope before comparing numbers.
+4. **Distinguish refuted / stale / incomplete.** "The numbers differ today" does not mean the
+   claim was wrong when written — check history/timestamps before saying "refuted".
+5. Assign the final verdict tag yourself: `[V-code]` (verified vs source, cite file:line) /
+   `[V-db]` (read-only query, cite it) / `[V-probe]` (re-runnable script) / `[C]` (unverified) /
+   `[X]` (refuted — name what supersedes it). The proposal is input, not the answer.
+
+## Project adaptation
+
+- Project-specific ground rules (safety invariants, schema quirks, "never touch X") go in a
+  rules file passed via `-ProjectRules` / `PROJECT_RULES` — the wrapper appends it to the
+  contract. Keep it short; the reviewer reads the repo itself.
+- If the project keeps a claims ledger, the PHASE-LOG block is a ready-to-paste line
+  (`Phase N — <reviewer>(<model>) — <date> — <found> [proposed]`); append it only via the
+  project's own hygiene rules (typically: owner or main session, append-only). No ledger → drop
+  the block.
+- Storage: keep probe outputs and frozen samples in a durable project location, never in
+  session-scoped temp dirs (they die with the session).
+
+## References
+
+- `references/pitfalls.md` — the war stories behind every rule above (read when a rule seems
+  overcautious, or when debugging reviewer misbehavior).
+- `references/setup.md` — first-time setup, calibration bootstrap, and the head-to-head method
+  for picking tier models.
