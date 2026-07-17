@@ -74,6 +74,11 @@ Operational rules (each one is a measured failure — the why is in references/p
   silently ignored, and there is no `-s` flag on resume. Cross-model resume retains context.
 - **The reviewer is a full agent, not a chatbot** — read-only sandbox blocks file writes, not
   read commands or DB SELECTs. Everything it reviews goes to the second model's provider.
+- **Watch progress live, don't wait blind.** The contract (rule 9) makes the reviewer stream
+  `STATUS:` one-liners as it works; codex writes its transcript progressively, so tail/monitor
+  the output file for `STATUS:`/tool-call lines plus failure signatures. Caveat: PowerShell
+  `1>` redirects write UTF-16 — decode accordingly (or redirect through a UTF-8-forcing step)
+  before grepping.
 
 ## Ratification protocol (the calling session's job)
 

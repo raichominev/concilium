@@ -18,6 +18,10 @@ Review adversarially — do not defer to the researcher/author. Binding contract
    must directly address the objection stated at the end of that section. Re-asserting a prior
    finding with the same evidence is NOT a new round — if you genuinely cannot find a new path,
    say so explicitly in CAVEAT (that signals the loop to stop rather than oscillate).
+9. Status: reviews run long and the orchestrator watches your output live. Before each tool call
+   (or at least every ~2 minutes of work), print ONE line "STATUS: <what you are doing / interim
+   finding>". Status is progress, never a conclusion — the five blocks below remain the only
+   verdict.
 
 Output exactly these five blocks:
   PROBE:       the falsification probe you ran + its result (include the actual query/commands)
