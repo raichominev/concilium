@@ -132,9 +132,27 @@ hash it out", or when a first pass comes back disputed and the stakes justify an
 
 ## Project adaptation
 
-- Project-specific ground rules (safety invariants, schema quirks, "never touch X") go in a
-  rules file passed via `-ProjectRules` / `PROJECT_RULES` — the wrapper appends it to the
-  contract. Keep it short; the reviewer reads the repo itself.
+### The reviewer sees AGENTS.md, not CLAUDE.md — mind the gap
+
+codex auto-loads **`AGENTS.md`** (from the working directory upward), the same way Claude Code
+auto-loads **`CLAUDE.md`**. They are different files: a project with only a `CLAUDE.md` gives the
+reviewer *none* of the ground rules Claude has — it reviews half-blind. Three ways to close it,
+in order of durability:
+
+1. **Best (project-level): make `AGENTS.md` exist.** Mirror your `CLAUDE.md` into an `AGENTS.md`
+   (or make `AGENTS.md` a short pointer to it), and keep them synced. This helps *all* codex
+   usage, not just this skill, and is codex's own supported convention.
+2. **Automatic (built into the wrappers): CLAUDE.md bridging.** When no `AGENTS.md` is present,
+   the wrapper auto-injects the project's `CLAUDE.md` (root or `.claude/CLAUDE.md`) into the
+   contract and prints a notice, so the reviewer isn't missing rules. Disable with `-NoAutoRules`
+   / `NO_AUTO_RULES=1` (e.g. a huge, mostly-workflow CLAUDE.md you don't want in every review).
+3. **Curated (explicit): `-ProjectRules <file>`.** Point at a short, hand-picked extract of the
+   safety-critical rules — this *overrides* auto-bridging. Best for large instruction files where
+   only a slice is relevant to review (invariants, "never touch X", schema quirks).
+
+If you keep both files but let them drift, the reviewer sees the `AGENTS.md` version — sync them.
+
+### Other adaptation
 - If the project keeps a claims ledger, the PHASE-LOG block is a ready-to-paste line
   (`Phase N — <reviewer>(<model>) — <date> — <found> [proposed]`); append it only via the
   project's own hygiene rules (typically: owner or main session, append-only). No ledger → drop

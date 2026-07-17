@@ -13,6 +13,8 @@
 #   -ProjectRules <file>   : optional project ground-rules file appended to the contract
 #   -PriorRounds <file>    : loop mode — prior rounds' probes + the objection; reviewer must take
 #                            a NEW evidence path (see SKILL.md "The concilium loop")
+#   -NoAutoRules           : skip auto-bridging the project's CLAUDE.md into the contract when no
+#                            AGENTS.md is present (codex reads AGENTS.md natively, never CLAUDE.md)
 #
 # Defaults are models current at authoring time (2026-07) — check `codex debug models` and
 # override with -Model, or edit for your installation.
@@ -29,6 +31,7 @@ param(
   [switch]$Mechanical,
   [string]$ProjectRules,
   [string]$PriorRounds,
+  [switch]$NoAutoRules,
   [string]$Model  = "gpt-5.6-sol",
   [string]$Effort = "high",
   [string]$RepoDir = ""
@@ -57,6 +60,24 @@ $Contract = Get-Content -Raw -Encoding UTF8 $ContractPath
 
 if ($ProjectRules -and (Test-Path $ProjectRules)) {
   $Contract += "`n`n--- PROJECT GROUND RULES (binding) ---`n" + (Get-Content -Raw $ProjectRules)
+}
+elseif (-not $NoAutoRules) {
+  # codex loads AGENTS.md natively (cwd upward); it does NOT see CLAUDE.md. Bridge that gap so the
+  # reviewer isn't blind to project rules Claude has. -ProjectRules (a curated extract) overrides.
+  $agents    = Join-Path $RepoDir "AGENTS.md"
+  $claudeDot = Join-Path $RepoDir ".claude\CLAUDE.md"
+  $claudeTop = Join-Path $RepoDir "CLAUDE.md"
+  if (Test-Path $agents) {
+    Write-Host ">> codex will load AGENTS.md natively from $RepoDir" -ForegroundColor DarkGray
+  }
+  elseif (Test-Path $claudeDot) {
+    $Contract += "`n`n--- PROJECT INSTRUCTIONS (.claude/CLAUDE.md - codex does not load this natively) ---`n" + (Get-Content -Raw $claudeDot)
+    Write-Host ">> injected .claude/CLAUDE.md (no AGENTS.md present)" -ForegroundColor DarkGray
+  }
+  elseif (Test-Path $claudeTop) {
+    $Contract += "`n`n--- PROJECT INSTRUCTIONS (CLAUDE.md - codex does not load this natively) ---`n" + (Get-Content -Raw $claudeTop)
+    Write-Host ">> injected CLAUDE.md (no AGENTS.md present)" -ForegroundColor DarkGray
+  }
 }
 
 # Loop mode: prior rounds' probes + the orchestrator's objection, so this round takes a NEW path.

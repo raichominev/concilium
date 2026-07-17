@@ -9,7 +9,8 @@
 #   concilium-review.sh claim "<claim text>"
 #   concilium-review.sh diff [base-branch]
 # Env: MODEL, EFFORT, MECHANICAL=1 (mechanical tier), REPO_DIR, PROJECT_RULES (file path),
-#      PRIOR_ROUNDS (file path — loop mode: prior probes + objection; reviewer takes a new path).
+#      PRIOR_ROUNDS (file path — loop mode: prior probes + objection; reviewer takes a new path),
+#      NO_AUTO_RULES=1 (skip auto-bridging CLAUDE.md when no AGENTS.md — codex reads AGENTS.md only).
 #
 # Defaults are models current at authoring time (2026-07) — check `codex debug models`.
 # Resume ONLY with the full re-pin:
@@ -38,6 +39,24 @@ if [ -n "${PROJECT_RULES:-}" ] && [ -f "$PROJECT_RULES" ]; then
 
 --- PROJECT GROUND RULES (binding) ---
 $(cat "$PROJECT_RULES")"
+elif [ -z "${NO_AUTO_RULES:-}" ]; then
+  # codex loads AGENTS.md natively (cwd upward); it does NOT see CLAUDE.md. Bridge that gap so the
+  # reviewer isn't blind to project rules Claude has. PROJECT_RULES (a curated extract) overrides.
+  if [ -f "$REPO_DIR/AGENTS.md" ]; then
+    printf '>> codex will load AGENTS.md natively from %s\n' "$REPO_DIR" >&2
+  elif [ -f "$REPO_DIR/.claude/CLAUDE.md" ]; then
+    CONTRACT="$CONTRACT
+
+--- PROJECT INSTRUCTIONS (.claude/CLAUDE.md — codex does not load this natively) ---
+$(cat "$REPO_DIR/.claude/CLAUDE.md")"
+    printf '>> injected .claude/CLAUDE.md (no AGENTS.md present)\n' >&2
+  elif [ -f "$REPO_DIR/CLAUDE.md" ]; then
+    CONTRACT="$CONTRACT
+
+--- PROJECT INSTRUCTIONS (CLAUDE.md — codex does not load this natively) ---
+$(cat "$REPO_DIR/CLAUDE.md")"
+    printf '>> injected CLAUDE.md (no AGENTS.md present)\n' >&2
+  fi
 fi
 
 # Loop mode: prior rounds' probes + the orchestrator's objection, so this round takes a NEW path.

@@ -52,3 +52,17 @@ When unsure which model gets a tier (e.g. new mid-tier vs old flagship):
 `scripts/concilium-review.ps1` / `.sh` default to models current at authoring time. Check the
 tier table in SKILL.md against `codex debug models` on first use and override via
 `-Model`/`MODEL` or edit the defaults for your installation.
+
+## Networking & architecture — no inbound port
+
+The wrappers invoke `codex exec` / `codex review`, which talk to the model over **stdio** (the
+prompt is piped to stdin, the result read from stdout) — a plain subprocess. Verified: a review
+run opens **no listening TCP port** of its own; nothing inbound is exposed by using this skill.
+
+codex *does* ship networked/daemon modes for its interactive and integration architecture —
+`app-server`, `exec-server`, `--remote <ws://IP:PORT>`, and `mcp-server`. If you have ever seen
+codex "on a port", that's one of these (typically the interactive app-server daemon), bound to
+**loopback (127.0.0.1)** and gated behind auth for any non-loopback listener. **This skill uses
+none of them** — only `codex exec`/`review` over stdio. So you can install and run it without
+opening a firewall or exposing a service; the only outbound traffic is codex's normal,
+authenticated call to the model provider.

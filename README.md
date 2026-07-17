@@ -76,6 +76,17 @@ recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
   (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
   cannot be turned into one; the CLI *is* the transport.
 
+Two things worth knowing up front:
+
+- **The reviewer reads `AGENTS.md`, not `CLAUDE.md`.** codex auto-loads `AGENTS.md`; if your
+  project only has a `CLAUDE.md`, the reviewer would miss your ground rules — so the wrappers
+  auto-bridge `CLAUDE.md` into the contract when no `AGENTS.md` is present (opt out with
+  `-NoAutoRules`; override with a curated `-ProjectRules` file; best practice is to keep an
+  `AGENTS.md`). See [`SKILL.md`](SKILL.md) → *Project adaptation*.
+- **No inbound port.** The skill uses `codex exec`/`review` over stdio — a review opens no
+  listening port. codex's *interactive* app-server may bind a loopback port, but this skill never
+  uses it. Details in [`references/setup.md`](references/setup.md).
+
 ## Install
 
 **Linux / macOS:**
