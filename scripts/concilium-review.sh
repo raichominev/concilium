@@ -8,7 +8,8 @@
 # Usage:
 #   concilium-review.sh claim "<claim text>"
 #   concilium-review.sh diff [base-branch]
-# Env: MODEL, EFFORT, MECHANICAL=1 (mechanical tier), REPO_DIR, PROJECT_RULES (file path).
+# Env: MODEL, EFFORT, MECHANICAL=1 (mechanical tier), REPO_DIR, PROJECT_RULES (file path),
+#      PRIOR_ROUNDS (file path — loop mode: prior probes + objection; reviewer takes a new path).
 #
 # Defaults are models current at authoring time (2026-07) — check `codex debug models`.
 # Resume ONLY with the full re-pin:
@@ -37,6 +38,14 @@ if [ -n "${PROJECT_RULES:-}" ] && [ -f "$PROJECT_RULES" ]; then
 
 --- PROJECT GROUND RULES (binding) ---
 $(cat "$PROJECT_RULES")"
+fi
+
+# Loop mode: prior rounds' probes + the orchestrator's objection, so this round takes a NEW path.
+if [ -n "${PRIOR_ROUNDS:-}" ] && [ -f "$PRIOR_ROUNDS" ]; then
+  CONTRACT="$CONTRACT
+
+--- PRIOR ROUNDS (do NOT repeat these probes; take a new evidence path; address the objection) ---
+$(cat "$PRIOR_ROUNDS")"
 fi
 
 # Provenance stamp: the model does not reliably know its own id, so the wrapper injects it.

@@ -11,6 +11,8 @@
 #   -Base <branch>         : with -Diff, review against a base branch instead
 #   -Mechanical            : mechanical tier — verify a known claim with one probe
 #   -ProjectRules <file>   : optional project ground-rules file appended to the contract
+#   -PriorRounds <file>    : loop mode — prior rounds' probes + the objection; reviewer must take
+#                            a NEW evidence path (see SKILL.md "The concilium loop")
 #
 # Defaults are models current at authoring time (2026-07) — check `codex debug models` and
 # override with -Model, or edit for your installation.
@@ -26,6 +28,7 @@ param(
   [string]$Base,
   [switch]$Mechanical,
   [string]$ProjectRules,
+  [string]$PriorRounds,
   [string]$Model  = "gpt-5.6-sol",
   [string]$Effort = "high",
   [string]$RepoDir = ""
@@ -54,6 +57,11 @@ $Contract = Get-Content -Raw -Encoding UTF8 $ContractPath
 
 if ($ProjectRules -and (Test-Path $ProjectRules)) {
   $Contract += "`n`n--- PROJECT GROUND RULES (binding) ---`n" + (Get-Content -Raw $ProjectRules)
+}
+
+# Loop mode: prior rounds' probes + the orchestrator's objection, so this round takes a NEW path.
+if ($PriorRounds -and (Test-Path $PriorRounds)) {
+  $Contract += "`n`n--- PRIOR ROUNDS (do NOT repeat these probes; take a new evidence path; address the objection) ---`n" + (Get-Content -Raw $PriorRounds)
 }
 
 if (-not $Diff -and [string]::IsNullOrWhiteSpace($Claim)) {

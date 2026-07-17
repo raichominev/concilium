@@ -31,14 +31,27 @@ you (in Claude Code, Fable orchestrating)
  ├─ 3. it returns five blocks:
  │        PROBE / ALT / CAVEAT / VERDICT-PROPOSAL / PHASE-LOG
  │
- └─ 4. the orchestrator RATIFIES: reads the actual probe (not just the
-          prose), treats extremal results (0%/100%) as tripwires, checks
-          scope and staleness, and assigns the final verdict itself.
+ ├─ 4. the orchestrator RATIFIES: reads the actual probe (not just the
+ │        prose), treats extremal results (0%/100%) as tripwires, checks
+ │        scope and staleness, and assigns the final verdict itself.
+ │
+ └─ 5. if the round is DISPUTED, loop: feed the probe + a specific
+          objection into a fresh round (a new evidence path required),
+          until it converges, goes dry, or hits the round cap.
 ```
 
 The reviewer **proposes**; the orchestrator **ratifies**. That split is the core of the method
 — it is what catches wrong-join-key "refutations", scope mismatches, and stale-vs-wrong
 conflations that either model alone would confidently ship.
+
+### The loop — deliberate until it converges
+
+One pass is often enough; a *concilium* is a council, so when a verdict is disputed it runs
+another round. Each round must bring a **new** evidence path (enforced on both sides), uses a
+**fresh session** (not a fragile resume chain), and the loop **terminates explicitly** —
+converged, dry (no new evidence → escalate), or a round cap. Full protocol in
+[`SKILL.md`](SKILL.md). It's orchestrated by the Claude session, not a shell script — the
+ratification step is judgment, not automation.
 
 ### Tiers — route work by weight
 

@@ -8,8 +8,8 @@ description: >-
   orchestrator checks the probe and RATIFIES. Use whenever the user wants a second opinion from
   a different model, a cross-model or concilium review, adversarial verification of a research
   claim, benchmark number, or diff, says "have GPT/codex check this", wants codex set up as a
-  reviewer, needs to switch codex models mid-session (park-and-resume), or is tiering work
-  across codex models.
+  reviewer, needs to switch codex models mid-session (park-and-resume), is tiering work across
+  codex models, or wants to LOOP/iterate review rounds until a disputed claim converges.
 ---
 
 # Concilium — cross-model adversarial review
@@ -91,6 +91,44 @@ Before relaying or acting:
 5. Assign the final verdict tag yourself: `[V-code]` (verified vs source, cite file:line) /
    `[V-db]` (read-only query, cite it) / `[V-probe]` (re-runnable script) / `[C]` (unverified) /
    `[X]` (refuted — name what supersedes it). The proposal is input, not the answer.
+
+## The concilium loop (iterative rounds)
+
+A single review pass is often enough. But when the reviewer's probe has a gap, or you (the
+orchestrator) disagree with the proposal on defensible grounds, one exchange isn't a *concilium*
+— a council deliberates. The loop runs review rounds until the verdict converges or the dispute
+is proven genuine. **This loop is orchestrated by you, the calling Claude session — it is a
+protocol, not a script** (the ratification step is your judgment; nothing can automate it).
+
+Each round:
+1. Run a review (the wrapper) → get the five blocks → **ratify** per the protocol above.
+2. Decide the round's outcome and act:
+
+| Outcome | Condition | Action |
+|---|---|---|
+| **Converged** | You verified the probe's load-bearing step and it holds | STOP — emit the final tag. |
+| **Dispute** | The probe has a gap, wrong scope, or you have a specific, *evidence-backed* objection | Write this round's PROBE + your objection to a rounds file; run the next round with `-PriorRounds`/`PRIOR_ROUNDS` pointing at it. |
+| **Dry** | A round adds no new checkable evidence — the reviewer re-asserts, or says (in CAVEAT) it has no new path | STOP — escalate to the owner as `[C]`/`[POLICY]` with the open question. This is the anti-oscillation guard. |
+| **Cap** | Round limit reached (default **3**) without converging | STOP — present the state and escalate; a real dispute is a finding, not a failure. |
+
+Design rules (they follow directly from the pitfalls):
+
+- **Fresh session per round — never a resume chain.** The loop is exactly the "long chain"
+  that pitfall #3 warns about; carry context forward via the `-PriorRounds` file, not
+  `codex exec resume`. Each round starts clean and sees only a compact summary of what was
+  already tried.
+- **Every round must add a NEW evidence path.** The contract (rule 8) enforces this on the
+  reviewer side; you enforce it on yours — an objection is only worth a round if it's backed by
+  evidence or points at a concrete, checkable gap. "I'm not convinced" is not a round.
+- **Ratifier stays fixed (you / Fable); the reviewer can drop tiers as the dispute narrows.**
+  Round 1 on the research tier; once it's down to a mechanical check, run later rounds
+  `-Mechanical`. Each round is a real 5–15 min codex call — the cap and the dry-stop are cost
+  controls, not just correctness ones.
+- **Keep the rounds file in durable project storage** (not a session temp dir), so the whole
+  deliberation is auditable and the final PHASE-LOG can cite it.
+
+Trigger it when the user asks to "loop", "iterate", "keep going until it's resolved", "have them
+hash it out", or when a first pass comes back disputed and the stakes justify another round.
 
 ## Project adaptation
 

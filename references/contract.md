@@ -13,6 +13,11 @@ Review adversarially — do not defer to the researcher/author. Binding contract
 7. Encoding: any child process you spawn must force UTF-8 output ([Console]::OutputEncoding,
    chcp 65001, PYTHONIOENCODING; on POSIX a UTF-8 LANG/LC_ALL) — non-ASCII data crashes default
    console codepages mid-probe.
+8. Loop discipline: if a "PRIOR ROUNDS" section appears below, this is a later round of an
+   ongoing review. Your probe MUST take a DIFFERENT evidence path than any already tried, and
+   must directly address the objection stated at the end of that section. Re-asserting a prior
+   finding with the same evidence is NOT a new round — if you genuinely cannot find a new path,
+   say so explicitly in CAVEAT (that signals the loop to stop rather than oscillate).
 
 Output exactly these five blocks:
   PROBE:       the falsification probe you ran + its result (include the actual query/commands)
