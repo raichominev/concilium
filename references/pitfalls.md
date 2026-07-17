@@ -1,74 +1,76 @@
-# Pitfalls — the measured failures behind each rule
+# Pitfalls — known issues and the rules that counter them
 
-Every rule in SKILL.md was paid for. All incidents below were observed and verified in one
-working day (2026-07-17) of building and calibrating this loop against a real research codebase;
-identifying details generalized.
+Each entry: the issue as you'll encounter it, then the rule. All of them were hit for real
+while building this loop; none are theoretical.
 
-## 1. Bare resume silently resets model AND sandbox
-A review session launched as `<flagship> -s read-only` timed out; it was resumed with
-`codex exec resume -c model_reasoning_effort=high <id>`. The resumed banner showed the user's
-config.toml defaults instead: a different model and `sandbox: workspace-write`. The "read-only
-reviewer" had write access for two turns (audit showed only reads happened — luck, not design).
-Worse: a verdict produced in those turns got attributed to the flagship model in notes.
-**Rules**: re-pin `-m`, `-c sandbox_mode=`, `-c model_reasoning_effort=` on every resume; stamp
-the model id into the output (the wrapper does this); flags before the positional session id.
+## 1. Bare `codex exec resume` resets model AND sandbox
+`resume` re-resolves model and sandbox from `~/.codex/config.toml`, silently discarding the
+`-m`/`-s` flags the session was originally launched with. A read-only flagship review can come
+back as a default-model session with `workspace-write` — and its output gets misattributed.
+**Rule**: resume only with the full re-pin, flags BEFORE the positional session id:
+`codex exec resume -m <model> -c sandbox_mode="read-only" -c model_reasoning_effort=<tier> <session-id> -`
+The wrappers stamp `model=`/`effort=` into every prompt so output is attributable regardless.
 
-## 2. `-c sandbox=read-only` is silently ignored
-The config key is `sandbox_mode`. `-c sandbox=read-only` parses fine, does nothing, and the
-banner keeps `workspace-write`. Silent-failure config keys are why the recipe is written out
-verbatim rather than remembered.
+## 2. `-c sandbox=...` is silently ignored on resume
+The config key is `sandbox_mode`. `-c sandbox=read-only` parses, does nothing, and leaves you
+in `workspace-write`. There is no `-s` flag on resume at all. Verify the banner
+(`sandbox: read-only`) rather than trusting the flag you passed.
 
-## 3. Context compaction corrupts long resume chains
-A session resumed three times (timeout → flag fix → table-name fix) hit a `compacted` event.
-Its early full-text reads of the project docs and schema were lossy-summarized by the time it
-wrote its final query — which contained the session's one serious bug (wrong join column).
-**Rule**: fresh session per consequential review; if resuming, re-state critical facts (schema
-semantics, invariants) in the resume prompt.
+## 3. Long resume chains hit context compaction
+A session resumed several times can compact its context: the careful early reads (docs, schema,
+invariants) get lossy-summarized before the final — usually most consequential — step. That's
+when subtle bugs appear (e.g. a wrong join column in the closing query).
+**Rule**: fresh session per consequential review. If you must resume, re-state the critical
+facts in the resume prompt instead of trusting they survived.
 
-## 4. Confident wrong verdicts — ratification exists for a reason
-Three incidents in one day, all with sound raw computation underneath:
-- A probe joined two same-named id columns from different namespaces → clean-looking
-  **0/40 → "[X] refuted"** that was 100% artifact. (The correct column existed on the same
-  table; checking the model docstring + sampling values would have caught it.)
-- A count mismatch (771 vs a claimed 538) was labeled "refuted" when the claim was actually
-  *incomplete at write time* — a different failure with different consequences.
-- A fallback proxy measurement was presented in the final blocks with flagship confidence, its
-  "this is not the claim's actual protocol" hedge visible only in the reasoning trace.
-**Rules**: the reviewer proposes, the caller ratifies; extremal first-attempt results (0%/100%)
-mean *read the probe*; the CAVEAT block is mandatory so hedges survive into the final output.
+## 4. Confident wrong verdicts on top of sound computation
+The reviewer's arithmetic and SQL execution are reliable; its *verdict framing* is the weak
+layer. Observed variants: a perfect-looking probe built on a wrong join key (two same-named
+columns from different ID namespaces) yielding a clean 0% → "refuted"; a fallback/proxy
+measurement presented with the confidence of the real protocol, its hedge visible only in the
+reasoning trace.
+**Rules**: the reviewer proposes, the caller ratifies by reading the actual probe; a 0% or 100%
+first-attempt result is a tripwire, not a discovery; the CAVEAT block is mandatory so hedges
+survive into the final output.
 
-## 5. Two probes can both be right — scope before comparing
-Two models "disagreed" (0 overlap vs 3,547 overlapping ids). Ratification queries confirmed BOTH
-exactly: one measured a single source's rows, the other the whole DB. The apparent contradiction
-was a scope mismatch — and resolving it exposed an overgeneralized sentence in the human-side
-notes. **Rule**: name the scope of every count before treating two numbers as comparable.
+## 5. Two probes can both be right — at different scopes
+Apparent contradictions between two reviews (or a review and your own notes) are often scope
+mismatches: one measured a single source/table, the other the whole dataset. Both numbers can
+ratify exactly.
+**Rule**: name the scope of every count before comparing; resolve "disagreements" with a
+deciding query, not by picking the more confident answer.
 
 ## 6. Refuted ≠ stale ≠ incomplete
-A claim's numbers not matching today's DB has three different explanations: the claim was wrong
-when written; the data drifted after; or the claim's scope was narrower than the checker assumed.
-History tables/timestamps usually decide it — check before writing "[X]". (Measured case: a
-"refuted" count was two-thirds under-count-at-write and one-third post-write drift.)
+"Today's numbers don't match the claim" has at least three explanations: the claim was wrong
+when written, the data drifted afterwards, or the claim's scope was narrower than the checker
+assumed. They have different consequences.
+**Rule**: check history/timestamps before accepting an `[X]`; make the reviewer (and yourself)
+say *which kind* of wrong it is.
 
-## 7. Reviews run long; foreground timeouts kill them mid-probe
-A charter-compliant review (read rules → read target → grep code → form + run a real probe) took
-5–15+ min at high effort. An 8-min foreground cap killed one mid-probe; its OS-level child work
-died with the sandbox and nothing was salvageable. **Rules**: background from the first call,
-full timeout; genuinely long replays (10+ min compute) belong in a detached OS process the
-calling session monitors, not inside the reviewer.
+## 7. Real reviews run long
+A contract-compliant review (read rules → read target → explore code → form and run a probe)
+takes 5–15+ minutes at high effort. A foreground call with a shorter timeout dies mid-probe,
+and any OS-level work it spawned dies with the sandbox — unrecoverable.
+**Rule**: run in background with a generous timeout from the FIRST call. Genuinely long compute
+(10+ min replays) belongs in a detached OS process the calling session monitors, not inside the
+reviewer.
 
-## 8. Encoding: non-ASCII crashes default console pipes
-Reviewer-spawned psql/PowerShell children crashed twice (`UnicodeEncodeError`, cp1251 codepage)
-on Private-Use-Area and non-Latin glyphs in query output. **Rule**: force UTF-8 in any spawned
-child (`[Console]::OutputEncoding`, `chcp 65001`, `PYTHONIOENCODING=utf-8`, or write query
-output to a UTF-8 file instead of the console; on POSIX ensure a UTF-8 LANG/LC_ALL locale).
+## 8. Encoding crashes in spawned children
+Child processes (psql, PowerShell) inherit the console's default codepage; non-ASCII output
+(non-Latin scripts, Private-Use-Area glyphs) raises hard encoding errors mid-probe.
+**Rule**: force UTF-8 in every spawned child — `chcp 65001` / `[Console]::OutputEncoding` /
+`PYTHONIOENCODING=utf-8` on Windows, a UTF-8 `LANG`/`LC_ALL` on POSIX — or write output to a
+UTF-8 file instead of the console. (Contract rule 7 tells the reviewer the same.)
 
-## 9. The reviewer is a full agent
-Read-only sandbox blocks *file writes* — not shell reads, not DB SELECTs (it will happily use
-credentials it finds in project docs), not network. Know what a probe can reach before pointing
-it at a repo, and remember everything it reads is sent to the second model's provider.
+## 9. The reviewer is a full agent, not a chatbot
+`-s read-only` blocks file writes — not shell reads, not DB SELECTs, not network. It will read
+whatever the repo exposes (including credentials in docs) and use them for read queries, and
+everything it reads is sent to the second model's provider.
+**Rule**: know what a probe can reach before pointing it at a repo; treat repo contents as
+shared with the provider.
 
-## 10. Subscriptions are not API keys
-A ChatGPT/Codex subscription authenticates the codex CLI via OAuth. It cannot authenticate a
+## 10. A subscription is not an API key
+ChatGPT/Codex subscription auth is OAuth for the codex CLI only. It cannot authenticate a
 proxy/router against the provider's API, and replaying the OAuth token outside the sanctioned
-client is fragile and against ToS. If the user has a subscription, the CLI *is* the transport;
-don't build bridges.
+client is fragile and against ToS.
+**Rule**: if auth is a subscription, the CLI *is* the transport. Don't build bridges.

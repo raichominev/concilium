@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # concilium-review.sh — adversarial cross-model review via the OpenAI codex CLI
-# (ChatGPT-subscription auth; no API key). Generic — see SKILL.md + references/pitfalls.md.
+# (ChatGPT-subscription auth; no API key). See SKILL.md + references/pitfalls.md.
+#
+# The review contract lives in references/contract.md (single source of truth shared with the
+# PowerShell wrapper) — edit it there, not here.
 #
 # Usage:
 #   concilium-review.sh claim "<claim text>"
@@ -22,30 +25,12 @@ else
 fi
 REPO_DIR="${REPO_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 
-read -r -d '' CONTRACT <<'EOF' || true
-You are the cross-model REVIEWER: an independent second opinion from a different model lineage.
-Review adversarially — do not defer to the researcher/author. Binding contract:
-1. Never build on a load-bearing unverified claim without verifying it first.
-2. Run >=1 falsification probe. Review-by-reading is NOT review.
-3. Attempt >=1 alternative causal explanation of the headline claim.
-4. Prefer independent re-derivation (your own check, a different evidence path).
-5. Credit refutations, not confirmations; claims travel WITH their evidence.
-6. Schema caution: similar or identical column names across (or within) tables are NOT
-   guaranteed to share an ID space or semantics. Check docstrings AND sample real values on
-   both sides before joining. State the SCOPE of every count.
-7. Encoding: force UTF-8 output in any child process you spawn (chcp 65001,
-   [Console]::OutputEncoding, PYTHONIOENCODING; on POSIX a UTF-8 LANG/LC_ALL) — non-ASCII crashes default console codepages.
-
-Output exactly these five blocks:
-  PROBE:     the falsification probe you ran + its result (include the actual query/commands)
-  ALT:       one alternative causal explanation you considered
-  CAVEAT:    what this probe did NOT verify (coverage, proxy/fallback methodology, scope,
-             protocol drift); "none" ONLY if the probe exercised the claim's literal protocol.
-  VERDICT-PROPOSAL: one tag — [V-code] (file:line) / [V-db] (query) / [V-probe] (the probe) /
-             [C] (unverified) / [X] (refuted; name what supersedes it) — plus one sentence.
-             A PROPOSAL only: the receiving session/owner assigns the final tag.
-  PHASE-LOG: one ledger-ready line: "Phase N — reviewer(<model-id>) — <date> — <found> [proposed]"
-EOF
+CONTRACT_PATH="$(cd "$(dirname "$0")" && pwd)/../references/contract.md"
+if [ ! -f "$CONTRACT_PATH" ]; then
+  echo "Contract file not found: $CONTRACT_PATH" >&2
+  exit 3
+fi
+CONTRACT="$(cat "$CONTRACT_PATH")"
 
 if [ -n "${PROJECT_RULES:-}" ] && [ -f "$PROJECT_RULES" ]; then
   CONTRACT="$CONTRACT

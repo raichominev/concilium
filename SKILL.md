@@ -1,15 +1,15 @@
 ---
 name: concilium
 description: >-
-  Run an adversarial cross-model review loop (a "concilium"): a second AI model — GPT via the
-  OpenAI codex CLI on ChatGPT-subscription auth, no API key needed — independently probes a claim,
-  diff, or result with falsification attempts and proposes a verdict, which the calling session
-  then checks and ratifies. Use this whenever the user wants a second opinion from a different
-  model, cross-model or concilium review, adversarial verification of a research claim, benchmark
-  number, or experimental result, says "have GPT/codex check this", wants codex set up as a
-  reviewer, or when a single-model conclusion is load-bearing and needs independent falsification
-  before being trusted. Also covers switching codex models mid-session (park-and-resume) and
-  choosing which codex model handles which tier of work.
+  Adversarial cross-model review for hard, load-bearing tasks — combining frontier models: the
+  Claude session (Fable as the intended orchestrator) hands a claim, diff, or result to an
+  OpenAI model (gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
+  auth, no API key), which probes it with falsification attempts and PROPOSES a verdict; the
+  orchestrator checks the probe and RATIFIES. Use whenever the user wants a second opinion from
+  a different model, a cross-model or concilium review, adversarial verification of a research
+  claim, benchmark number, or diff, says "have GPT/codex check this", wants codex set up as a
+  reviewer, needs to switch codex models mid-session (park-and-resume), or is tiering work
+  across codex models.
 ---
 
 # Concilium — cross-model adversarial review
@@ -17,6 +17,9 @@ description: >-
 A second, *different* model reviews your (or the user's) claims adversarially. Different model
 lineage means different blind spots — that's the value. The reviewer PROPOSES; the calling
 session RATIFIES. Never let either side's confidence substitute for evidence.
+
+Designed to be orchestrated from Claude Code — Fable is the intended ratification seat; the
+GPT side (sol/terra/5.5 via codex) does the independent probing and mechanical execution.
 
 ## Prerequisites (check once per environment)
 
@@ -41,9 +44,10 @@ Runner tasks are NOT reviews — skip the wrapper and call codex directly:
 
 ## Running a review
 
-Use the bundled wrappers (they carry the review contract — falsification probe, alternative
-explanation, caveat, verdict-proposal — plus provenance stamping and the schema/encoding rules).
-Both wrappers are functionally identical; pick by platform:
+Use the bundled wrappers. They load the shared review contract from
+`references/contract.md` (single source of truth — falsification probe, alternative explanation,
+caveat, verdict-proposal, schema/encoding rules; **edit the contract there**, never in the
+scripts) and add provenance stamping. Both wrappers are functionally identical; pick by platform:
 
 **Linux / macOS (bash):**
 - Claim: `scripts/concilium-review.sh claim "<claim>"`
@@ -102,7 +106,9 @@ Before relaying or acting:
 
 ## References
 
-- `references/pitfalls.md` — the war stories behind every rule above (read when a rule seems
-  overcautious, or when debugging reviewer misbehavior).
+- `references/contract.md` — the review contract the wrappers send (edit it there; both scripts
+  load it at runtime).
+- `references/pitfalls.md` — known issues and the rules that counter them (read when a rule
+  seems overcautious, or when debugging reviewer misbehavior).
 - `references/setup.md` — first-time setup, calibration bootstrap, and the head-to-head method
   for picking tier models.

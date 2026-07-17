@@ -1,43 +1,67 @@
 # Concilium
 
-> Cross-model adversarial review for Claude Code: a second AI model — GPT via the OpenAI
-> `codex` CLI on ChatGPT-subscription auth, **no API key** — independently probes your claims
-> with falsification attempts and *proposes* a verdict; the calling Claude session checks the
-> probe and *ratifies* it. Different model lineage, different blind spots.
+**Cross-model adversarial review for hard tasks — combining the power of frontier models.**
 
-## ⚠️ Status: experimental
+Concilium is a [Claude Code](https://claude.com/claude-code) skill that puts two frontier-model
+lineages on the same problem: **Claude (Fable)** orchestrates the work, and OpenAI's
+**gpt-5.6-sol**, **gpt-5.6-terra**, and **gpt-5.5** serve as independent reviewers and executors
+— reached through the official `codex` CLI on a plain **ChatGPT subscription, no API key**.
 
-This skill was extracted from a working research project's cross-model review loop (its
-"concilium") after one intense day of building, breaking, and calibrating it against a real
-codebase. Every operational rule in it maps to a **measured failure** (see
-[`references/pitfalls.md`](references/pitfalls.md) — resume silently resetting model *and*
-sandbox, confident wrong verdicts on perfect-looking probes, context compaction corrupting long
-sessions, and more). But it is young, opinionated, and shaped by one environment.
+It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
+research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust.
+Different lineage means different blind spots — and the process below is built so that neither
+side's confidence ever substitutes for evidence.
 
-**Feedback is warmly welcome** — issues, PRs, war stories of your own, or just "this rule made
-no sense on my setup." That's the point of publishing it.
+> **Note**: experimental — extracted from a working research-project loop, where every rule was
+> earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own.
 
-## What's in the method
+## The process
 
-- **Five-block review contract**: `PROBE / ALT / CAVEAT / VERDICT-PROPOSAL / PHASE-LOG` —
-  falsification probe required, alternative explanation required, hedges forced into the output
-  (they don't survive terse formats otherwise).
-- **Ratification protocol**: the reviewer proposes, the caller verifies the actual probe and
-  assigns the final verdict. Extremal first-attempt results (0%/100%) are treated as tripwires,
-  not discoveries.
-- **Tier matrix**: research / mechanical / runner tiers pairing model choice with reasoning
-  effort, so quota goes where judgment is needed.
-- **Park-and-switch**: resume a parked codex session under a *different* model with context
-  intact — with the full re-pin recipe, because bare resume silently resets everything.
-- **Calibration bootstrap**: known-truth tests to run before trusting verdicts in a new
-  environment, and a head-to-head method for picking tier models.
+```
+you (in Claude Code, Fable orchestrating)
+ │
+ ├─ 1. hand a claim or diff to the reviewer wrapper
+ │        scripts/concilium-review.{sh,ps1}
+ │
+ ├─ 2. a GPT-side model reviews it ADVERSARIALLY under a binding contract
+ │        (references/contract.md): ≥1 falsification probe, ≥1 alternative
+ │        explanation, forced caveats. It is a full agent — it reads the
+ │        repo and runs read-only commands/queries itself.
+ │
+ ├─ 3. it returns five blocks:
+ │        PROBE / ALT / CAVEAT / VERDICT-PROPOSAL / PHASE-LOG
+ │
+ └─ 4. the orchestrator RATIFIES: reads the actual probe (not just the
+          prose), treats extremal results (0%/100%) as tripwires, checks
+          scope and staleness, and assigns the final verdict itself.
+```
+
+The reviewer **proposes**; the orchestrator **ratifies**. That split is the core of the method
+— it is what catches wrong-join-key "refutations", scope mismatches, and stale-vs-wrong
+conflations that either model alone would confidently ship.
+
+### Tiers — route work by weight
+
+| Tier | Model | Effort | For |
+|---|---|---|---|
+| Research | `gpt-5.6-sol` | high | open review rounds, adversarial verification |
+| Mechanical | `gpt-5.5` | medium | verifying a known claim with one probe |
+| Runner | `gpt-5.6-terra` | low | execute-and-report: run a script, babysit an import |
+
+### Park-and-switch
+
+A codex session can be parked and resumed under a *different* model with its context intact —
+research on sol, mechanical follow-ups on a cheaper tier, one conversation. The full re-pin
+recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
 
 ## Requirements
 
-- [Claude Code](https://claude.com/claude-code) (any platform).
-- The [OpenAI codex CLI](https://github.com/openai/codex) installed and logged in via a ChatGPT
-  subscription (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key is used —
-  and a subscription cannot be turned into one; the CLI *is* the transport.
+- [Claude Code](https://claude.com/claude-code) — this skill is meant to be run from Claude
+  Code with **Fable as the orchestrator** (any Claude model can drive it; Fable is the intended
+  review/ratification seat).
+- The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
+  (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
+  cannot be turned into one; the CLI *is* the transport.
 
 ## Install
 
@@ -52,23 +76,18 @@ chmod +x ~/.claude/skills/concilium/scripts/concilium-review.sh
 git clone https://github.com/raichominev/concilium.git "$env:USERPROFILE\.claude\skills\concilium"
 ```
 
-Then in any Claude Code session: ask for a cross-model review / second opinion, or invoke
-`/concilium` directly. First time in a new environment, let it run the calibration bootstrap
-(see [`references/setup.md`](references/setup.md)).
+Then, in any Claude Code session: ask for a cross-model review / second opinion, or invoke
+`/concilium`. First time in a new environment, let it run the calibration bootstrap
+([`references/setup.md`](references/setup.md)) before trusting verdicts.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `SKILL.md` | The method — tiers, invocation, ratification, resume recipe |
+| `references/contract.md` | The review contract (single source of truth — edit here) |
 | `scripts/concilium-review.sh` | Reviewer wrapper, Linux/macOS (bash) |
 | `scripts/concilium-review.ps1` | Reviewer wrapper, Windows (PowerShell 5.1+) |
-| `references/pitfalls.md` | The measured failures behind every rule |
+| `references/pitfalls.md` | Known issues and the rules that counter them |
 | `references/setup.md` | First-time setup, calibration, model head-to-head method |
 | `evals/evals.json` | Draft test prompts for skill evaluation |
-
-## Provenance
-
-Distilled 2026-07-17 from a live research-codebase concilium (cross-model research/review
-framework: two models alternating as researcher and reviewer, human owner as arbiter). Project
-specifics stripped; the battle scars kept.
