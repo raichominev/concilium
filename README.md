@@ -91,3 +91,8 @@ Then, in any Claude Code session: ask for a cross-model review / second opinion,
 | `references/pitfalls.md` | Known issues and the rules that counter them |
 | `references/setup.md` | First-time setup, calibration, model head-to-head method |
 | `evals/evals.json` | Draft test prompts for skill evaluation |
+
+## License
+
+[Apache License 2.0](LICENSE) © 2026 Raicho Minev. Contributions are accepted under the same
+license (Apache-2.0 §5 — inbound=outbound), so a PR needs no separate CLA.
