@@ -91,8 +91,9 @@ client is fragile and against ToS.
 ## 12. "Stable" occurrence keys on rebuilt tables aren't
 A witness key built on a table's auto-id is worthless if any pipeline step does
 delete-and-reinsert — the ids silently renumber on the next rebuild, and every registered
-witness dangles (hit for real 2026-07-24: a gold sidecar rebuilt via `.delete()` +
-`bulk_create`; a ratifier-verified witness id would not have survived the next refresh).
+witness dangles (hit for real 2026-07-24: an evaluation sidecar table rebuilt by
+delete-and-bulk-reinsert — a witness id verified that same day would not have survived the
+next refresh).
 **Rule**: before accepting any probe or artifact keyed on row ids, check the id column's
 lifecycle (who deletes/reinserts?). Durable witnesses = fixture-scoped CONTENT keys plus an
 immutable snapshot of the rows, registered as an artifact.
@@ -108,8 +109,9 @@ oracle and burn one slice per round.
 ## 14. A count derived by subtraction is not an inventory
 "Remainder" numbers (total minus the handled subset) get presented as if they name real,
 homogeneous items — and reviews then build plans on them (hit for real 2026-07-24: a claimed
-"~30k lexical reserve" was `68,046 − 38,115`; actual verified members were 21,379, of which
-only 15,720 matched the claimed shape).
+"reserve" of tens of thousands turned out to be pure subtraction of the handled subset from a
+total; enumeration found roughly two-thirds of it existed at all, and only about half of those
+matched the claimed shape).
 **Rule**: any load-bearing count must be enumerable — the claimer (either side) shows the
 query/filter that lists its members, not the arithmetic that implies them.
 
@@ -118,8 +120,8 @@ Two encoding traps beyond rule 8's crash class, both silent: `grep -i` under a C
 NOT case-fold non-Latin scripts (a lowercase Cyrillic pattern misses its uppercase form and
 returns clean-looking "no matches"), and non-ASCII literals typed into a Windows console query
 arrive in the console codepage, not UTF-8 (either an encoding error — the lucky case — or a
-wrong-bytes search). Both hit for real 2026-07-24 while ratifying a Cyrillic-concentration
-claim.
+wrong-bytes search). Both hit for real 2026-07-24 while ratifying a claim over
+Cyrillic-script data.
 **Rule**: for non-Latin probes, write patterns with explicit case alternatives (or use tools
 with true Unicode folding), and pass non-ASCII SQL via a UTF-8 file (`psql -f`) or explicit
 byte escapes — never inline on the console. A "no matches" on non-Latin data needs one

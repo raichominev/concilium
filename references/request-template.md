@@ -13,10 +13,11 @@ topic, it may not finish before context compaction). Front-loading your **diagno
 settled fact** is the hazard: the reviewer may reason inside your box, and if the "fact" is wrong, the
 whole review inherits the error.
 
-Measured failure (2026-07-20): a request asserted "all 3,331 verb entries have zero Ae forms" under a
-heading "cite, do not re-derive." It was wrong (wrong table). The reviewer caught it ONLY because the
-contract's falsification probe beat the "do not re-derive" instruction — luck, not design. Never write
-"do not re-derive" over a load-bearing conclusion.
+Measured failure (2026-07-20): a request asserted a table-wide zero ("all N entries have zero
+X forms") as settled fact under a heading "cite, do not re-derive." It was wrong — wrong table.
+The reviewer caught it ONLY because the contract's falsification probe beat the "do not
+re-derive" instruction — luck, not design. Never write "do not re-derive" over a load-bearing
+conclusion.
 
 ## Tag every input by confidence
 

@@ -15,6 +15,11 @@ side's confidence ever substitutes for evidence.
 > **Note**: experimental — extracted from a working research-project loop, where every rule was
 > earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own.
 
+> **Maintenance rule** (for this repo's docs and examples): war stories stay, project specifics
+> go. Examples must be self-contained and judgeable from the text alone — no figures, table
+> names, or artifacts that can only be verified inside the origin project's private repo. The
+> origin project keeps the full-detail originals in its own docs and syncs the generic form here.
+
 ## v1.1 (2026-07-24)
 
 Lessons from a 5-round field deliberation (a methods-transfer review + two parallel design
