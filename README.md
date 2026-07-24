@@ -15,6 +15,27 @@ side's confidence ever substitutes for evidence.
 > **Note**: experimental — extracted from a working research-project loop, where every rule was
 > earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own.
 
+## v1.1 (2026-07-24)
+
+Lessons from a 5-round field deliberation (a methods-transfer review + two parallel design
+reviews, all ratified):
+
+- **Blind-first two-pass, validated in practice** (`references/request-template.md`): the blind
+  round independently converged on the researcher's top transfers AND contributed two candidates
+  the researcher missed — genuine independence, measured. Default to it for framing-critical
+  rounds.
+- **Ratify by verifying one load-bearing citation per round**: every round's decisive claim
+  (a witness row, a delete-and-reinsert code path, an extremal concentration) was checkable in
+  under a minute — and checking it is what makes the verdict yours, not the reviewer's.
+- **Parallel reviews work**: two concurrent read-only reviewer sessions on sibling claims, no
+  interference.
+- **New pitfalls 12–15** (`references/pitfalls.md`): rebuilt-table id instability; iterated
+  gating turning an oracle into training signal; derived-by-subtraction counts; non-Latin
+  case-folding/console-literal traps.
+- Also landed: the request-construction guide (`references/request-template.md`) — front-load
+  facts not conclusions, confidence-tag every input, never write "do not re-derive" over a
+  load-bearing conclusion.
+
 ## The process
 
 ```

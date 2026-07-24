@@ -40,7 +40,10 @@ GPT side (sol/terra/5.5 via codex) does the independent probing and mechanical e
 | Runner | cheap tier (e.g. `gpt-5.6-terra`) | low | execute-and-report: run a script, babysit an import |
 
 Runner tasks are NOT reviews — skip the wrapper and call codex directly:
-`codex exec -m <cheap-model> -c model_reasoning_effort=low [-s read-only unless it writes] "<task>"`
+`codex exec -m <cheap-model> -c model_reasoning_effort=low [-s read-only unless it writes] "<task>" < /dev/null`
+**Always close stdin on direct non-interactive calls** (bash `< /dev/null`; PowerShell `$null | codex …`) —
+an open non-TTY stdin blocks codex forever on "Reading additional input from stdin...", and the orphaned
+process survives the parent shell's timeout (pitfall #10; the wrappers are immune — they pipe via stdin).
 
 ## Running a review
 
@@ -169,6 +172,10 @@ If you keep both files but let them drift, the reviewer sees the `AGENTS.md` ver
 
 ## References
 
+- `references/request-template.md` — how to construct the REQUEST you hand in (your side, not the
+  reviewer's): confidence-tag facts (never "do not re-derive" over a conclusion), always mount the
+  repo/DB, license rejecting the frame, and run a blind-first pass for framing-critical rounds. Read
+  before writing any non-trivial request.
 - `references/contract.md` — the review contract the wrappers send (edit it there; both scripts
   load it at runtime).
 - `references/pitfalls.md` — known issues and the rules that counter them (read when a rule
