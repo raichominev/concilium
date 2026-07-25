@@ -19,25 +19,15 @@ side's confidence ever substitutes for evidence.
 
 ## v1.2 (2026-07-25)
 
-Opus 5 joins Fable 5 as a first-class orchestrator seat — decided by a measured chair benchmark,
-not by model cards:
-
-- **Orchestrator seats: Opus 5 or Fable 5** (throughout README + SKILL). On a 39-item blind
-  outcome-prediction benchmark built from the origin project's own experiment ledger and run
-  clean-context, Opus 5 scored at parity-or-above with Fable in every scoring view; both sat far
-  above the mid-tier floor chair. The do-it-yourself recipe is in
-  [`references/setup.md`](references/setup.md) → chair benchmarking.
-- **Same-family agreement discounts** (SKILL → ratification rule 6): same-lineage chairs
-  measurably share wrong answers — in one case producing the identical wrong inference
-  independently. Cross-family confirmation or refutation outweighs any count of same-lineage
-  votes.
-- **Blindness is structural, not instructable** (pitfalls #16): chairs carrying project context
-  absorbed leaked answers despite an explicit don't-rely contract and honest self-flagging of
-  the leaks. Rounds that must be unprimed run in clean context, always.
-- **Always-loaded notes are a staleness poisoning vector** (pitfalls #17): one superseded
-  summary line misled every chair that carried it; the clean-context chair was immune.
-- Maintenance rule moved off the front page to its [own section](#maintenance-rule-docs--examples)
-  (still binding — pitfalls and examples PRs included).
+- **Opus 5 joins Fable 5 as an orchestrator seat.** Both are first-class ratification
+  seats throughout the skill — measured, not assumed: a blind chair benchmark against the
+  origin project's own workload put Opus 5 at parity with Fable 5. Reusable method:
+  [`references/setup.md`](references/setup.md).
+- **Lineage-aware ratification.** Same-family agreement counts for less; cross-family
+  evidence settles disputes — SKILL.md, ratification rule 6.
+- **Blind rounds are structurally isolated.** Instructing an in-context model to ignore
+  what it knows measurably fails — pitfalls #16–17
+  ([`references/pitfalls.md`](references/pitfalls.md)).
 
 ## v1.1 (2026-07-24)
 
@@ -167,7 +157,9 @@ War stories stay, project specifics go. Every example in this repo must be self-
 judgeable from the text alone — no figures, table names, or artifacts that can only be verified
 inside the origin project's private repo. The origin project keeps the full-detail originals in
 its own docs and syncs the generic form here. Contributor PRs adding examples are bound by the
-same rule — genericize your war story the same way.
+same rule — genericize your war story the same way. Release notes follow the same spirit:
+summarized and reader-relevant; details live in SKILL.md and references — the README points,
+it doesn't instruct.
 
 ## License
 
