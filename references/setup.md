@@ -47,6 +47,24 @@ When unsure which model gets a tier (e.g. new mid-tier vs old flagship):
    verdict framing, cost. 3 tasks detects gross differences only — say so in the writeup, and
    don't dress a tie up as a winner. Ties break toward cheaper/newer.
 
+## Benchmarking orchestrator / panel chairs on your project
+
+The head-to-head above picks GPT-side tier models; the same philosophy scales to choosing the
+orchestrator seat — or a whole panel — with your own project as the benchmark:
+
+1. Harvest your experiment log: every measured change with a recorded outcome becomes one item.
+   Rewrite each as its pre-registration (change, fixture, metric, gate), outcome stripped;
+   chairs predict WIN / NEUTRAL / FAIL + confidence, strict JSON.
+2. Run every candidate chair CLEAN-CONTEXT (pitfall #16 — structural isolation, headless, tools
+   off) on the identical packet. One run per chair minimum; two catches run instability.
+3. Score accuracy against recorded outcomes — but also PAIRWISE ERROR OVERLAP: two chairs that
+   miss the same items add less than their solo accuracies suggest. Seat by PANEL COVERAGE
+   (which pair/trio leaves fewest items missed by all), not by solo rank.
+4. Expect same-lineage chairs to correlate (pitfall #16's paired rerun also exposed a shared
+   wrong inference produced independently); the cross-lineage seat usually rescues items the
+   family jointly misses. That measured panel math — not model cards — is what seated Opus 5
+   as the second orchestrator in v1.2.
+
 ## Wrapper defaults
 
 `scripts/concilium-review.ps1` / `.sh` default to models current at authoring time. Check the

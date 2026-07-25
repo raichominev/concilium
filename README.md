@@ -3,9 +3,10 @@
 **Cross-model adversarial review for hard tasks — combining the power of frontier models.**
 
 Concilium is a [Claude Code](https://claude.com/claude-code) skill that puts two frontier-model
-lineages on the same problem: **Claude (Fable)** orchestrates the work, and OpenAI's
-**gpt-5.6-sol**, **gpt-5.6-terra**, and **gpt-5.5** serve as independent reviewers and executors
-— reached through the official `codex` CLI on a plain **ChatGPT subscription, no API key**.
+lineages on the same problem: a frontier **Claude** model — **Opus 5 or Fable 5** — orchestrates
+the work, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra**, and **gpt-5.5** serve as independent
+reviewers and executors — reached through the official `codex` CLI on a plain **ChatGPT
+subscription, no API key**.
 
 It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
 research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust.
@@ -13,12 +14,30 @@ Different lineage means different blind spots — and the process below is built
 side's confidence ever substitutes for evidence.
 
 > **Note**: experimental — extracted from a working research-project loop, where every rule was
-> earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own.
+> earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own
+> (see the [maintenance rule](#maintenance-rule-docs--examples) before adding examples).
 
-> **Maintenance rule** (for this repo's docs and examples): war stories stay, project specifics
-> go. Examples must be self-contained and judgeable from the text alone — no figures, table
-> names, or artifacts that can only be verified inside the origin project's private repo. The
-> origin project keeps the full-detail originals in its own docs and syncs the generic form here.
+## v1.2 (2026-07-25)
+
+Opus 5 joins Fable 5 as a first-class orchestrator seat — decided by a measured chair benchmark,
+not by model cards:
+
+- **Orchestrator seats: Opus 5 or Fable 5** (throughout README + SKILL). On a 39-item blind
+  outcome-prediction benchmark built from the origin project's own experiment ledger and run
+  clean-context, Opus 5 scored at parity-or-above with Fable in every scoring view; both sat far
+  above the mid-tier floor chair. The do-it-yourself recipe is in
+  [`references/setup.md`](references/setup.md) → chair benchmarking.
+- **Same-family agreement discounts** (SKILL → ratification rule 6): same-lineage chairs
+  measurably share wrong answers — in one case producing the identical wrong inference
+  independently. Cross-family confirmation or refutation outweighs any count of same-lineage
+  votes.
+- **Blindness is structural, not instructable** (pitfalls #16): chairs carrying project context
+  absorbed leaked answers despite an explicit don't-rely contract and honest self-flagging of
+  the leaks. Rounds that must be unprimed run in clean context, always.
+- **Always-loaded notes are a staleness poisoning vector** (pitfalls #17): one superseded
+  summary line misled every chair that carried it; the clean-context chair was immune.
+- Maintenance rule moved off the front page to its [own section](#maintenance-rule-docs--examples)
+  (still binding — pitfalls and examples PRs included).
 
 ## v1.1 (2026-07-24)
 
@@ -44,7 +63,7 @@ reviews, all ratified):
 ## The process
 
 ```
-you (in Claude Code, Fable orchestrating)
+you (in Claude Code — Opus 5 or Fable 5 orchestrating)
  │
  ├─ 1. hand a claim or diff to the reviewer wrapper
  │        scripts/concilium-review.{sh,ps1}
@@ -96,8 +115,8 @@ recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) — this skill is meant to be run from Claude
-  Code with **Fable as the orchestrator** (any Claude model can drive it; Fable is the intended
-  review/ratification seat).
+  Code with **Opus 5 or Fable 5 as the orchestrator** (any Claude model can drive it; those two
+  are the measured ratification seats — see the v1.2 notes above).
 - The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
   (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
   cannot be turned into one; the CLI *is* the transport.
@@ -141,6 +160,14 @@ Then, in any Claude Code session: ask for a cross-model review / second opinion,
 | `references/pitfalls.md` | Known issues and the rules that counter them |
 | `references/setup.md` | First-time setup, calibration, model head-to-head method |
 | `evals/evals.json` | Draft test prompts for skill evaluation |
+
+## Maintenance rule (docs & examples)
+
+War stories stay, project specifics go. Every example in this repo must be self-contained and
+judgeable from the text alone — no figures, table names, or artifacts that can only be verified
+inside the origin project's private repo. The origin project keeps the full-detail originals in
+its own docs and syncs the generic form here. Contributor PRs adding examples are bound by the
+same rule — genericize your war story the same way.
 
 ## License
 

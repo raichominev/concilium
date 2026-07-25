@@ -2,7 +2,7 @@
 name: concilium
 description: >-
   Adversarial cross-model review for hard, load-bearing tasks — combining frontier models: the
-  Claude session (Fable as the intended orchestrator) hands a claim, diff, or result to an
+  Claude session (Opus 5 or Fable 5 as the intended orchestrator) hands a claim, diff, or result to an
   OpenAI model (gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
   auth, no API key), which probes it with falsification attempts and PROPOSES a verdict; the
   orchestrator checks the probe and RATIFIES. Use whenever the user wants a second opinion from
@@ -18,8 +18,11 @@ A second, *different* model reviews your (or the user's) claims adversarially. D
 lineage means different blind spots — that's the value. The reviewer PROPOSES; the calling
 session RATIFIES. Never let either side's confidence substitute for evidence.
 
-Designed to be orchestrated from Claude Code — Fable is the intended ratification seat; the
-GPT side (sol/terra/5.5 via codex) does the independent probing and mechanical execution.
+Designed to be orchestrated from Claude Code — **Opus 5 and Fable 5 are both first-class
+ratification seats** (measured at chair parity on a blind outcome-prediction benchmark; any
+Claude model can drive the loop, but the ratifier should be one of the two). The GPT side
+(sol/terra/5.5 via codex) does the independent probing and mechanical execution — and that
+cross-family seat is load-bearing: it measurably catches what same-family chairs jointly miss.
 
 ## Prerequisites (check once per environment)
 
@@ -84,6 +87,11 @@ Operational rules (each one is a measured failure — the why is in references/p
   Point a tail/monitor at stderr for progress + failure signatures; read stdout for the verdict.
   Caveat: PowerShell `1>`/`2>` redirects write UTF-16 — decode accordingly (or redirect through a
   UTF-8-forcing step) before grepping.
+- **A blind round needs structural isolation, not an instruction.** When the round must be
+  unprimed (a blind eval, a framing-critical blind-first pass per request-template), run the
+  reviewer in a clean directory with auto-rules bridging OFF (`-NoAutoRules` / `NO_AUTO_RULES=1`):
+  a model carrying project context and told to "answer from the packet alone" measurably still
+  uses that context (pitfalls #16–17).
 
 ## Ratification protocol (the calling session's job)
 
@@ -101,6 +109,11 @@ Before relaying or acting:
 5. Assign the final verdict tag yourself: `[V-code]` (verified vs source, cite file:line) /
    `[V-db]` (read-only query, cite it) / `[V-probe]` (re-runnable script) / `[C]` (unverified) /
    `[X]` (refuted — name what supersedes it). The proposal is input, not the answer.
+6. **Weigh agreement by lineage.** Same-family confirmation (a Claude chair agreeing with a
+   Claude orchestrator) is weak evidence — same-lineage chairs measurably share wrong answers,
+   down to independently producing the identical wrong inference. A cross-family confirmation
+   or refutation outweighs any count of same-lineage votes; never settle a dispute by majority
+   across chairs that share a lineage.
 
 ## The concilium loop (iterative rounds)
 

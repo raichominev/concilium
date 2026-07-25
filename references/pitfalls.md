@@ -1,7 +1,8 @@
 # Pitfalls — known issues and the rules that counter them
 
 Each entry: the issue as you'll encounter it, then the rule. All of them were hit for real
-while building this loop; none are theoretical.
+while building this loop; none are theoretical. (Adding an entry? The README's maintenance rule
+binds: generic, self-contained, judgeable from the text alone.)
 
 ## 1. Bare `codex exec resume` resets model AND sandbox
 `resume` re-resolves model and sandbox from `~/.codex/config.toml`, silently discarding the
@@ -126,3 +127,28 @@ Cyrillic-script data.
 with true Unicode folding), and pass non-ASCII SQL via a UTF-8 file (`psql -f`) or explicit
 byte escapes — never inline on the console. A "no matches" on non-Latin data needs one
 positive control before you believe it.
+
+## 16. Instructed blindness fails — isolation must be structural
+Asking a model that carries project context to answer "from the packet alone" does not work.
+Measured on a paired rerun of a 39-item blind benchmark: chairs run WITH project context in
+their window flipped right→wrong on exactly the items whose answers that context contained,
+once the same chairs were re-run clean-context — despite an explicit don't-rely contract AND
+honest self-flagging of every leak they noticed. A model cannot un-see its context; the
+instruction changes what it reports, not what it uses.
+**Rule**: any round that must be unprimed (blind evals, independent second opinions, the
+blind-first pass from request-template) runs structurally clean — fresh session, clean working
+directory, auto-rules bridging OFF for that round. Keep a self-report channel ("list anything
+your context reveals about the answer") anyway — not as protection, but as an audit: it
+reliably finds leaks the orchestrator's own exclusion list missed.
+
+## 17. Always-loaded project notes are a staleness poisoning vector
+Any note injected into every session — project instruction files, memory indexes, standing
+summaries — becomes an active poison the day it goes stale. Measured: a superseded one-line
+summary (whose underlying detail file was already corrected) was quoted as fact by every
+in-context chair and pushed them to a wrong answer the clean-context reviewer avoided.
+**Rule**: treat always-loaded summaries as part of the docs-sync surface — correct them the
+same session the underlying fact changes (correct, don't delete: silent absence breeds
+re-derivation). When a reviewer cites your own project notes as evidence, verify the note
+against its source before ratifying — "your docs say so" is a citation of you, not of reality.
+Clean-context reviewers are immune by construction; one more reason #16's isolation rule pays
+for itself.
