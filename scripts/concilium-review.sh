@@ -23,7 +23,7 @@ if [ -n "${MECHANICAL:-}" ]; then
   EFFORT="${EFFORT:-medium}"
 else
   MODEL="${MODEL:-gpt-5.6-sol}"
-  EFFORT="${EFFORT:-high}"
+  EFFORT="${EFFORT:-max}"
 fi
 REPO_DIR="${REPO_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 

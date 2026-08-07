@@ -8,6 +8,10 @@ the work, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra**, and **gpt-5.5** serve
 reviewers and executors — reached through the official `codex` CLI on a plain **ChatGPT
 subscription, no API key**.
 
+A third lineage — Moonshot's **Kimi `k3-agent`**, via a locally installed Kimi Desktop — is
+available as an **experimental, opt-in** seat; it is not part of a default round, and the
+[caveats](#caveats--read-before-trusting-a-round) apply.
+
 It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
 research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust.
 Different lineage means different blind spots — and the process below is built so that neither
@@ -16,6 +20,21 @@ side's confidence ever substitutes for evidence.
 > **Note**: experimental — extracted from a working research-project loop, where every rule was
 > earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own
 > (see the [maintenance rule](#maintenance-rule-docs--examples) before adding examples).
+
+## v1.3 (2026-08-07)
+
+- **An experimental third-family seat: Kimi (`k3-agent`), opt-in.** A Moonshot model can now sit
+  as a third reviewer alongside the Claude orchestrator and the GPT reviewer, driven through a
+  locally installed Kimi Desktop (Windows; no CLI, no API key). **It is not part of a default
+  round** — ask for it explicitly. On two small prediction benchmarks it was the sole correct
+  seat on individual items the other two missed together, which is exactly the coverage a third
+  lineage is for; the samples are small and the seat is **still to be confirmed against real
+  review work**. Setup, numbers and limits: [`references/setup.md`](references/setup.md).
+- **Blast-radius control and a blind-round tripwire for that seat.** `-SandboxFrom` runs it in a
+  throwaway copy and reports exactly what it touched; `-WatchPaths` flags files that had to stay
+  unread. Neither is containment — see the caveats below and pitfalls #20–21.
+- **Measured: reasoning effort does not buy panel coverage.** Varying one seat's effort resamples
+  that seat's own blind spots; a different lineage is what moves them — SKILL.md, tier matrix.
 
 ## v1.2 (2026-07-25)
 
@@ -110,6 +129,9 @@ recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
 - The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
   (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
   cannot be turned into one; the CLI *is* the transport.
+- *Optional, experimental:* **Kimi Desktop**, installed and signed in, for the third-family seat
+  (Windows only; there is no standalone CLI and no API key). Not needed for a default round —
+  and read the caveats above before enabling it.
 
 Two things worth knowing up front:
 
@@ -121,6 +143,49 @@ Two things worth knowing up front:
 - **No inbound port.** The skill uses `codex exec`/`review` over stdio — a review opens no
   listening port. codex's *interactive* app-server may bind a loopback port, but this skill never
   uses it. Details in [`references/setup.md`](references/setup.md).
+
+## Caveats — read before trusting a round
+
+**Everything a reviewer reads goes to that reviewer's provider.** True of every seat. Don't point
+a review at a tree holding credentials or material that must not leave the machine.
+
+**A reviewer's verdict is a hypothesis, not a result.** Measured on both sides: in adversarial
+adjudication chairs *over-refute* — they reject true claims at a substantial rate, and some true
+claims get refuted by every chair independently; in outcome *prediction* the same models flip to
+*over-credulous* (61% correct on changes that worked vs 46% on changes that failed). Never flip a
+claim on a reviewer's say-so; reproduce the probe's load-bearing step. And never weight a vote by
+its own stated confidence — one seat measured 99.7 mean confidence on a set where it was wrong
+about a third of the time.
+
+**Reasoning effort is not a coverage lever.** Six runs of one seat across five effort levels
+covered no more than two runs at the *same* effort, accuracy was not monotonic in effort, and
+several items were unreachable at every level — while wall time grew 8×. If you want coverage,
+add a lineage, not compute. If you want a variance estimate, run the same seat twice.
+
+**The experimental Kimi seat is the weakest link — treat it accordingly.** Windows-only, opt-in,
+and not in a default round. Specifically:
+
+- **It has no sandbox.** codex runs under `-s read-only`; the Kimi seat has no equivalent, and its
+  working directory is *not* a boundary — a canary file outside it was read by absolute path and
+  returned verbatim. `-SandboxFrom` gives you blast-radius control and an audit trail of what
+  changed, not containment. **If the machine holds anything sensitive, run this seat in a VM** —
+  or at minimum a separate OS account whose ACLs deny the rest of your profile. That is the only
+  real isolation available for it today.
+- **It fails silently.** It exits 0 on a connection failure, so check the output for the five
+  contract blocks rather than the exit code. Auto-bridging your project rules into the contract
+  reliably kills the run, so it ships off by default.
+- **`-WatchPaths` is a tripwire, not proof.** Indexers, sync clients and antivirus also touch
+  files; an enumeration-based version of the same check reported "clean" on a run that had
+  demonstrably escaped, so verify any such check against a known escape before relying on it.
+
+**Reviews run long** — 5–15 minutes at research tier is normal. Run them in the background with a
+full timeout from the first call; a foreground timeout kills the probe mid-flight.
+
+**If you benchmark your own seats, don't use fact-retrieval questions.** Claims whose answer is
+written down somewhere in the repo measure retrieval, and frontier models are saturated there —
+three such packets produced 108 answers with zero errors from every seat, which says nothing about
+any of them. Use outcome prediction against a real experiment log instead
+([`references/setup.md`](references/setup.md)).
 
 ## Install
 

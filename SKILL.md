@@ -5,11 +5,13 @@ description: >-
   Claude session (Opus 5 or Fable 5 as the intended orchestrator) hands a claim, diff, or result to an
   OpenAI model (gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
   auth, no API key), which probes it with falsification attempts and PROPOSES a verdict; the
-  orchestrator checks the probe and RATIFIES. Use whenever the user wants a second opinion from
-  a different model, a cross-model or concilium review, adversarial verification of a research
-  claim, benchmark number, or diff, says "have GPT/codex check this", wants codex set up as a
-  reviewer, needs to switch codex models mid-session (park-and-resume), is tiering work across
-  codex models, or wants to LOOP/iterate review rounds until a disputed claim converges.
+  orchestrator checks the probe and RATIFIES. An EXPERIMENTAL, opt-in third-family seat (Kimi
+  k3-agent via the local Kimi Desktop runner) can be added when asked for; it is NOT part of a
+  default round. Use whenever the user wants a second opinion from a different model, a
+  cross-model or concilium review, adversarial verification of a research claim, benchmark
+  number, or diff, says "have GPT/codex check this", explicitly asks to add the kimi seat, wants
+  codex set up as a reviewer, needs to switch codex models mid-session (park-and-resume), is
+  tiering work across codex models, or wants to LOOP/iterate rounds until a claim converges.
 ---
 
 # Concilium — cross-model adversarial review
@@ -33,14 +35,35 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
 3. First time in a new environment, run the calibration bootstrap (references/setup.md) before
    trusting verdicts: a known-truth reasoning test, then one simple real task, then (optionally)
    a head-to-head to pick tier models.
+4. Kimi seat — **EXPERIMENTAL and opt-in; never part of a default round.** Add it only when the
+   user explicitly asks for a third family. Windows-only, and requires **Kimi Desktop installed
+   and signed in** — no CLI, no API key. `scripts/concilium-review-kimi.ps1` runs the bundled
+   daimon runner under the app's Electron. Calibrated but flakier than codex, and weaker on
+   isolation: paths, models, sandboxing and the caveats are in references/setup.md and
+   pitfalls #18–21. Its coverage value is measured on small samples only and is still pending
+   confirmation against real review work.
 
 ## Tier matrix (defaults are current-day models — override per installation)
 
 | Tier | Default | Effort | Use for |
 |---|---|---|---|
-| Research | flagship (e.g. `gpt-5.6-sol`) | high | open review rounds, adversarial verification |
+| Research | flagship (e.g. `gpt-5.6-sol`) | **max** | open review rounds, adversarial verification |
 | Mechanical | prev flagship (e.g. `gpt-5.5`) | medium | verify a known claim with one probe |
 | Runner | cheap tier (e.g. `gpt-5.6-terra`) | low | execute-and-report: run a script, babysit an import |
+
+Research-tier wrappers default to **max** on every seat. Effort vocabularies differ and are worth
+knowing exactly: codex accepts `none · minimal · low · medium · high · xhigh · max` (measured —
+the API rejects anything else and names the enum), the kimi seat accepts `low · high · max`.
+
+**Effort is not a substitute for a second family — measured, with the control.** Six runs of one
+seat (gpt-5.6-sol) over the same 14-item prediction packet, at low/medium/high/xhigh/max plus a
+same-effort replicate: two runs at the SAME effort covered 10/14, while cross-effort pairs
+averaged 8.9 and never beat that; the full six-run ensemble also reached only 10/14, equal to the
+two-run noise floor and equal to one codex+kimi pair. Accuracy was not monotonic in effort
+(high 9, max 9, xhigh 7, medium 7, low 7) while wall time grew 8× (21s → 166s). Four items were
+missed by every run at every effort — and the cross-family seat got two of them. **Varying effort
+resamples the same blind spots; a different lineage is what moves them.** If you want coverage,
+add a family, not compute. `-Mechanical` is the deliberate opt-down and stays at `medium`.
 
 Runner tasks are NOT reviews — skip the wrapper and call codex directly:
 `codex exec -m <cheap-model> -c model_reasoning_effort=low [-s read-only unless it writes] "<task>" < /dev/null`
@@ -64,6 +87,33 @@ scripts) and add provenance stamping. Both wrappers are functionally identical; 
 **Windows (PowerShell 5.1+):**
 - Claim: `powershell -ExecutionPolicy Bypass -File scripts/concilium-review.ps1 -Claim "<claim>" [-Mechanical] [-RepoDir <path>] [-ProjectRules <file>]`
 - Diff:  `... -Diff [-Base <branch>]` — reviews the working-tree diff of `-RepoDir`.
+
+**Kimi third-family seat — EXPERIMENTAL, opt-in (Windows).** Not part of a default round; add it
+only when the user asks for a third family. `scripts/concilium-review-kimi.ps1` — same contract, same
+five blocks, same `-Claim`/`-Diff`/`-RepoDir`/`-ProjectRules`/`-PriorRounds` surface, plus
+`-Model` (default `k3-agent`), `-Effort` (`low|high|max`) and `-RawPrompt` (no contract, for
+calibration probes). Two seat-specific differences, both measured: **CLAUDE.md auto-bridging is
+OFF by default here** — the injection reliably kills the run with a bare `Connection error.`, so
+it is opt-in via `-AutoRules`; use `-ProjectRules <file>` to give the reviewer context instead.
+And **never trust its exit code** — it exits 0 on that failure, so check for the five blocks.
+Multi-line prompts must go through this wrapper; a direct `kimi-daimon --prompt` from bash gets
+its argv mangled (pitfalls #18–19).
+
+**This seat has no sandbox — give it a disposable copy.** `-SandboxFrom <dir>` copies the tree
+to a throwaway directory (excluding `.git`, virtualenvs and secret-shaped files), runs the agent
+there, prints exactly what it created/modified/deleted, and deletes the copy unless
+`-KeepSandbox`. Use it by default. Be clear about what it buys: workDir is **not** a boundary —
+a canary outside it was read by absolute path and returned verbatim (pitfalls #20) — so this is
+blast-radius control and an audit trail, not containment. If material on the machine must not
+reach the provider, isolate at the OS level (separate account with ACLs, or a VM).
+
+For a **blind round**, the risk from that same porousness is contamination rather than damage:
+an agent that wanders into the real tree can find the answer, and the round silently stops being
+blind. Add `-WatchPaths <a,b,c>` — it snapshots NTFS last-access times for whatever must stay
+unread (the real repo, the results log, the answer key) and reports anything read during the
+run. Validated against a known escape in both directions; read pitfalls #21 before trusting it,
+including why an enumeration-based version of the same check reported "clean" on a run that had
+demonstrably escaped.
 
 Operational rules (each one is a measured failure — the why is in references/pitfalls.md):
 
@@ -113,7 +163,9 @@ Before relaying or acting:
    Claude orchestrator) is weak evidence — same-lineage chairs measurably share wrong answers,
    down to independently producing the identical wrong inference. A cross-family confirmation
    or refutation outweighs any count of same-lineage votes; never settle a dispute by majority
-   across chairs that share a lineage.
+   across chairs that share a lineage. A third family (Moonshot) is available as an experimental
+   opt-in seat; a third seat buys nothing unless it is *independent*, so weigh by family, not by
+   headcount — and note that a unanimous panel may simply mean the item was easy (setup.md).
 
 ## The concilium loop (iterative rounds)
 
@@ -165,10 +217,12 @@ in order of durability:
 1. **Best (project-level): make `AGENTS.md` exist.** Mirror your `CLAUDE.md` into an `AGENTS.md`
    (or make `AGENTS.md` a short pointer to it), and keep them synced. This helps *all* codex
    usage, not just this skill, and is codex's own supported convention.
-2. **Automatic (built into the wrappers): CLAUDE.md bridging.** When no `AGENTS.md` is present,
-   the wrapper auto-injects the project's `CLAUDE.md` (root or `.claude/CLAUDE.md`) into the
-   contract and prints a notice, so the reviewer isn't missing rules. Disable with `-NoAutoRules`
-   / `NO_AUTO_RULES=1` (e.g. a huge, mostly-workflow CLAUDE.md you don't want in every review).
+2. **Automatic (built into the codex wrappers): CLAUDE.md bridging.** When no `AGENTS.md` is
+   present, the wrapper auto-injects the project's `CLAUDE.md` (root or `.claude/CLAUDE.md`) into
+   the contract and prints a notice, so the reviewer isn't missing rules. Disable with
+   `-NoAutoRules` / `NO_AUTO_RULES=1` (e.g. a huge, mostly-workflow CLAUDE.md you don't want in
+   every review). **The kimi wrapper inverts this** — bridging is off unless you pass
+   `-AutoRules`, because the injection breaks that seat (pitfalls #18); use option 3 there.
 3. **Curated (explicit): `-ProjectRules <file>`.** Point at a short, hand-picked extract of the
    safety-critical rules — this *overrides* auto-bridging. Best for large instruction files where
    only a slice is relevant to review (invariants, "never touch X", schema quirks).

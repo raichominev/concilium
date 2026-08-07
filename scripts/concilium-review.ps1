@@ -33,7 +33,7 @@ param(
   [string]$PriorRounds,
   [switch]$NoAutoRules,
   [string]$Model  = "gpt-5.6-sol",
-  [string]$Effort = "high",
+  [string]$Effort = "max",
   [string]$RepoDir = ""
 )
 
