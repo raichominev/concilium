@@ -36,12 +36,16 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
    trusting verdicts: a known-truth reasoning test, then one simple real task, then (optionally)
    a head-to-head to pick tier models.
 4. Kimi seat — **EXPERIMENTAL and opt-in; never part of a default round.** Add it only when the
-   user explicitly asks for a third family. Windows-only, and requires **Kimi Desktop installed
-   and signed in** — no CLI, no API key. `scripts/concilium-review-kimi.ps1` runs the bundled
-   daimon runner under the app's Electron. Calibrated but flakier than codex, and weaker on
-   isolation: paths, models, sandboxing and the caveats are in references/setup.md and
-   pitfalls #18–21. Its coverage value is measured on small samples only and is still pending
-   confirmation against real review work.
+   user explicitly asks for a third family. Two transports, and only the first has a wrapper here:
+   - **Kimi Desktop (Windows).** `scripts/concilium-review-kimi.ps1` drives the app's bundled
+     daimon runner under its own Electron. Requires the desktop app installed and signed in.
+   - **Kimi Code CLI (Linux/macOS/Windows).** The engine is cross-platform and MIT-licensed, with a
+     headless print mode (`kimi -p`, `--final-message-only`) and device-code OAuth, so it suits a
+     container or a throwaway VM. **No wrapper is shipped for it yet.** ⚠ Print mode auto-approves
+     every tool call by construction, so isolation there is a precondition, not a precaution.
+
+   Calibrated but flakier than codex, and weaker on isolation: paths, models, sandboxing and the
+   caveats are in references/setup.md and pitfalls #18–21.
 
 ## Tier matrix (defaults are current-day models — override per installation)
 
@@ -88,8 +92,9 @@ scripts) and add provenance stamping. Both wrappers are functionally identical; 
 - Claim: `powershell -ExecutionPolicy Bypass -File scripts/concilium-review.ps1 -Claim "<claim>" [-Mechanical] [-RepoDir <path>] [-ProjectRules <file>]`
 - Diff:  `... -Diff [-Base <branch>]` — reviews the working-tree diff of `-RepoDir`.
 
-**Kimi third-family seat — EXPERIMENTAL, opt-in (Windows).** Not part of a default round; add it
-only when the user asks for a third family. `scripts/concilium-review-kimi.ps1` — same contract, same
+**Kimi third-family seat — EXPERIMENTAL, opt-in.** Not part of a default round; add it only when
+the user asks for a third family. The shipped wrapper drives the **Windows desktop** transport;
+for the cross-platform CLI transport see prerequisite 4. `scripts/concilium-review-kimi.ps1` — same contract, same
 five blocks, same `-Claim`/`-Diff`/`-RepoDir`/`-ProjectRules`/`-PriorRounds` surface, plus
 `-Model` (default `k3-agent`), `-Effort` (`low|high|max`) and `-RawPrompt` (no contract, for
 calibration probes). Two seat-specific differences, both measured: **CLAUDE.md auto-bridging is

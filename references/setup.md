@@ -10,8 +10,20 @@
   snapshots (`used_percent`, `window_minutes`, `resets_at`, `plan_type`) — useful when the user
   asks "how much of my quota did this eat?" (windows are typically weekly, so drains look small).
 
-### Kimi seat (optional third family — Windows)
-Requires **Kimi Desktop installed and signed in**; there is no standalone CLI and no API key.
+### Kimi seat (optional third family)
+Two transports. Only the desktop one has a wrapper in this repo.
+
+**Kimi Code CLI (Linux/macOS/Windows) — no wrapper shipped yet.** The engine is cross-platform and
+MIT-licensed. Install via the official script (single binary, no Node needed) or
+`npm i -g @moonshot-ai/kimi-code` with Node ≥22.19.0; state lives in `~/.kimi-code/`, relocatable
+with `KIMI_CODE_HOME`. Auth is device-code OAuth (authorise on any device) or a platform API key,
+so it works headless. Headless run: `kimi -p "<prompt>"`, plus `--final-message-only` to capture
+just the final answer. ⚠ Print mode implies auto-approval of every tool call and cannot be combined
+with `--yolo`/`--auto`/`--plan` — it is *more* permissive than the desktop seat's `manual` mode, so
+run it in a container or throwaway VM. ⚠ Naming trap: the PyPI `kimi-code` is an empty
+meta-package for the legacy Python agent (state in `~/.kimi/`); the real one is the npm package.
+
+**Kimi Desktop (Windows) — the shipped wrapper.** Requires the desktop app installed and signed in.
 `scripts/concilium-review-kimi.ps1` drives the bundled `kimi-daimon` runner directly:
 - Runtime: `%APPDATA%\kimi-desktop\daimon-bundle` — its `bin\` launcher wants Node 24 that the
   bundle does not ship, so the wrapper runs `dist/src/runner/cli.js` under the app's own Electron

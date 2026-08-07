@@ -129,9 +129,11 @@ recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
 - The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
   (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
   cannot be turned into one; the CLI *is* the transport.
-- *Optional, experimental:* **Kimi Desktop**, installed and signed in, for the third-family seat
-  (Windows only; there is no standalone CLI and no API key). Not needed for a default round —
-  and read the caveats above before enabling it.
+- *Optional, experimental:* the third-family seat. The shipped wrapper drives **Kimi Desktop** on
+  Windows, installed and signed in. The engine itself is cross-platform — the **Kimi Code CLI**
+  runs natively on Linux and macOS with a headless print mode and device-code OAuth — but no
+  wrapper is shipped for that transport yet. Not needed for a default round, and read the caveats
+  above before enabling it.
 
 Two things worth knowing up front:
 
@@ -161,8 +163,8 @@ covers no more than running it twice at the *same* effort; accuracy is not monot
 some items stay unreachable at every level, and wall time climbs steeply. If you want coverage,
 add a lineage, not compute. If you want a variance estimate, run the same seat twice.
 
-**The experimental Kimi seat is the weakest link — treat it accordingly.** Windows-only, opt-in,
-and not in a default round. Specifically:
+**The experimental Kimi seat is the weakest link — treat it accordingly.** Opt-in, not in a default
+round, and the shipped wrapper is Windows-only even though the engine is not. Specifically:
 
 - **It has no sandbox, and it does not stay where you put it.** codex runs under `-s read-only`;
   the Kimi seat has no equivalent, and its working directory is *not* a boundary — a canary file
@@ -171,7 +173,9 @@ and not in a default round. Specifically:
   anything readable is in scope. `-SandboxFrom` gives you blast-radius control and an audit trail of what
   changed, not containment. **If the machine holds anything sensitive, run this seat in a VM** —
   or at minimum a separate OS account whose ACLs deny the rest of your profile. That is the only
-  real isolation available for it today.
+  real isolation available for it today. On the cross-platform CLI transport the case is stronger
+  still: its headless print mode auto-approves every tool call by construction, so isolation there
+  is a precondition rather than a precaution.
 - **It fails silently.** It exits 0 on a connection failure, so check the output for the five
   contract blocks rather than the exit code. Auto-bridging your project rules into the contract
   reliably kills the run, so it ships off by default.
