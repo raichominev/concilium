@@ -74,7 +74,7 @@ shared with the provider.
 When launched from an automation harness (background shell, CI step) with the prompt as an
 *argument*, codex sees a non-TTY stdin, prints `Reading additional input from stdin...`, and
 blocks until EOF — which never comes if the parent holds the pipe open. Signature (hit for
-real, 2026-07-18): zero stdout, a 39-byte stderr with only that line, and orphaned `codex.exe`
+real): zero stdout, a tiny stderr carrying only that line, and orphaned `codex.exe`
 processes that *survive the parent shell's timeout kill* — the session looks "running" forever.
 The wrappers are immune (they pipe the contract via stdin, which EOFs); **direct calls** — the
 runner-tier pattern — are the trap.
@@ -92,9 +92,8 @@ client is fragile and against ToS.
 ## 12. "Stable" occurrence keys on rebuilt tables aren't
 A witness key built on a table's auto-id is worthless if any pipeline step does
 delete-and-reinsert — the ids silently renumber on the next rebuild, and every registered
-witness dangles (hit for real 2026-07-24: an evaluation sidecar table rebuilt by
-delete-and-bulk-reinsert — a witness id verified that same day would not have survived the
-next refresh).
+witness dangles (hit for real: an evaluation sidecar table rebuilt by delete-and-bulk-reinsert
+— a witness id verified that same day would not have survived the next refresh).
 **Rule**: before accepting any probe or artifact keyed on row ids, check the id column's
 lifecycle (who deletes/reinserts?). Durable witnesses = fixture-scoped CONTENT keys plus an
 immutable snapshot of the rows, registered as an artifact.
@@ -109,7 +108,7 @@ oracle and burn one slice per round.
 
 ## 14. A count derived by subtraction is not an inventory
 "Remainder" numbers (total minus the handled subset) get presented as if they name real,
-homogeneous items — and reviews then build plans on them (hit for real 2026-07-24: a claimed
+homogeneous items — and reviews then build plans on them (hit for real: a claimed
 "reserve" of tens of thousands turned out to be pure subtraction of the handled subset from a
 total; enumeration found roughly two-thirds of it existed at all, and only about half of those
 matched the claimed shape).
@@ -121,8 +120,7 @@ Two encoding traps beyond rule 8's crash class, both silent: `grep -i` under a C
 NOT case-fold non-Latin scripts (a lowercase Cyrillic pattern misses its uppercase form and
 returns clean-looking "no matches"), and non-ASCII literals typed into a Windows console query
 arrive in the console codepage, not UTF-8 (either an encoding error — the lucky case — or a
-wrong-bytes search). Both hit for real 2026-07-24 while ratifying a claim over
-Cyrillic-script data.
+wrong-bytes search). Both hit for real while ratifying a claim over non-Latin-script data.
 **Rule**: for non-Latin probes, write patterns with explicit case alternatives (or use tools
 with true Unicode folding), and pass non-ASCII SQL via a UTF-8 file (`psql -f`) or explicit
 byte escapes — never inline on the console. A "no matches" on non-Latin data needs one
