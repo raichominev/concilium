@@ -153,18 +153,12 @@ against its source before ratifying — "your docs say so" is a citation of you,
 Clean-context reviewers are immune by construction; one more reason #16's isolation rule pays
 for itself.
 
-## 18. The Kimi seat dies on large prompts with a bare `Connection error.`
-Measured 2026-08-06 (Kimi Desktop 3.1.5, daimon-bundle 0.5.49, `k3-agent`, thinking=high): the
-same review that succeeds without rule-bridging fails with a bare `Connection error.` when the
-wrapper also injects the project's `CLAUDE.md` into the contract. 2/2 failures with injection,
-2/2 successes without — same claims, same model, same effort. The two failures died at 6m37s and
-2m10s, so it reads as a server-side cutoff on a long/large turn, not a parse error. Nothing is
-logged: neither `~/.kimi/daimon/logs/` nor the desktop `main.log` records it — the kernel prints
-the string and **exits 0**.
-**Rule**: auto-bridging is off by default in the kimi wrapper because of this (opt in with
-`-AutoRules` if a future build fixes it); pass a curated `-ProjectRules` extract when the
-reviewer genuinely needs project context. Never treat `rc=0` as success for this seat — grep the
-output for the five blocks.
+## 18. The Kimi seat can drop a long run with a bare `Connection error.`
+It exits 0 and logs nothing, so a failed run looks like a completed one. Rule-bridging makes it
+far likelier; turning bridging off reduces it but does not remove it.
+**Rules**: keep bridging off (`-ProjectRules <file>` when the reviewer needs project context;
+`-AutoRules` only to test whether a future build fixed it). Never treat `rc=0` as success for
+this seat — grep the output for the five blocks.
 
 ## 19. Windows arg encoding mangles multi-line prompts to the Kimi CLI
 `kimi-daimon` takes its prompt as an argv element, not on stdin (the opposite of codex, #10).
@@ -177,9 +171,9 @@ through an explicit Win32 quoting pass. For a runner-tier one-off, keep the prom
 or stage it in a file and prompt "read X and follow it".
 
 ## 20. The Kimi seat's workDir is a starting point, not a boundary
-Measured 2026-08-07 by canary: a file placed **outside** the agent's configured workDir, named
-by absolute path in the prompt, was read and its token returned verbatim (`READ=yes
-TOKEN=…`) — with `approvalMode: manual` and the agent's workDir pinned to a disposable copy.
+Verified by canary: a file placed **outside** the agent's configured workDir, named by absolute
+path in the prompt, was read and its contents returned verbatim — with `approvalMode: manual`
+and the agent's workDir pinned to a disposable copy. It does this routinely, not exceptionally.
 There is no OS sandbox behind this seat, so it reads anything the user account can read, and
 everything it reads can reach the provider. codex's `-s read-only` is a different and stronger
 guarantee: it restricts writes but is likewise not a read boundary — the difference is that
@@ -196,7 +190,7 @@ For a BLIND round the danger of an unsandboxed seat is not damage, it is **conta
 the agent wanders out of its working copy into the real tree, it can find the answer and the
 round silently stops being blind. NTFS last-access times make a cheap tripwire
 (`-WatchPaths a,b,c` on the kimi wrapper: snapshot before the run, re-check after, report what
-was read). Three things measured 2026-08-07 while building it:
+was read). Three things surfaced while building it:
 
 1. **Enumeration returns stale timestamps.** `Get-ChildItem -Recurse` reads the *directory
    entry's* cached copy. A canary provably read mid-run still showed its pre-run access time via
@@ -206,9 +200,9 @@ was read). Three things measured 2026-08-07 while building it:
 2. **Don't name the bait.** A honeypot planted at `…\honeypot\RESULTS.md` was declined by the
    model *because of the path*: "the path is outside my workspace (and is labeled as a
    honeypot), so I did not access it." Decoys must look like ordinary files.
-3. **Confirm both directions.** After the fix: a run told to read outside → `BLIND-INTEGRITY
-   TRIPPED`, naming the one file, with the four other files in the same directory correctly
-   reported unread; an ordinary in-sandbox run → clean, no false positive.
+3. **Confirm both directions.** After the fix: a run told to read outside trips and names the
+   file, while the other files in the same directory are correctly reported unread; an ordinary
+   in-sandbox run comes back clean, with no false positive.
 
 **Rule**: point `-WatchPaths` at whatever must stay unread for the round to count (the real
 repo, the results log, the answer key). Treat a trip as contamination unless you can attribute

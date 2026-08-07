@@ -152,14 +152,13 @@ a review at a tree holding credentials or material that must not leave the machi
 **A reviewer's verdict is a hypothesis, not a result.** Measured on both sides: in adversarial
 adjudication chairs *over-refute* — they reject true claims at a substantial rate, and some true
 claims get refuted by every chair independently; in outcome *prediction* the same models flip to
-*over-credulous* (61% correct on changes that worked vs 46% on changes that failed). Never flip a
-claim on a reviewer's say-so; reproduce the probe's load-bearing step. And never weight a vote by
-its own stated confidence — one seat measured 99.7 mean confidence on a set where it was wrong
-about a third of the time.
+*over-credulous*, believing changes worked that did not. Never flip a claim on a reviewer's
+say-so; reproduce the probe's load-bearing step. And never weight a vote by its own stated
+confidence — a seat can hold near-maximum confidence across a set it is often wrong about.
 
-**Reasoning effort is not a coverage lever.** Six runs of one seat across five effort levels
-covered no more than two runs at the *same* effort, accuracy was not monotonic in effort, and
-several items were unreachable at every level — while wall time grew 8×. If you want coverage,
+**Reasoning effort is not a coverage lever.** Running one seat across a spread of effort levels
+covers no more than running it twice at the *same* effort; accuracy is not monotonic in effort,
+some items stay unreachable at every level, and wall time climbs steeply. If you want coverage,
 add a lineage, not compute. If you want a variance estimate, run the same seat twice.
 
 **The experimental Kimi seat is the weakest link — treat it accordingly.** Windows-only, opt-in,
@@ -167,22 +166,21 @@ and not in a default round. Specifically:
 
 - **It has no sandbox, and it does not stay where you put it.** codex runs under `-s read-only`;
   the Kimi seat has no equivalent, and its working directory is *not* a boundary — a canary file
-  outside it was read by absolute path and returned verbatim. This is not a corner case: on both
-  real review rounds it read the live tree instead of the copy it was given, hundreds of files each
-  time. Assume it will. `-SandboxFrom` gives you blast-radius control and an audit trail of what
+  outside it was read by absolute path and returned verbatim. This is routine behaviour, not a
+  corner case: expect it to read the live tree instead of the copy you gave it, and assume
+  anything readable is in scope. `-SandboxFrom` gives you blast-radius control and an audit trail of what
   changed, not containment. **If the machine holds anything sensitive, run this seat in a VM** —
   or at minimum a separate OS account whose ACLs deny the rest of your profile. That is the only
   real isolation available for it today.
 - **It fails silently.** It exits 0 on a connection failure, so check the output for the five
   contract blocks rather than the exit code. Auto-bridging your project rules into the contract
   reliably kills the run, so it ships off by default.
-- **Do not trust its arithmetic.** Across two rounds it twice reported a count that was wrong by a
-  small margin — in each case the surrounding finding was correct and only the number was off.
-  Counts are the cheapest thing for you to re-derive and the easiest thing to quote onward by
-  mistake, so re-derive them.
-- **Distinguish what it found from what it read.** Its most quotable claim in one round restated
-  something already written in the code under review; the genuine contribution was decomposing a
-  failure that had been recorded as a single mechanism. That is real value, but it is not
+- **Do not trust its arithmetic.** It reports counts that are wrong by a small margin while the
+  surrounding finding is correct — the failure mode most likely to be quoted onward unchecked.
+  Counts are the cheapest thing to re-derive, so re-derive them.
+- **Distinguish what it found from what it read.** A reviewer's most quotable claim is sometimes a
+  restatement of something already written in the material under review. That can still be
+  valuable — separating a failure recorded as one mechanism into two is real work — but it is not
   discovery, and confident prose will not tell you which one you are getting.
 - **`-WatchPaths` is a tripwire, not proof.** Indexers, sync clients and antivirus also touch
   files; an enumeration-based version of the same check reported "clean" on a run that had
@@ -193,8 +191,8 @@ full timeout from the first call; a foreground timeout kills the probe mid-fligh
 
 **If you benchmark your own seats, don't use fact-retrieval questions.** Claims whose answer is
 written down somewhere in the repo measure retrieval, and frontier models are saturated there —
-three such packets produced 108 answers with zero errors from every seat, which says nothing about
-any of them. Use outcome prediction against a real experiment log instead
+such packets come back near-perfect from every seat, which says nothing about any of them. Use
+outcome prediction against a real experiment log instead
 ([`references/setup.md`](references/setup.md)).
 
 ## Install

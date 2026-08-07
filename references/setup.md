@@ -148,9 +148,9 @@ effectively flat), Kimi 95.1 (80–99), Claude 93.9 (90–97). Codex is least wi
 doubt, Kimi most — relevant when weighing a lone dissenter, and one more reason never to weight a
 vote by its own stated confidence.
 
-**Reliability**: 0/2 Kimi wrapper runs completed with rule auto-bridging on; 3/3 completed with it
-off (pitfalls #18) — which is why that wrapper defaults bridging OFF. Treat the seat as usable but
-flakier than codex, and never trust its exit code.
+**Reliability**: 0/2 Kimi wrapper runs completed with rule auto-bridging on, which is why that
+wrapper defaults bridging OFF. With bridging off it is better but not reliable (pitfalls #18).
+Never trust its exit code.
 
 ## Measured: effort is not a substitute for a second family (2026-08-07)
 
