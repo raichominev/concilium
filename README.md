@@ -26,13 +26,8 @@ side's confidence ever substitutes for evidence.
 - **An experimental third-family seat: Kimi (`k3-agent`), opt-in.** A Moonshot model can now sit
   as a third reviewer alongside the Claude orchestrator and the GPT reviewer, driven through a
   locally installed Kimi Desktop (Windows; no CLI, no API key). **It is not part of a default
-  round** — ask for it explicitly. On two small prediction benchmarks it was the sole correct
-  seat on individual items the other two missed together, which is exactly the coverage a third
-  lineage is for. It has since been run on two real review rounds against a working project, and
-  in both it surfaced something the round had not asked for — in the first, a live undocumented
-  data defect that the project's own notes had actively mispointed. It also miscounted twice, and
-  read outside its sandbox on both rounds. Treat it as a seat that earns its place and needs
-  watching, not a drop-in third opinion; handling rules are in the
+  round** — ask for it explicitly. Miscounts and reads outside its sandbox. Treat it as a seat
+  that earns its place and needs watching, not a drop-in third opinion; handling rules are in the
   [caveats](#caveats--read-before-trusting-a-round). Setup, numbers and limits:
   [`references/setup.md`](references/setup.md).
 - **Blast-radius control and a blind-round tripwire for that seat.** `-SandboxFrom` runs it in a
