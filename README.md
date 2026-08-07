@@ -28,8 +28,13 @@ side's confidence ever substitutes for evidence.
   locally installed Kimi Desktop (Windows; no CLI, no API key). **It is not part of a default
   round** — ask for it explicitly. On two small prediction benchmarks it was the sole correct
   seat on individual items the other two missed together, which is exactly the coverage a third
-  lineage is for; the samples are small and the seat is **still to be confirmed against real
-  review work**. Setup, numbers and limits: [`references/setup.md`](references/setup.md).
+  lineage is for. It has since been run on two real review rounds against a working project, and
+  in both it surfaced something the round had not asked for — in the first, a live undocumented
+  data defect that the project's own notes had actively mispointed. It also miscounted twice, and
+  read outside its sandbox on both rounds. Treat it as a seat that earns its place and needs
+  watching, not a drop-in third opinion; handling rules are in the
+  [caveats](#caveats--read-before-trusting-a-round). Setup, numbers and limits:
+  [`references/setup.md`](references/setup.md).
 - **Blast-radius control and a blind-round tripwire for that seat.** `-SandboxFrom` runs it in a
   throwaway copy and reports exactly what it touched; `-WatchPaths` flags files that had to stay
   unread. Neither is containment — see the caveats below and pitfalls #20–21.
@@ -165,15 +170,25 @@ add a lineage, not compute. If you want a variance estimate, run the same seat t
 **The experimental Kimi seat is the weakest link — treat it accordingly.** Windows-only, opt-in,
 and not in a default round. Specifically:
 
-- **It has no sandbox.** codex runs under `-s read-only`; the Kimi seat has no equivalent, and its
-  working directory is *not* a boundary — a canary file outside it was read by absolute path and
-  returned verbatim. `-SandboxFrom` gives you blast-radius control and an audit trail of what
+- **It has no sandbox, and it does not stay where you put it.** codex runs under `-s read-only`;
+  the Kimi seat has no equivalent, and its working directory is *not* a boundary — a canary file
+  outside it was read by absolute path and returned verbatim. This is not a corner case: on both
+  real review rounds it read the live tree instead of the copy it was given, hundreds of files each
+  time. Assume it will. `-SandboxFrom` gives you blast-radius control and an audit trail of what
   changed, not containment. **If the machine holds anything sensitive, run this seat in a VM** —
   or at minimum a separate OS account whose ACLs deny the rest of your profile. That is the only
   real isolation available for it today.
 - **It fails silently.** It exits 0 on a connection failure, so check the output for the five
   contract blocks rather than the exit code. Auto-bridging your project rules into the contract
   reliably kills the run, so it ships off by default.
+- **Do not trust its arithmetic.** Across two rounds it twice reported a count that was wrong by a
+  small margin — in each case the surrounding finding was correct and only the number was off.
+  Counts are the cheapest thing for you to re-derive and the easiest thing to quote onward by
+  mistake, so re-derive them.
+- **Distinguish what it found from what it read.** Its most quotable claim in one round restated
+  something already written in the code under review; the genuine contribution was decomposing a
+  failure that had been recorded as a single mechanism. That is real value, but it is not
+  discovery, and confident prose will not tell you which one you are getting.
 - **`-WatchPaths` is a tripwire, not proof.** Indexers, sync clients and antivirus also touch
   files; an enumeration-based version of the same check reported "clean" on a run that had
   demonstrably escaped, so verify any such check against a known escape before relying on it.
