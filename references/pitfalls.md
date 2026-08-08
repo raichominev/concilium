@@ -183,6 +183,14 @@ holds material that must not reach the provider, the only real answer is OS-leve
 separate Windows account whose ACLs deny the rest of the profile, or a VM/container. Never
 assume "workDir is set" means "confined".
 
+**The one configuration that produced a clean round: a guest holding the payload and nothing
+else.** On a throwaway VM containing only the review copy, a full round stayed inside its sandbox
+for the whole run — the first of six to do so — while every round on a machine with a live repo
+next door wandered into it. Read that as weak evidence and design accordingly: it may simply be
+that there was nowhere interesting to go. "It stayed put when nothing outside was worth reading"
+is a much cheaper property to guarantee than "it is confined", and it is the one an
+isolated guest actually buys you.
+
 ## 21. Blind rounds need an escape tripwire — and the obvious one lies to you
 For a BLIND round the danger of an unsandboxed seat is not damage, it is **contamination**: if
 the agent wanders out of its working copy into the real tree, it can find the answer and the
@@ -201,9 +209,14 @@ was read). Three things surfaced while building it:
 3. **Confirm both directions.** After the fix: a run told to read outside trips and names the
    file, while the other files in the same directory are correctly reported unread; an ordinary
    in-sandbox run comes back clean, with no false positive.
+4. **Never watch a path the tool legitimately needs.** A watch list that included the agent's own
+   state directory tripped on exactly one file — its own stored OAuth credential, which it must
+   read to authenticate at all. That is a guaranteed false positive dressed as an escape, and a
+   tripwire that cries wolf on every run stops being read. Watch the *evidence* — the real tree,
+   the results log, the answer key — never the runner's own home.
 
-**Rule**: point `-WatchPaths` at whatever must stay unread for the round to count (the real
-repo, the results log, the answer key). Treat a trip as contamination unless you can attribute
-the read to another process — indexers, sync clients and antivirus also touch files, so this is
-a tripwire, not proof. And prefer structural isolation (pitfall #16) over detection where you
-can get it: knowing a round was contaminated is worse than it not happening.
+**Rule**: point `-WatchPaths` at whatever must stay unread for the round to count, and at nothing
+the tool needs to function. Treat a trip as contamination unless you can attribute the read to
+another process — indexers, sync clients and antivirus also touch files, so this is a tripwire,
+not proof. And prefer structural isolation (pitfall #16) over detection where you can get it:
+knowing a round was contaminated is worse than it not happening.

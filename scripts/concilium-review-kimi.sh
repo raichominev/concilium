@@ -17,15 +17,18 @@
 #   AUTO_RULES=1   opt in to bridging AGENTS.md/CLAUDE.md into the contract (OFF by default, #18)
 #   SANDBOX_FROM   copy this tree to a throwaway dir and run there (see SECURITY)
 #   KEEP_SANDBOX=1 keep the throwaway copy instead of deleting it
-#   WATCH_PATHS    comma-separated paths that must stay unread; reported if accessed (see #21)
+#   WATCH_PATHS    comma-separated paths that must stay unread; reported if accessed (see #21).
+#                  Watch the EVIDENCE (real tree, results log, answer key) — never the runner's own
+#                  state dir: it reads its own stored credential every run and will always trip.
 #
 # ⛔ SECURITY — read before using this transport.
 #   The CLI's print mode (`-p`) implies auto-approval of every tool call: it cannot be combined
 #   with --yolo/--auto/--plan because it already runs unattended. That makes this seat MORE
-#   permissive than the desktop wrapper's `manual` mode, not less. The seat also does not stay in
-#   its working directory (pitfalls #20) — measured on every real round to date.
-#   Run it in a container or a throwaway VM holding the payload and nothing else. SANDBOX_FROM
-#   bounds the blast radius and proves what changed; it is not containment.
+#   permissive than the desktop wrapper's `manual` mode, not less. The seat also does not reliably
+#   stay in its working directory (pitfalls #20): every round run on a machine with a live repo
+#   beside it wandered into that repo. The one round that stayed put ran in a throwaway VM holding
+#   the payload and nothing else — which is the configuration to copy. SANDBOX_FROM bounds the
+#   blast radius and proves what changed; it is not containment.
 #
 # VERIFIED against Kimi Code CLI v0.34.0 on Ubuntu 24.04. The surface is young and moves — re-check
 # `kimi --help` if your version differs. Notes from that verification:
