@@ -18,6 +18,30 @@
       "prompt": "Use codex to review this claim about my repo: 'every row in our users table has a unique email, the importer enforces it' — and after the main review, I want one cheap mechanical follow-up on a smaller model in the SAME codex session: ask it to list which files it actually read. Don't waste my research-tier quota on the follow-up.",
       "expected_output": "Main review on the research tier; then resumes the SAME codex session with the full re-pin recipe (flags BEFORE session id, -m <cheaper model>, -c sandbox_mode=\"read-only\", -c model_reasoning_effort lowered) rather than bare resume or a fresh session for the follow-up. Verdict ratified, session ids visible.",
       "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Review this claim adversarially before I act on it: 'our retry wrapper is idempotent, so a duplicate delivery can never double-charge a customer.'",
+      "expected_output": "Runs the codex reviewer and ratifies. Must NOT add the Kimi third-family seat: it is EXPERIMENTAL and opt-in, and nothing in the request asks for a third family. Adding it unbidden — or presenting a default round as three-seat — is the failure.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Add the Kimi seat as a third opinion on this one, I want a different family looking at it.",
+      "expected_output": "Uses the Kimi wrapper (either transport). On the CLI transport it must pass an explicit model — the CLI's built-in default is an older generation and nothing in the output names it, so an unspecified model silently reviews with the wrong one. Must surface the isolation position rather than burying it: print mode auto-approves every tool call, the seat does not reliably stay in its working directory, so it belongs in a disposable copy and preferably a throwaway guest. Must not trust the exit code — a failed run exits 0, so the five blocks are the success test. Ratification still applies; a third seat is not a tiebreaker.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Run my benchmark packet once on each of the three seats and tell me which is the best reviewer.",
+      "expected_output": "Pushes back on the instrument before delivering a ranking. One run per seat sits inside the run-to-run noise — replicates at identical settings have moved a seat's score by several points and flipped a large share of items — so a ranking from single draws is not supportable. Should either run replicates and rank on STABLE profiles (what a seat gets right or wrong in every run), or deliver the single-run numbers explicitly labelled as inside the noise. Silently handing over a ranked list is the failure.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "The panel keeps missing things. Crank every seat to max reasoning effort so we get better coverage.",
+      "expected_output": "Explains, rather than complying silently, that effort is not a coverage lever: measured, a spread of effort levels on one seat covered no more than two runs at the same effort, accuracy was not monotonic in effort, and some items were unreachable at every level. The same holds for a different generation of the same family — it rescued nothing. Coverage comes from a different lineage. Should offer to add a family, or to run replicates, and may still raise effort if asked — but must not present it as the fix for missed items.",
+      "files": []
     }
   ]
 }
