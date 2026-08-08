@@ -6,11 +6,10 @@ Concilium is a [Claude Code](https://claude.com/claude-code) skill that puts two
 lineages on the same problem: a frontier **Claude** model — **Opus 5 or Fable 5** — orchestrates
 the work, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra**, and **gpt-5.5** serve as independent
 reviewers and executors — reached through the official `codex` CLI on a plain **ChatGPT
-subscription, no API key**.
-
-A third lineage — Moonshot's **Kimi** — is available as an **experimental, opt-in** seat, via
-either a locally installed Kimi Desktop (Windows) or the cross-platform Kimi Code CLI. It is not
-part of a default round, and the [caveats](#caveats--read-before-trusting-a-round) apply.
+subscription, no API key**. Alongside them, a third lineage — Moonshot's **Kimi** — is available
+as an **experimental, opt-in** seat, via either a locally installed Kimi Desktop (Windows) or the
+cross-platform Kimi Code CLI; it is not part of a default round, and its
+[caveats](references/kimi-seat.md) apply.
 
 It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
 research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust.
@@ -26,33 +25,18 @@ side's confidence ever substitutes for evidence.
 
 ## v1.3 (2026-08-08)
 
-- **An experimental third-family seat: Kimi (`k3-agent`), opt-in.** A Moonshot model can now sit
-  as a third reviewer alongside the Claude orchestrator and the GPT reviewer, driven through
-  either a locally installed Kimi Desktop (Windows) or the cross-platform Kimi Code CLI, which
-  suits a container or throwaway VM. **It is not part of a default
-  round** — ask for it explicitly. Miscounts and reads outside its sandbox. Treat it as a seat
-  that earns its place and needs watching, not a drop-in third opinion; handling rules are in the
-  [caveats](#caveats--read-before-trusting-a-round). Setup, numbers and limits:
-  [`references/setup.md`](references/setup.md).
-- **Blast-radius control and a blind-round tripwire for that seat.** `-SandboxFrom` runs it in a
-  throwaway copy and reports exactly what it touched; `-WatchPaths` flags files that had to stay
-  unread. Neither is containment — see the caveats below and pitfalls #20–21.
-- **Measured: reasoning effort does not buy panel coverage.** Varying one seat's effort resamples
-  that seat's own blind spots; a different lineage is what moves them — SKILL.md, tier matrix.
-  The same holds for a model *generation*: two generations of one family rescued nothing from each
-  other, while a different family rescued items from both.
-- **A verified CLI wrapper for the Kimi seat**, `scripts/concilium-review-kimi.sh` — same contract
-  and same five blocks as its PowerShell sibling. Exercised against a live install rather than
-  written from documentation, which corrected four flags that do not exist on the shipped CLI and
-  found that piping a prompt to stdin hangs: it must go in as an argv argument.
-- **Measured: one run is not a measurement.** Three replicates per seat at identical settings moved
-  scores by up to 4 points, with up to 43% of items flipping between runs. Rankings and
-  pair-coverage figures drawn from single runs sat inside that noise, so those in
-  [`references/setup.md`](references/setup.md) were replaced with **stable profiles** — the items a
-  seat gets right, or wrong, in *every* replicate. Three runs is enough to see it and cheap to get.
-- **A worked guest build for the Kimi seat.** The seat can be run from a throwaway VM holding the
-  payload and nothing else, which is the one configuration that produced a round that stayed put:
+- **An experimental third-family seat: Kimi, opt-in.** A Moonshot model can sit as a third reviewer
+  alongside the Claude orchestrator and the GPT reviewer, over either transport, each with its own
+  wrapper. **Not part of a default round** — ask for it explicitly, and read
+  [`references/kimi-seat.md`](references/kimi-seat.md) first.
+- **Isolation tooling for it.** A disposable working copy that reports what it touched, a
+  blind-round tripwire, and a worked throwaway-guest build:
   [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md).
+- **Measured: only a different lineage buys coverage.** Not more reasoning effort, and not a newer
+  generation of the same family — both resample the same blind spots.
+- **Measured: one run is not a measurement.** Replicates moved a seat's score by several points, so
+  single-run rankings were retracted in favour of stable profiles
+  ([`references/setup.md`](references/setup.md)).
 
 ## v1.2 (2026-07-25)
 
@@ -127,17 +111,25 @@ ratification step is judgment, not automation.
 
 ### Tiers — route work by weight
 
-| Tier | Model | Effort | For |
-|---|---|---|---|
-| Research | `gpt-5.6-sol` | max | open review rounds, adversarial verification |
-| Mechanical | `gpt-5.5` | medium | verifying a known claim with one probe |
-| Runner | `gpt-5.6-terra` | low | execute-and-report: run a script, babysit an import |
+| Tier | OpenAI (codex) | Moonshot (opt-in) | Effort | For |
+|---|---|---|---|---|
+| Research | `gpt-5.6-sol` | `k3` | max | open review rounds, adversarial verification |
+| Mechanical | `gpt-5.5` | — | medium | verifying a known claim with one probe |
+| Runner | `gpt-5.6-terra` | — | low | execute-and-report: run a script, babysit an import |
+
+Anthropic's seat is not a tier: **Opus 5 or Fable 5** orchestrates and ratifies rather than being
+routed to. On the Kimi side only `k3` is worth a seat — always name it, because the CLI's default
+is an older generation.
 
 ### Park-and-switch
 
 A codex session can be parked and resumed under a *different* model with its context intact —
-research on sol, mechanical follow-ups on a cheaper tier, one conversation. The full re-pin
-recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
+research on sol, mechanical follow-ups on a cheaper tier, one conversation. The full re-pin recipe
+(and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
+
+The Kimi CLI exposes session resume of its own (`-S <id>`, `--continue`), but cross-model switching
+on resume is untested here — treat it as unproven rather than available. The Claude seat needs none
+of this: it is the session driving the round, not a reviewer being resumed into.
 
 ## Requirements
 
@@ -147,11 +139,10 @@ recipe (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
 - The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
   (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
   cannot be turned into one; the CLI *is* the transport.
-- *Optional, experimental:* the third-family seat. The shipped wrapper drives **Kimi Desktop** on
-  Windows, installed and signed in. The engine itself is cross-platform — the **Kimi Code CLI**
-  runs natively on Linux and macOS with a headless print mode and device-code OAuth — but no
-  wrapper is shipped for that transport yet. Not needed for a default round, and read the caveats
-  above before enabling it.
+- *Optional, experimental:* the third-family seat — either **Kimi Desktop** on Windows or the
+  cross-platform **Kimi Code CLI**, each with its own wrapper. Not needed for a default round, and
+  it wants isolating: [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md)
+  builds a throwaway guest for it, and [`references/kimi-seat.md`](references/kimi-seat.md) is why.
 
 Two things worth knowing up front:
 
@@ -181,35 +172,10 @@ covers no more than running it twice at the *same* effort; accuracy is not monot
 some items stay unreachable at every level, and wall time climbs steeply. If you want coverage,
 add a lineage, not compute. If you want a variance estimate, run the same seat twice.
 
-**The experimental Kimi seat is the weakest link — treat it accordingly.** Opt-in, not in a default
-round, and the shipped wrapper is Windows-only even though the engine is not. Specifically:
-
-- **It has no sandbox, and it does not stay where you put it.** codex runs under `-s read-only`;
-  the Kimi seat has no equivalent, and its working directory is *not* a boundary — a canary file
-  outside it was read by absolute path and returned verbatim. This is routine behaviour, not a
-  corner case: expect it to read the live tree instead of the copy you gave it, and assume
-  anything readable is in scope. `-SandboxFrom` gives you blast-radius control and an audit trail of what
-  changed, not containment. **If the machine holds anything sensitive, run this seat in a VM** —
-  or at minimum a separate OS account whose ACLs deny the rest of your profile. That is the only
-  real isolation available for it today. On the cross-platform CLI transport the case is stronger
-  still: its headless print mode auto-approves every tool call by construction, so isolation there
-  is a precondition rather than a precaution. A worked example of building such a guest — and the
-  gotchas that cost time — is in
-  [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md); it is one
-  deployment, not the only approach.
-- **It fails silently.** It exits 0 on a connection failure, so check the output for the five
-  contract blocks rather than the exit code. Auto-bridging your project rules into the contract
-  reliably kills the run, so it ships off by default.
-- **Do not trust its arithmetic.** It reports counts that are wrong by a small margin while the
-  surrounding finding is correct — the failure mode most likely to be quoted onward unchecked.
-  Counts are the cheapest thing to re-derive, so re-derive them.
-- **Distinguish what it found from what it read.** A reviewer's most quotable claim is sometimes a
-  restatement of something already written in the material under review. That can still be
-  valuable — separating a failure recorded as one mechanism into two is real work — but it is not
-  discovery, and confident prose will not tell you which one you are getting.
-- **`-WatchPaths` is a tripwire, not proof.** Indexers, sync clients and antivirus also touch
-  files; an enumeration-based version of the same check reported "clean" on a run that had
-  demonstrably escaped, so verify any such check against a known escape before relying on it.
+**The experimental Kimi seat is the weakest link — treat it accordingly.** Opt-in, never in a
+default round. It has no sandbox and does not stay where you put it, it exits 0 on failure, and its
+arithmetic needs re-deriving. Run it isolated. The full handling rules, and the case for keeping it
+anyway, are in [`references/kimi-seat.md`](references/kimi-seat.md).
 
 **Reviews run long** — 5–15 minutes at research tier is normal. Run them in the background with a
 full timeout from the first call; a foreground timeout kills the probe mid-flight.
@@ -247,6 +213,7 @@ Then, in any Claude Code session: ask for a cross-model review / second opinion,
 | `scripts/concilium-review.ps1` | Reviewer wrapper, Windows (PowerShell 5.1+) |
 | `references/pitfalls.md` | Known issues and the rules that counter them |
 | `references/setup.md` | First-time setup, calibration, model head-to-head method |
+| `references/kimi-seat.md` | The experimental third seat: transports, handling rules, what testing it produced |
 | `references/isolated-guest-vmware.md` | Worked example: building a throwaway guest for the Kimi seat |
 | `scripts/concilium-review-kimi.sh` | Kimi seat wrapper, Linux/macOS (CLI transport) |
 | `scripts/concilium-review-kimi.ps1` | Kimi seat wrapper, Windows (desktop transport) |
