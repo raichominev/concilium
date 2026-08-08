@@ -131,7 +131,7 @@ esac
 # -p takes the prompt as an argument and runs one-shot; stream-json gives a parseable transcript
 # whose last assistant line is the answer. No -w on this build, so cd instead.
 ARGS=(-p "$PROMPT" --output-format stream-json)
-[ -n "${MODEL:-}" ] && ARGS+=(--model "$MODEL")
+[ -n "${MODEL:-}" ] && ARGS+=(--model "$MODEL") || echo ">> WARNING: MODEL unset — the CLI default is an older generation than the flagship (setup.md)" >&2
 
 echo ">> kimi -p <${#PROMPT} chars> --output-format stream-json ${MODEL:+--model $MODEL}  (cwd: $REPO_DIR)" >&2
 set +e

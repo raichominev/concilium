@@ -13,15 +13,22 @@
 ### Kimi seat (optional third family)
 Two transports. Only the desktop one has a wrapper in this repo.
 
-**Kimi Code CLI (Linux/macOS/Windows) — no wrapper shipped yet.** The engine is cross-platform and
-MIT-licensed. Install via the official script (single binary, no Node needed) or
+**Kimi Code CLI (Linux/macOS/Windows) — `scripts/concilium-review-kimi.sh`.** The engine is
+cross-platform and MIT-licensed. Install via the official script (single binary, no Node needed) or
 `npm i -g @moonshot-ai/kimi-code` with Node ≥22.19.0; state lives in `~/.kimi-code/`, relocatable
 with `KIMI_CODE_HOME`. Auth is device-code OAuth (authorise on any device) or a platform API key,
-so it works headless. Headless run: `kimi -p "<prompt>"`, plus `--final-message-only` to capture
-just the final answer. ⚠ Print mode implies auto-approval of every tool call and cannot be combined
-with `--yolo`/`--auto`/`--plan` — it is *more* permissive than the desktop seat's `manual` mode, so
-run it in a container or throwaway VM. ⚠ Naming trap: the PyPI `kimi-code` is an empty
-meta-package for the legacy Python agent (state in `~/.kimi/`); the real one is the npm package.
+so it works headless. Verified against v0.34.0:
+- **Always pass `--model`.** The shipped `default_model` is an older generation than the flagship,
+  and nothing in the output tells you which model answered. A seat you did not choose is not a seat.
+- **Reasoning effort is config-only** — there is no `--effort` flag. It lives per model alias in
+  `config.toml` as `default_effort`, alongside the `support_efforts` list for that alias.
+- **Prompt goes in via `-p` as an argv argument.** Piping to stdin without `-p` hangs on a TTY wait;
+  it is not an input path. There is no `--final-message-only`/`--print`/`--quiet`/`-w`: use
+  `--output-format stream-json` and take the last `{"role":"assistant"}` line, and `cd` for workdir.
+- ⚠ Print mode auto-approves every tool call by construction — *more* permissive than the desktop
+  seat's `manual` mode — so run it in a container or throwaway VM.
+- ⚠ Naming trap: the PyPI `kimi-code` is an empty meta-package for the legacy Python agent (state in
+  `~/.kimi/`); the real one is the npm package.
 
 **Kimi Desktop (Windows) — the shipped wrapper.** Requires the desktop app installed and signed in.
 `scripts/concilium-review-kimi.ps1` drives the bundled `kimi-daimon` runner directly:
@@ -87,10 +94,15 @@ orchestrator seat — or a whole panel — with your own project as the benchmar
    retrieval, which is saturated, and every seat scores 100% (measured three times; see the Kimi
    section below). Uncertain-outcome prediction is the whole point.
 2. Run every candidate chair CLEAN-CONTEXT (pitfall #16 — structural isolation, headless, tools
-   off) on the identical packet. One run per chair minimum; two catches run instability.
-3. Score accuracy against recorded outcomes — but also PAIRWISE ERROR OVERLAP: two chairs that
-   miss the same items add less than their solo accuracies suggest. Seat by PANEL COVERAGE
-   (which pair/trio leaves fewest items missed by all), not by solo rank.
+   off) on the identical packet. **Three runs per chair, minimum.** One run is not a measurement:
+   measured spreads reach 4 points on a 14-item packet *within a single seat at identical
+   settings*, which is larger than most between-seat differences you will be tempted to act on.
+3. Score on the STABLE profile — items a chair gets right in every replicate, wrong in every
+   replicate, and the ones that flip — not on a single run's total. Then take PAIRWISE ERROR
+   OVERLAP over the stable-wrong sets: two chairs that stably miss the same items add less than
+   their solo accuracies suggest. Seat by PANEL COVERAGE, not by solo rank, and treat a seat's
+   spread as a property in its own right — the highest single score measured came from one of the
+   least stable seats.
 4. Expect same-lineage chairs to correlate (pitfall #16's paired rerun also exposed a shared
    wrong inference produced independently); the cross-lineage seat usually rescues items the
    family jointly misses. That measured panel math — not model cards — is what seated Opus 5
@@ -126,18 +138,40 @@ pre-registration (change + metric + baseline), strip the recorded outcome, and h
 WIN/FAIL. A log's numbers are usually quoted across many other documents and version-control
 objects, so stripping the repo is hopeless — instead give chairs a purpose-built directory holding
 only what they need, grep-verified to contain no result tokens, and watch the log for reads
-(pitfall #21). Two runs, 12 and 14 sound items:
+(pitfall #21). Two packets were built this way, of 12 and 14 sound items.
 
-| | codex | claude | kimi |
-|---|---|---|---|
-| run A (12 items) | 9/12 | 10/12 | 9/12 |
-| run B (14 items) | 9/14 | 7/14 | 7/14 |
+**⚠ One run per seat cannot rank seats — measure the noise floor first.** Repeating the 14-item
+packet three times per seat, at identical settings, gave a **spread of up to 4 points inside a
+single seat**: one scored 8/4/6 across its three runs. Any single-run comparison of two seats a
+point or two apart is reading sampling noise. Earlier versions of this section quoted exactly such
+numbers, and pairwise-coverage claims built on them did not survive replication.
 
-In run A every pair covered 11/12 and **the trio covered 12/12**, with each pair's both-miss a
-*different single item* — so each seat was the sole correct answerer on exactly one item and
-**removing any seat cost exactly one item**. In run B the best pair was codex+kimi at 10/14
-against codex+claude at 9/14: on that packet the cross-family seat was a better second chair than
-a same-lineage one, which is what the lineage rule predicts.
+The durable unit is the **stable profile**: which items a seat gets right in *every* replicate,
+wrong in *every* replicate, and which flip. Twelve runs, four seats, three replicates each:
+
+| seat | scores | spread | stable-correct | stable-wrong | flips |
+|---|---|---|---|---|---|
+| A (family 1, older gen) | 8, 4, 6 | 4 | 3 | 5 | 6 |
+| B (family 1, newer gen) | 7, 7, 5 | 2 | 5 | 6 | 3 |
+| C (family 2) | 11, 8, 7 | 4 | 7 | 3 | 4 |
+| D (family 3) | 9, 8, 8 | **1** | **8** | 5 | **1** |
+
+Stability is itself a seat property worth knowing, and it does not track accuracy: the highest
+single score (11) came from a seat with a 4-point spread, while the most consistent seat never
+moved more than a point. A seat that swings 4 points needs replicates before you believe any
+number from it.
+
+**A model generation is not a second seat.** Seats A and B are the same family, one generation
+apart. Their stable blind spots overlap on four items and **neither rescues a single item the
+other stably misses** — in either direction. Cross-*family* seats do rescue items from both. So
+generation behaves like reasoning effort (measured above): it resamples the same blind spots
+rather than moving them. **Only a different lineage moves them** — that is now three independent
+measurements pointing the same way (effort, repetition, generation).
+
+Scored on stable profiles rather than single runs, the four-seat panel leaves exactly **one item
+stably wrong for every seat**. That item is the one where a mechanism is obviously sound and every
+model assumes the metric must therefore move; it does not. Worth knowing that such items exist:
+they are invisible to a panel, however many lineages you add.
 
 Three things worth stealing from the failures:
 
