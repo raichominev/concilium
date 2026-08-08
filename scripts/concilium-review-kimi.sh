@@ -11,7 +11,6 @@
 #
 # Env:
 #   MODEL          model alias to pass through (default: leave the CLI's own default alone)
-#   EFFORT         reasoning effort if your build exposes one; unset = CLI default
 #   REPO_DIR       tree under review (default: git toplevel, else cwd)
 #   PROJECT_RULES  path to a curated ground-rules file appended to the contract
 #   PRIOR_ROUNDS   path to a prior-rounds file (loop mode)
@@ -28,8 +27,13 @@
 #   Run it in a container or a throwaway VM holding the payload and nothing else. SANDBOX_FROM
 #   bounds the blast radius and proves what changed; it is not containment.
 #
-# STATUS: DRAFT — not yet exercised against a live CLI. Verify the flag names against
-# `kimi --help` on your build before trusting it; the CLI is young and its surface moves.
+# VERIFIED against Kimi Code CLI v0.34.0 on Ubuntu 24.04. The surface is young and moves — re-check
+# `kimi --help` if your version differs. Notes from that verification:
+#   * the prompt goes in via `-p` as an ARGV argument. Piping to stdin without `-p` HANGS (the CLI
+#     waits on a TTY) — it is not an input path. A full contract is ~10 KB, far under ARG_MAX.
+#   * there is no --final-message-only / --print / --quiet / -w / --effort on this build. Use
+#     --output-format stream-json and take the last {"role":"assistant"} line; cd for the workdir.
+#   * `-p` alone already auto-approves tool calls; --yolo/--auto are for interactive mode.
 
 set -euo pipefail
 
@@ -103,7 +107,7 @@ fi
 
 CONTRACT="$CONTRACT
 
-Runtime provenance (use in PHASE-LOG): model=${MODEL:-cli-default}, effort=${EFFORT:-cli-default}, transport=kimi-code-cli."
+Runtime provenance (use in PHASE-LOG): model=${MODEL:-cli-default}, transport=kimi-code-cli (v0.34.0 surface)."
 
 # --- build the prompt ---------------------------------------------------------------------------
 case "$MODE" in
@@ -124,19 +128,37 @@ $D" ;;
 esac
 
 # --- run ----------------------------------------------------------------------------------------
-# -p is one-shot and exits; --final-message-only drops intermediate tool chatter so the five
-# blocks arrive clean. Prompt goes on stdin: no argv length limit, no quoting hazard (the Win32
-# argv mangling of pitfalls #19 is a Windows artifact and does not apply here).
-ARGS=(-p --final-message-only -w "$REPO_DIR")
-[ -n "${MODEL:-}" ]  && ARGS+=(--model "$MODEL")
-[ -n "${EFFORT:-}" ] && ARGS+=(--effort "$EFFORT")
+# -p takes the prompt as an argument and runs one-shot; stream-json gives a parseable transcript
+# whose last assistant line is the answer. No -w on this build, so cd instead.
+ARGS=(-p "$PROMPT" --output-format stream-json)
+[ -n "${MODEL:-}" ] && ARGS+=(--model "$MODEL")
 
-echo ">> kimi ${ARGS[*]}" >&2
+echo ">> kimi -p <${#PROMPT} chars> --output-format stream-json ${MODEL:+--model $MODEL}  (cwd: $REPO_DIR)" >&2
 set +e
-RAW="$(printf '%s' "$PROMPT" | kimi "${ARGS[@]}")"
+STREAM="$(cd "$REPO_DIR" && kimi "${ARGS[@]}" 2>&1)"
 CODE=$?
 set -e
-printf '%s\n' "$RAW"
+
+# last assistant message = the review; falls back to the raw stream if parsing finds nothing
+RAW="$(printf '%s
+' "$STREAM" | python3 -c '
+import sys, json
+out = []
+for line in sys.stdin:
+    line = line.strip()
+    if not line.startswith("{"):
+        continue
+    try:
+        d = json.loads(line)
+    except Exception:
+        continue
+    if d.get("role") == "assistant" and isinstance(d.get("content"), str):
+        out.append(d["content"])
+print(out[-1] if out else "")
+')"
+[ -n "$RAW" ] || RAW="$STREAM"
+printf '%s
+' "$RAW"
 
 # --- never trust the exit code (#18) -------------------------------------------------------------
 BLOCKS=$(printf '%s' "$RAW" | grep -cE '^(PROBE|ALT|CAVEAT|VERDICT-PROPOSAL|PHASE-LOG):' || true)
