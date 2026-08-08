@@ -21,7 +21,7 @@ side's confidence ever substitutes for evidence.
 > earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own
 > (see the [maintenance rule](#maintenance-rule-docs--examples) before adding examples).
 
-## v1.3 (2026-08-07)
+## v1.3 (2026-08-08)
 
 - **An experimental third-family seat: Kimi (`k3-agent`), opt-in.** A Moonshot model can now sit
   as a third reviewer alongside the Claude orchestrator and the GPT reviewer, driven through
@@ -38,6 +38,15 @@ side's confidence ever substitutes for evidence.
   that seat's own blind spots; a different lineage is what moves them — SKILL.md, tier matrix.
   The same holds for a model *generation*: two generations of one family rescued nothing from each
   other, while a different family rescued items from both.
+- **A verified CLI wrapper for the Kimi seat**, `scripts/concilium-review-kimi.sh` — same contract
+  and same five blocks as its PowerShell sibling. Exercised against a live install rather than
+  written from documentation, which corrected four flags that do not exist on the shipped CLI and
+  found that piping a prompt to stdin hangs: it must go in as an argv argument.
+- **Measured: one run is not a measurement.** Three replicates per seat at identical settings moved
+  scores by up to 4 points, with up to 43% of items flipping between runs. Rankings and
+  pair-coverage figures drawn from single runs sat inside that noise, so those in
+  [`references/setup.md`](references/setup.md) were replaced with **stable profiles** — the items a
+  seat gets right, or wrong, in *every* replicate. Three runs is enough to see it and cheap to get.
 - **A worked guest build for the Kimi seat.** The seat can be run from a throwaway VM holding the
   payload and nothing else, which is the one configuration that produced a round that stayed put:
   [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md).

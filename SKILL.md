@@ -5,9 +5,9 @@ description: >-
   Claude session (Opus 5 or Fable 5 as the intended orchestrator) hands a claim, diff, or result to an
   OpenAI model (gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
   auth, no API key), which probes it with falsification attempts and PROPOSES a verdict; the
-  orchestrator checks the probe and RATIFIES. An EXPERIMENTAL, opt-in third-family seat (Kimi
-  k3-agent via the local Kimi Desktop runner) can be added when asked for; it is NOT part of a
-  default round. Use whenever the user wants a second opinion from a different model, a
+  orchestrator checks the probe and RATIFIES. An EXPERIMENTAL, opt-in third-family seat (Kimi,
+  via either the Kimi Code CLI or the local Kimi Desktop runner) can be added when asked for; it
+  is NOT part of a default round. Use whenever the user wants a second opinion from a different model, a
   cross-model or concilium review, adversarial verification of a research claim, benchmark
   number, or diff, says "have GPT/codex check this", explicitly asks to add the kimi seat, wants
   codex set up as a reviewer, needs to switch codex models mid-session (park-and-resume), is
@@ -36,13 +36,15 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
    trusting verdicts: a known-truth reasoning test, then one simple real task, then (optionally)
    a head-to-head to pick tier models.
 4. Kimi seat — **EXPERIMENTAL and opt-in; never part of a default round.** Add it only when the
-   user explicitly asks for a third family. Two transports, and only the first has a wrapper here:
+   user explicitly asks for a third family. Two transports, each with its own wrapper here:
    - **Kimi Desktop (Windows).** `scripts/concilium-review-kimi.ps1` drives the app's bundled
      daimon runner under its own Electron. Requires the desktop app installed and signed in.
-   - **Kimi Code CLI (Linux/macOS/Windows).** The engine is cross-platform and MIT-licensed, with a
-     headless print mode (`kimi -p`, `--final-message-only`) and device-code OAuth, so it suits a
-     container or a throwaway VM. **No wrapper is shipped for it yet.** ⚠ Print mode auto-approves
-     every tool call by construction, so isolation there is a precondition, not a precaution.
+   - **Kimi Code CLI (Linux/macOS/Windows).** `scripts/concilium-review-kimi.sh` drives the
+     cross-platform, MIT-licensed CLI — headless `kimi -p` plus device-code OAuth, so it suits a
+     container or a throwaway VM (worked example: references/isolated-guest-vmware.md). ⚠ Print
+     mode auto-approves every tool call by construction, so isolation there is a precondition, not
+     a precaution. ⚠ Always pass `--model`: the CLI's built-in default is an older generation than
+     the flagship and nothing in the output names it.
 
    Calibrated but flakier than codex, and weaker on isolation: paths, models, sandboxing and the
    caveats are in references/setup.md and pitfalls #18–21.
@@ -93,9 +95,11 @@ scripts) and add provenance stamping. Both wrappers are functionally identical; 
 - Diff:  `... -Diff [-Base <branch>]` — reviews the working-tree diff of `-RepoDir`.
 
 **Kimi third-family seat — EXPERIMENTAL, opt-in.** Not part of a default round; add it only when
-the user asks for a third family. The shipped wrapper drives the **Windows desktop** transport;
-for the cross-platform CLI transport see prerequisite 4. `scripts/concilium-review-kimi.ps1` — same contract, same
-five blocks, same `-Claim`/`-Diff`/`-RepoDir`/`-ProjectRules`/`-PriorRounds` surface, plus
+the user asks for a third family. Two wrappers, same contract and same five blocks:
+`concilium-review-kimi.sh` (cross-platform CLI, env-configured — `MODEL` is mandatory there) and
+`concilium-review-kimi.ps1` (Windows desktop runner).
+
+The desktop wrapper takes the same `-Claim`/`-Diff`/`-RepoDir`/`-ProjectRules`/`-PriorRounds` surface, plus
 `-Model` (default `k3-agent`), `-Effort` (`low|high|max`) and `-RawPrompt` (no contract, for
 calibration probes). Two seat-specific differences, both measured: **CLAUDE.md auto-bridging is
 OFF by default here** — the injection reliably kills the run with a bare `Connection error.`, so
