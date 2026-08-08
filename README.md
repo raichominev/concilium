@@ -21,6 +21,10 @@ side's confidence ever substitutes for evidence.
 > earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own
 > (see the [maintenance rule](#maintenance-rule-docs--examples) before adding examples).
 
+> **If this looks complicated — it isn't.** All of it is what the skill knows, not what you have to.
+> After install, just fire `/concilium` and state your problem. The rest of this page is here for
+> when you want to know why it did what it did.
+
 ## v1.3 (2026-08-08)
 
 - **An experimental third-family seat: Kimi (`k3-agent`), opt-in.** A Moonshot model can now sit
