@@ -8,9 +8,9 @@ the work, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra**, and **gpt-5.5** serve
 reviewers and executors — reached through the official `codex` CLI on a plain **ChatGPT
 subscription, no API key**.
 
-A third lineage — Moonshot's **Kimi `k3-agent`**, via a locally installed Kimi Desktop — is
-available as an **experimental, opt-in** seat; it is not part of a default round, and the
-[caveats](#caveats--read-before-trusting-a-round) apply.
+A third lineage — Moonshot's **Kimi** — is available as an **experimental, opt-in** seat, via
+either a locally installed Kimi Desktop (Windows) or the cross-platform Kimi Code CLI. It is not
+part of a default round, and the [caveats](#caveats--read-before-trusting-a-round) apply.
 
 It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
 research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust.
@@ -24,8 +24,9 @@ side's confidence ever substitutes for evidence.
 ## v1.3 (2026-08-07)
 
 - **An experimental third-family seat: Kimi (`k3-agent`), opt-in.** A Moonshot model can now sit
-  as a third reviewer alongside the Claude orchestrator and the GPT reviewer, driven through a
-  locally installed Kimi Desktop (Windows; no CLI, no API key). **It is not part of a default
+  as a third reviewer alongside the Claude orchestrator and the GPT reviewer, driven through
+  either a locally installed Kimi Desktop (Windows) or the cross-platform Kimi Code CLI, which
+  suits a container or throwaway VM. **It is not part of a default
   round** — ask for it explicitly. Miscounts and reads outside its sandbox. Treat it as a seat
   that earns its place and needs watching, not a drop-in third opinion; handling rules are in the
   [caveats](#caveats--read-before-trusting-a-round). Setup, numbers and limits:
@@ -35,6 +36,11 @@ side's confidence ever substitutes for evidence.
   unread. Neither is containment — see the caveats below and pitfalls #20–21.
 - **Measured: reasoning effort does not buy panel coverage.** Varying one seat's effort resamples
   that seat's own blind spots; a different lineage is what moves them — SKILL.md, tier matrix.
+  The same holds for a model *generation*: two generations of one family rescued nothing from each
+  other, while a different family rescued items from both.
+- **A worked guest build for the Kimi seat.** The seat can be run from a throwaway VM holding the
+  payload and nothing else, which is the one configuration that produced a round that stayed put:
+  [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md).
 
 ## v1.2 (2026-07-25)
 
@@ -111,7 +117,7 @@ ratification step is judgment, not automation.
 
 | Tier | Model | Effort | For |
 |---|---|---|---|
-| Research | `gpt-5.6-sol` | high | open review rounds, adversarial verification |
+| Research | `gpt-5.6-sol` | max | open review rounds, adversarial verification |
 | Mechanical | `gpt-5.5` | medium | verifying a known claim with one probe |
 | Runner | `gpt-5.6-terra` | low | execute-and-report: run a script, babysit an import |
 
@@ -175,7 +181,10 @@ round, and the shipped wrapper is Windows-only even though the engine is not. Sp
   or at minimum a separate OS account whose ACLs deny the rest of your profile. That is the only
   real isolation available for it today. On the cross-platform CLI transport the case is stronger
   still: its headless print mode auto-approves every tool call by construction, so isolation there
-  is a precondition rather than a precaution.
+  is a precondition rather than a precaution. A worked example of building such a guest — and the
+  gotchas that cost time — is in
+  [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md); it is one
+  deployment, not the only approach.
 - **It fails silently.** It exits 0 on a connection failure, so check the output for the five
   contract blocks rather than the exit code. Auto-bridging your project rules into the contract
   reliably kills the run, so it ships off by default.
@@ -226,6 +235,9 @@ Then, in any Claude Code session: ask for a cross-model review / second opinion,
 | `scripts/concilium-review.ps1` | Reviewer wrapper, Windows (PowerShell 5.1+) |
 | `references/pitfalls.md` | Known issues and the rules that counter them |
 | `references/setup.md` | First-time setup, calibration, model head-to-head method |
+| `references/isolated-guest-vmware.md` | Worked example: building a throwaway guest for the Kimi seat |
+| `scripts/concilium-review-kimi.sh` | Kimi seat wrapper, Linux/macOS (CLI transport) |
+| `scripts/concilium-review-kimi.ps1` | Kimi seat wrapper, Windows (desktop transport) |
 | `evals/evals.json` | Draft test prompts for skill evaluation |
 
 ## Maintenance rule (docs & examples)
