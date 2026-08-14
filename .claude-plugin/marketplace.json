@@ -30,6 +30,31 @@
         "second-opinion",
         "verification"
       ]
+    },
+    {
+      "name": "deep-handoff",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/raichominev/session-handoff-skill.git",
+        "path": "."
+      },
+      "description": "Write a session-close handoff that survives: a handoff document, durable facts wired into the project's own docs, scripts smoke-tested, and a paste-ready continuation prompt — then verified in rounds, changing the probe each round.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Raicho Minev",
+        "url": "https://github.com/raichominev"
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/raichominev/session-handoff-skill",
+      "repository": "https://github.com/raichominev/session-handoff-skill",
+      "keywords": [
+        "session-handoff",
+        "context-management",
+        "documentation",
+        "verification",
+        "agent-skills",
+        "prompt-engineering"
+      ]
     }
   ]
 }
