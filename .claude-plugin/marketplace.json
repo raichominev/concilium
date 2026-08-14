@@ -8,10 +8,7 @@
   "plugins": [
     {
       "name": "concilium",
-      "source": {
-        "source": "github",
-        "repo": "raichominev/concilium"
-      },
+      "source": "./",
       "description": "Cross-model adversarial review: a Claude session orchestrates, an OpenAI model reviews via the codex CLI on ChatGPT-subscription auth (no API key), and the orchestrator ratifies the verdict.",
       "version": "1.3.0",
       "author": {

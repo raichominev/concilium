@@ -29,8 +29,7 @@ Different lineage means different blind spots.
 /plugin install concilium@raicho-skills
 ```
 
-`owner/repo` shorthand clones over SSH by default; if you have no GitHub SSH key loaded, set
-`CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` first.
+No SSH key needed — the shorthand falls back to HTTPS on its own.
 
 **Or by hand** — Linux / macOS:
 
