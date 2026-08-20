@@ -1,3 +1,9 @@
+---
+layout: default
+title: "Introducing Concilium"
+permalink: /
+---
+
 # Introducing Concilium
 
 ## One question, several models
