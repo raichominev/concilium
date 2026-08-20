@@ -67,6 +67,20 @@ if [ -n "${PRIOR_ROUNDS:-}" ] && [ -f "$PRIOR_ROUNDS" ]; then
 $(cat "$PRIOR_ROUNDS")"
 fi
 
+# Reasoning boost — OFF by default for THIS seat, deliberately. Measured 2026-08-19 on the 14-item
+# prediction packet: the same block that helped the kimi and grok seats made codex WORSE (-6.7 pp,
+# d' 0.34 -> 0.00, false alarms 46.7% -> 53.3%). This seat's criterion was already the most
+# FAIL-leaning of the panel, and pushing it further cost discrimination. Enable with
+# REASONING_BOOST=1 if you want it for a specific round; do not make it the default without
+# re-measuring. Detail and the per-seat table: references/setup.md.
+BOOST_PATH="$(dirname "$CONTRACT_PATH")/reasoning-boost.md"
+if [ "${REASONING_BOOST:-0}" != 0 ] && [ -f "$BOOST_PATH" ]; then
+  CONTRACT="$CONTRACT
+
+$(cat "$BOOST_PATH")"
+  printf '>> reasoning boost ON (measured NEGATIVE for this seat — REASONING_BOOST=0 to disable)\n' >&2
+fi
+
 # Provenance stamp: the model does not reliably know its own id, so the wrapper injects it.
 CONTRACT_FULL="$CONTRACT
 

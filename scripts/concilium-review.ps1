@@ -32,6 +32,7 @@ param(
   [string]$ProjectRules,
   [string]$PriorRounds,
   [switch]$NoAutoRules,
+  [switch]$ReasoningBoost,
   [string]$Model  = "gpt-5.6-sol",
   [string]$Effort = "max",
   [string]$RepoDir = ""
@@ -88,6 +89,17 @@ if ($PriorRounds -and (Test-Path $PriorRounds)) {
 if (-not $Diff -and [string]::IsNullOrWhiteSpace($Claim)) {
   Write-Error "Provide -Claim `"<text>`" or -Diff. See the header for usage."
   exit 2
+}
+
+# Reasoning boost - OFF by default for THIS seat, deliberately. Measured 2026-08-19 on the 14-item
+# prediction packet: the same block that helped the kimi and grok seats made codex WORSE (-6.7 pp,
+# d-prime 0.34 to 0.00, false alarms 46.7% to 53.3%). This seat's criterion was already the most
+# FAIL-leaning of the panel and pushing it further cost discrimination. -ReasoningBoost enables it
+# for one round; do not make it the default without re-measuring.
+$BoostPath = Join-Path $PSScriptRoot "..\references\reasoning-boost.md"
+if ($ReasoningBoost -and (Test-Path $BoostPath)) {
+  $Contract += "`n`n" + (Get-Content -Raw -Encoding UTF8 $BoostPath)
+  Write-Host ">> reasoning boost ON (measured NEGATIVE for this seat)" -ForegroundColor Yellow
 }
 
 # Provenance stamp: the model does not reliably know its own id, so the wrapper injects it.

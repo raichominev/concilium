@@ -45,6 +45,22 @@ so it works headless. Verified against v0.34.0:
 - CLAUDE.md auto-bridging is **off by default** for this seat (opt in with `-AutoRules`; prefer
   `-ProjectRules`) — see pitfalls #18. Pass multi-line prompts only through the wrapper (#19).
 
+### Grok seat (optional fourth family)
+
+Transport is the **Cursor Agent CLI** on Cursor-subscription auth — no xAI API key. Install:
+`curl https://cursor.com/install -fsS | bash` (Windows: `irm 'https://cursor.com/install?win32=true' | iex`),
+then `cursor-agent login` (browser/device OAuth — the user does this) and `cursor-agent status` to
+confirm. `cursor-agent --list-models` prints the roster; **effort is baked into the model id**
+(`cursor-grok-4.6-{low,medium,high,xhigh}`, each with a `-fast` sibling) and there is no effort flag.
+
+- The installer writes PATH into `.bashrc`, which non-interactive SSH never sources — put it in
+  `.profile` instead, exactly like the kimi CLI, and verify with `bash -lc 'command -v cursor-agent'`.
+- A fresh working directory needs `--trust` in headless, or the run refuses with a trust prompt.
+- On Linux the session also lives in `~/.local/share/cursor-agent`, which `CURSOR_CONFIG_DIR` does
+  **not** cover — see pitfalls #22 before touching `HOME` for this seat.
+
+Seat detail, measured limits and calibration numbers: [`grok-seat.md`](grok-seat.md).
+
 ## Calibration bootstrap (do this before trusting verdicts in a new environment)
 
 1. **Known-truth reasoning test** (proves the connection + model sanity, no tools):
@@ -184,10 +200,15 @@ Three things worth stealing from the failures:
 - **Randomise item order.** A first draft had every true-WIN item first; position must carry no
   signal.
 
-Direction of error is **mode-dependent**, and this is the most transferable result: in adversarial
-*adjudication* chairs over-refute (they reject true claims), while in outcome *prediction* the
-same models were over-credulous — 61% correct on changes that worked versus 46% on changes that
-failed. Never carry a bias correction from one mode into the other.
+Direction of error is **mode-dependent**: in adversarial *adjudication* chairs over-refute (they
+reject true claims), while in outcome *prediction* the same models were over-credulous — 61%
+correct on changes that worked versus 46% on changes that failed. Never carry a bias correction
+from one mode into the other.
+
+⚠ **It is lineage-dependent too** (2026-08-19). The xAI seat, measured on the same packet in an
+isolated guest, errs the *other* way in prediction mode — 14 FAIL-on-a-WIN against 7
+WIN-on-a-FAIL. So the mode rule above describes the three families measured in 2026-08-07, not
+models in general: re-measure the direction per seat before correcting for it.
 
 **Calibration**: on items every seat got right, mean stated confidence was codex 99.7 (96–100,
 effectively flat), Kimi 95.1 (80–99), Claude 93.9 (90–97). Codex is least willing to express
@@ -197,6 +218,67 @@ vote by its own stated confidence.
 **Reliability**: 0/2 Kimi wrapper runs completed with rule auto-bridging on, which is why that
 wrapper defaults bridging OFF. With bridging off it is better but not reliable (pitfalls #18).
 Never trust its exit code.
+
+## Measured: a "be inventive / take a strong position" instruction is a criterion knob (2026-08-19)
+
+Five seats (Claude in-session, Claude blind, codex, grok, kimi) × 2 arms × 3 replicates = 30 runs on
+the same 14-item packet, differing by one inserted "HOW TO REASON" paragraph telling the chair to
+hunt non-obvious connections, be inventive and specific, and take the strong position because a
+hedge scores the same as a miss.
+
+Pooled on the 10 items no project note answers: accuracy 60.7% → 65.3% (**95% CI over items
+[−3.3, +14.7] — includes zero, so not proven**), but hit rate fell only 70.7% → 66.7% while **false
+alarms fell 49.3% → 36.0%**, moving d′ 0.56 → 0.79 and the criterion toward FAIL in 4 of 5 seats.
+
+**Read it as a skepticism knob, not a reasoning upgrade**, and apply it per seat rather than
+panel-wide: it gained +10 to +13 points for the seats that over-called WIN (kimi FA 93%→67%, grok
+FA 33%→7%) and *cost* points for the two that were already discriminating (blind Claude −3.4 with d′
+1.54→1.25; codex −6.7 with d′ 0.34→0.00). The origin project keeps the per-seat table and the 30
+raw run files in its own docs.
+
+⚠ That experiment also measured what a Claude subagent's own system prompt costs a blind round: an
+in-session chair inherits the project's CLAUDE.md and memory, which stated 4 of the 14 answers
+outright, and scored 76.2% against the same family's 57.1% in an isolated guest. **A subagent of the
+project under study is not a blind seat**, no matter what the prompt says (pitfall #16/#17).
+
+⚠ **The matching ADJUDICATION A/B is a null result on a saturated packet — do not quote it as
+"the boost is safe for reviews".** 14 self-contained claims (7 true / 7 false, ground truth
+established by executing each one), 19 runs across codex, kimi and blind Claude: **266 decisions,
+zero errors in either arm**. It rules out over-refutation on *unambiguous* claims and nothing more.
+The cause is the saturation rule below wearing a second costume: the items were classic language
+gotchas, which are **memorized facts, not derivations** — self-contained is not the same property as
+unsaturated. A packet that could measure this needs claims computed from invented data, plus
+true-but-surprising claims to bait refutation.
+
+## Measured: blind originality ranking of the seats (2026-08-19)
+
+51 ideas pooled from a 2-round forge across four seats, seat labels stripped, ids neutralised and
+shuffled by content hash, then ranked by five rankers. **Self-ratings AND same-family ratings were
+dropped**, so no seat scored its own or its sibling's ideas. Score = weighted top-12 placements per
+idea contributed.
+
+| seat | items | pts/item |
+|---|---:|---:|
+| codex (gpt-5.6-sol) | 12 | **11.17** |
+| claude-opus (guest) | 12 | 5.83 |
+| kimi (k3) | 13 | 5.00 |
+| grok (cursor-grok-4.6-xhigh) | 14 | **1.43** |
+
+Three things this measured that the orchestrator's own qualitative read got WRONG:
+- **grok ranked last on originality**, and four of five rankers flagged three of its ideas as plain
+  restatements of the frozen known-methods list. The orchestrator had rated it mid-pack, conflating
+  *executability* (grok writes by far the most runnable tests) with *originality*.
+- codex's lead is larger than any impression suggested — roughly 2x the next seat.
+- claude-opus vs kimi is a coin flip; do not rank them from a single round.
+
+**But the ranking does not predict chaining.** In the following round, where seats were told to
+combine ORPHANED ideas rather than generate new ones, **grok — last on solo originality — produced
+the best chains**, fusing two ideas that were each only a critique into a single instrument. Rank
+seats per task, not once.
+
+Reproducing this needs four things and nothing else: the pooled ideas with seat labels stripped and
+ids shuffled by content hash, an author key held back, one ranking prompt per ranker, and a scorer
+that drops self- **and** same-family ratings before counting.
 
 ## Measured: effort is not a substitute for a second family (2026-08-07)
 

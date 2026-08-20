@@ -5,13 +5,18 @@ description: >-
   Claude session (Opus 5 or Fable 5 as the intended orchestrator) hands a claim, diff, or result to an
   OpenAI model (gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
   auth, no API key), which probes it with falsification attempts and PROPOSES a verdict; the
-  orchestrator checks the probe and RATIFIES. An EXPERIMENTAL, opt-in third-family seat (Kimi,
-  via either the Kimi Code CLI or the local Kimi Desktop runner) can be added when asked for; it
-  is NOT part of a default round. Use whenever the user wants a second opinion from a different model, a
+  orchestrator checks the probe and RATIFIES. Two EXPERIMENTAL, opt-in extra-family seats can be
+  added when asked for — Kimi (Moonshot, via the Kimi Code CLI or the local Kimi Desktop runner)
+  and Grok (xAI, via the Cursor Agent CLI on Cursor-subscription auth); neither is part of a
+  default round. Use whenever the user wants a second opinion from a different model, a
   cross-model or concilium review, adversarial verification of a research claim, benchmark
-  number, or diff, says "have GPT/codex check this", explicitly asks to add the kimi seat, wants
-  codex set up as a reviewer, needs to switch codex models mid-session (park-and-resume), is
-  tiering work across codex models, or wants to LOOP/iterate rounds until a claim converges.
+  number, or diff, says "have GPT/codex check this", explicitly asks to add the kimi or grok seat,
+  wants codex set up as a reviewer, needs to switch codex models mid-session (park-and-resume), is
+  tiering work across codex models, or wants to LOOP/iterate rounds until a claim converges. Also
+  covers FORGE mode — cross-model idea GENERATION against an open research question, where seats
+  build on each other's ideas through a shared register and nothing is judged or voted on — so use
+  it when the user wants original ideas, a research plan, brainstorming across models, or asks what
+  nobody has tried yet; and it catalogues the other multi-model modes worth running.
 ---
 
 # Concilium — cross-model adversarial review
@@ -28,8 +33,11 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
 
 ## Prerequisites (check once per environment)
 
-1. `codex login status` → must say "Logged in using ChatGPT" (subscription OAuth — an API key is
-   NOT needed and a subscription can NOT be used as one; don't attempt proxy/router bridges).
+1. `codex login status` → must say "Logged in using ChatGPT" (subscription OAuth). An API key is
+   NOT needed. It is not forbidden either — the wrappers inherit whatever session the CLI already
+   has, so `codex login --with-api-key` works identically and simply bills per token. What does NOT
+   work is the reverse: a subscription can NOT be used as an API key, so don't attempt proxy/router
+   bridges.
 2. Discover available models: `codex debug models` or `~/.codex/models_cache.json`. If a model
    errors "requires a newer version of Codex", run `codex update` and retry.
 3. First time in a new environment, run the calibration bootstrap (references/setup.md) before
@@ -48,6 +56,14 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
 
    Calibrated but flakier than codex, and weaker on isolation: paths, models, sandboxing and the
    caveats are in references/setup.md and pitfalls #18–21.
+5. Grok seat (xAI, fourth family) — **EXPERIMENTAL and opt-in; never part of a default round.**
+   `scripts/concilium-review-cursor.{sh,ps1}` drive the **Cursor Agent CLI** on Cursor-subscription
+   auth (no xAI API key, no per-token bill), default model `cursor-grok-4.6-xhigh`. Effort is baked
+   into the model id, not a flag, and the wrappers refuse `-fast` ids unless you override.
+   Isolation is better than kimi's (`--mode ask` provably blocks writes) but still not containment
+   (the workspace is not a boundary; `--sandbox` is macOS/Linux only). It scored BELOW codex on the
+   calibration packet — seat it for fourth-lineage coverage, not accuracy. Full detail, numbers and
+   two Windows-only traps that silently break it: references/grok-seat.md, pitfalls #22–26.
 
 ## Tier matrix (defaults are current-day models — override per installation)
 
@@ -77,6 +93,54 @@ Runner tasks are NOT reviews — skip the wrapper and call codex directly:
 an open non-TTY stdin blocks codex forever on "Reading additional input from stdin...", and the orphaned
 process survives the parent shell's timeout (pitfall #10; the wrappers are immune — they pipe via stdin).
 
+## Modes
+
+This skill has two halves. **Review mode** (the rest of this file) asks *is this claim true?* —
+one seat probes, proposes, and the orchestrator ratifies. **Forge mode** asks *what has nobody
+pointed at yet?* — seats generate original ideas against an open question, read each other's work
+from a shared register and BUILD on it, and **nothing is judged or voted on**. Use forge when the
+bottleneck is that the good idea has not been had yet; use review when a claim already exists and
+might be wrong.
+
+- Forge: `scripts/concilium-forge.{sh,ps1}`, method in `references/forge-mode.md`, brief template in
+  `references/forge-brief-template.md`.
+- The wider catalogue of multi-model modes — fragment verification, selective escalation, role
+  rotation, blind replication, instrument audit, and the ones measured DEAD (effort sweeps,
+  generation sweeps, instructed blindness, judge-over-transcripts, same-lineage majority votes) —
+  is in `references/modes.md`.
+
+### Offering a mode (what to do when the skill is invoked without one named)
+
+The user will usually just describe a problem. **Default to review.** But first check the task
+against the table below, and if a non-review mode clearly fits, **offer it in one or two lines
+before running anything** — name the mode, say in a clause what it would return, and let the user
+choose. Do not offer more than two, do not explain the catalogue, and do not offer at all when the
+task is an ordinary "is this true?" — an unwanted menu is worse than no menu.
+
+| If the user is about to / is asking… | offer | because |
+|---|---|---|
+| spend a batch of runs on a measurement, benchmark, eval or A/B | **instrument audit** | one call before the batch; it catches a fixture that cannot answer its own question |
+| hand over a long write-up or a multi-claim result | **fragment verify** | a single verdict discards the parts that were right and hides the one load-bearing part that is wrong |
+| act on a spec, schema or protocol others will implement | **blind replication** | two independent implementations; the divergences are the spec's ambiguities |
+| settle something that looks underdetermined rather than wrong | **cross-examination** | returns the question list that has to be answered before a verdict means anything |
+| stuck on framing, or the same approach keeps failing | **frame translation** | restates the problem in other fields' terms and imports their method |
+| generate options, plans or research directions | **forge** | review's duty to refute kills a half-formed idea; forge is the opposite discipline |
+
+Everything else — including all of `references/modes.md`'s remaining entries — is run only when the
+user asks for it by name. Nothing here fires automatically.
+
+Two requests about modes rather than for one, both common:
+
+- **"Which mode fits this?"** — recommend, do **not** run. Name one mode (two at most), say what it
+  would return that a review would not, and stop. The point of the question is the choice, so
+  handing back a finished round instead of a recommendation answers a question they did not ask.
+- **"Run every mode that applies."** — first rule modes OUT and say which and why: blind
+  replication needs a specification, instrument audit needs a measurement design, fragment verify
+  needs a multi-claim artifact. A mode with nothing to bite on returns a competent-looking void and
+  costs a full round. Then run the survivors and report **the union of their findings, never a
+  merged verdict** — they answer different questions, so two modes "disagreeing" is two findings,
+  not a split to resolve. Warn about the cost before starting: N rounds at 5–15 minutes each.
+
 ## Running a review
 
 Use the bundled wrappers. They load the shared review contract from
@@ -93,6 +157,14 @@ scripts) and add provenance stamping. Both wrappers are functionally identical; 
 **Windows (PowerShell 5.1+):**
 - Claim: `powershell -ExecutionPolicy Bypass -File scripts/concilium-review.ps1 -Claim "<claim>" [-Mechanical] [-RepoDir <path>] [-ProjectRules <file>]`
 - Diff:  `... -Diff [-Base <branch>]` — reviews the working-tree diff of `-RepoDir`.
+
+**Grok fourth-family seat — EXPERIMENTAL, opt-in.** `concilium-review-cursor.sh` (env-configured:
+`MODEL`, `MECHANICAL=1`, `ALLOW_FAST=1`, `REPO_DIR`, `PROJECT_RULES`, `PRIOR_ROUNDS`, `AUTO_RULES=1`,
+`WATCH_PATHS`, `NO_HOME_ISOLATION=1`) and `concilium-review-cursor.ps1` (same surface as flags).
+Both send the prompt on **stdin** (argv is mangled by the Windows shim), run `--mode ask --force`
+(read commands, no writes), parse the CLI's `.result`, and count **distinct** contract blocks
+instead of trusting the exit code. Auto-rules bridging is OFF: this CLI loads project
+CLAUDE.md/AGENTS.md natively. See references/grok-seat.md before using it for anything blind.
 
 **Kimi third-family seat — EXPERIMENTAL, opt-in.** Not part of a default round; add it only when
 the user asks for a third family. Two wrappers, same contract and same five blocks:
@@ -123,6 +195,16 @@ unread (the real repo, the results log, the answer key) and reports anything rea
 run. Validated against a known escape in both directions; read pitfalls #21 before trusting it,
 including why an enumeration-based version of the same check reported "clean" on a run that had
 demonstrably escaped.
+
+**Reasoning boost — per-seat, measured, not a global switch.** `references/reasoning-boost.md` is a
+short "hunt the non-obvious, take the strong position" block the wrappers can append to the contract.
+It is **ON by default for the grok and kimi seats** and **OFF for codex**, because that is what was
+measured: on a 14-item prediction packet it cut false alarms 33%→7% for grok (+13.3 pp) and 93%→67%
+for kimi (+10.0 pp), while making codex *worse* (−6.7 pp, d′ 0.34→0.00). Override per round with
+`REASONING_BOOST=0|1` / `-NoReasoningBoost` / `-ReasoningBoost`. It moves the decision criterion
+toward refutation rather than improving reasoning, so ⚠ **it was measured in prediction mode while
+these wrappers run adjudication mode, where chairs already over-refute** — if reviews start reading
+as reflexively negative, turn it off. Detail and the per-seat table: `references/setup.md`.
 
 Operational rules (each one is a measured failure — the why is in references/pitfalls.md):
 
@@ -172,9 +254,12 @@ Before relaying or acting:
    Claude orchestrator) is weak evidence — same-lineage chairs measurably share wrong answers,
    down to independently producing the identical wrong inference. A cross-family confirmation
    or refutation outweighs any count of same-lineage votes; never settle a dispute by majority
-   across chairs that share a lineage. A third family (Moonshot) is available as an experimental
-   opt-in seat; a third seat buys nothing unless it is *independent*, so weigh by family, not by
-   headcount — and note that a unanimous panel may simply mean the item was easy (setup.md).
+   across chairs that share a lineage. Two further families are available as experimental opt-in
+   seats — Moonshot (kimi) and xAI (grok) — and an extra seat buys nothing unless it is
+   *independent*, so weigh by family, not by headcount; note that a unanimous panel may simply mean
+   the item was easy (setup.md). **Weigh a dissent by lineage, never by stated confidence** —
+   measured, seats differ enormously in how much doubt they express (codex 99.7 mean vs grok 70.9
+   on items they got right), so a confident vote and a hedged one are not comparable quantities.
 
 ## The concilium loop (iterative rounds)
 
@@ -258,3 +343,5 @@ If you keep both files but let them drift, the reviewer sees the `AGENTS.md` ver
   seems overcautious, or when debugging reviewer misbehavior).
 - `references/setup.md` — first-time setup, calibration bootstrap, and the head-to-head method
   for picking tier models.
+- `references/kimi-seat.md` / `references/grok-seat.md` — the two experimental extra-family seats:
+  transports, measured limits, and what each one's testing produced for the skill as a whole.

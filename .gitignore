@@ -1,3 +1,9 @@
 *-workspace/
 feedback.json
 __pycache__/
+mode-out/
+forge-out/
+escalate-out/
+# PowerShell writes its module cache under $LOCALAPPDATA; the seat wrappers isolate HOME, and if
+# LOCALAPPDATA comes out empty PS 5.1 resolves the path relative to the cwd and drops it here.
+Microsoft/

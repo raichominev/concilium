@@ -220,3 +220,101 @@ the tool needs to function. Treat a trip as contamination unless you can attribu
 another process — indexers, sync clients and antivirus also touch files, so this is a tripwire,
 not proof. And prefer structural isolation (pitfall #16) over detection where you can get it:
 knowing a round was contaminated is worse than it not happening.
+
+## 22. The Cursor CLI imports Claude Code's hooks — and one broken hook silences every probe
+
+The Cursor Agent CLI loads `~/.claude` user-level hooks, skills and plugins by design
+(`claudeUserHooks`, `loadClaudePlugin`, `importClaudeMarketplaces` in its bundle) and no flag
+disables it. On Windows it then **always** builds the hook payload wrapper in PowerShell syntax —
+
+```
+$OutputEncoding = [System.Text.Encoding]::UTF8; Get-Content -LiteralPath '<payload>.json' -Raw | & { $input | <hook command> }
+```
+
+— while choosing the shell that *executes* that string from `MSYSTEM`/`SHELL` (`Mt()`/`Ut()` in the
+bundle). Launched from Git Bash it picks bash, which cannot parse `& {`, so every hook dies with
+
+```
+Rejected: Hook blocked with message: --: eval: line 1: syntax error near unexpected token `&'
+```
+
+on **every shell tool call**. The reviewer does not fail: it reviews without running a single
+probe and says so only in prose you have to read.
+
+**The hook command is not the cause** — the `&` comes from Cursor's own wrapper. Measured
+2026-08-19: an auto-memory hook (`python3 "…/trigger.py" || python "…/trigger.py"`) and a hook whose
+command is literally `exit 0` are rejected identically, and the same auto-memory hook runs clean
+when the CLI is launched from cmd/PowerShell. Two fixes, both real:
+
+- **Match the shell to the wrapper.** Launch from cmd/PowerShell, or from a shim that clears
+  `MSYSTEM`/`EXEPATH` **at the cmd level** and pins `SHELL` to powershell.exe. `env -u MSYSTEM` is
+  not enough: the MSYS runtime re-injects `MSYSTEM` into every Win32 child. Cost: the agent's shell
+  tool is then PowerShell, not bash.
+- **Isolate `HOME`** (what these wrappers do) — point `HOME`/`USERPROFILE` at an empty directory and
+  pass `CURSOR_CONFIG_DIR` at the real profile. Works from any launch shell and, as a bonus, hides
+  `~/.claude` during blind rounds. Two caveats: **project-level** `.claude/` hooks under the repo
+  are still loaded, and the isolation must be conditional — on Linux the session also lives in
+  `~/.local/share/cursor-agent`, which `CURSOR_CONFIG_DIR` does not cover, so isolating
+  unconditionally kills auth ("Authentication required" on every run in a headless guest). Trigger
+  on `~/.claude` existing.
+
+Second, independent trap once the shell does match: the wrapper runs under **Windows PowerShell
+5.1** when no `pwsh` is installed, and there `||` is `The token '||' is not a valid statement
+separator in this version`. A hook command written with a POSIX `A || B` fallback is a parse error
+there even though the shell is now the right one.
+
+**Rule**: watch the output for `Rejected: Hook blocked`, and never assume a silent review ran its
+probes.
+
+## 23. Two Windows-only ways a wrapper breaks before the model sees anything
+
+Both measured while building the cursor wrappers, both silent:
+
+1. **A multi-line prompt through the `.cmd` shim arrives truncated at line one.** The model then
+   answers a question you never asked — the first packet probe came back "the query after the
+   colon is empty" while the wrapper had passed 5 KB. Send prompts via **stdin**, never argv.
+2. **A non-ASCII character inside a PowerShell string literal can break the whole script.** A
+   BOM-less `.ps1` is decoded as Windows-1252 by PS 5.1, so an em dash (`E2 80 94`) contributes
+   byte `0x94` = the smart quote `”`, which *terminates the literal*; the script then fails to
+   parse with a misleading "Missing closing '}'" pointing dozens of lines away. Keep `.ps1` string
+   literals pure ASCII (comments are safe, they end at EOL), and locate real errors with
+   `[System.Management.Automation.Language.Parser]::ParseFile`, not by eye.
+
+## 24. Run the tripwire's control before trusting it, not after
+
+Pitfall #21 says a file-access tripwire is not proof because indexers and antivirus also touch
+files. Measured 2026-08-19, that is not a corner case: `WATCH_PATHS` flagged **all 14** packet
+files on **every** run, and a control with **no agent running at all** showed the same 14 access
+times moving within 90 seconds (`fsutil behavior query disablelastaccess` = `2 (System Managed,
+ENABLED)`). On that machine the tripwire could neither confirm nor deny an escape — it was pure
+noise, and a saturated tripwire is indistinguishable from a broken one.
+
+**Rule**: before a blind round, snapshot the watch list, wait, snapshot again with nothing running.
+If files move at rest, the tripwire is useless there — get isolation instead of detection. What
+actually caught the contamination in that round was the CLI's own transcript preamble.
+
+## 25. Deny rules survive `--force`, but a guessed rule list is not a blind harness
+
+The Cursor CLI documents `--force` as "force allow commands unless explicitly denied", and that
+holds: with `permissions.deny` populated, an absolute-path read outside the workspace returned
+`TOOL-DENIED Permission denied` even under `--force`. But a deny list assembled from *guessed* tool
+names left a gap — one replicate scored 14/14 and its preamble read "the first **grep** didn't
+fully show", i.e. a search tool no rule covered. Partial denial looks exactly like full denial
+until you grade the output.
+
+**Rule**: if you deny by rule, verify the vocabulary against the CLI's own tool names and probe
+each one, or use a guest that holds nothing worth reading (#16, `isolated-guest-vmware.md`).
+
+## 26. A perfect score is a contamination alarm
+
+The ratification protocol already says 0% or 100% on a first attempt usually means a wrong scope,
+not a discovery. It applies to *seat calibration* too: two runs returned 14/14 on a packet where
+the best previously measured seat got 11. Both had read the project's own docs — the packet's
+outcomes are quoted across the experiment ledger, session-close notes and architecture docs — and
+both announced it in their preambles ("architecture notes already record later measurements") while
+citing exact ledger values at confidence 95. The honest runs from the same seat scored 6–8 with
+confidences in the 60s.
+
+**Rule**: grade the *reasons*, not just the score. Retrieved numbers and unusually high confidence
+are the tell, and a packet whose answers exist anywhere on the machine is not blind no matter how
+empty the working directory is.

@@ -108,6 +108,19 @@ if [ -n "${PRIOR_ROUNDS:-}" ] && [ -f "$PRIOR_ROUNDS" ]; then
 $(cat "$PRIOR_ROUNDS")"
 fi
 
+# Reasoning boost — ON by default for THIS seat. Measured 2026-08-19 on the 14-item prediction
+# packet: this seat was the panel's most credulous (false-alarm rate 93.3%), and the block cut that
+# to 66.7% (d' -0.66 -> 0.19, +10.0 pp accuracy). Disable with REASONING_BOOST=0.
+# ⚠ Measured in PREDICTION mode; these wrappers run ADJUDICATION mode, where chairs already
+# over-refute (setup.md). If reviews turn reflexively negative, turn it off and say so.
+BOOST_PATH="$HERE/../references/reasoning-boost.md"
+if [ "${REASONING_BOOST:-1}" != 0 ] && [ -f "$BOOST_PATH" ]; then
+  CONTRACT="$CONTRACT
+
+$(cat "$BOOST_PATH")"
+  echo ">> reasoning boost ON (REASONING_BOOST=0 to disable)" >&2
+fi
+
 CONTRACT="$CONTRACT
 
 Runtime provenance (use in PHASE-LOG): model=${MODEL:-cli-default}, transport=kimi-code-cli (v0.34.0 surface)."

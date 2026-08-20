@@ -1,6 +1,6 @@
 {
   "name": "raicho-skills",
-  "description": "Claude Code skills for verification-heavy work: cross-model adversarial review and session handoffs that survive.",
+  "description": "Claude Code skills for verification-heavy work: cross-model adversarial review, cross-model idea generation, and session handoffs that survive.",
   "owner": {
     "name": "Raicho Minev",
     "url": "https://github.com/raichominev"
@@ -9,8 +9,8 @@
     {
       "name": "concilium",
       "source": "./",
-      "description": "Cross-model adversarial review: a Claude session orchestrates, an OpenAI model reviews via the codex CLI on ChatGPT-subscription auth (no API key), and the orchestrator ratifies the verdict.",
-      "version": "1.3.0",
+      "description": "Cross-model adversarial review and idea generation. A Claude session orchestrates and ratifies; OpenAI (codex), Moonshot (kimi) and xAI (grok) seats probe, replicate and generate — all on subscription auth, no API key required. Ten modes: review, forge, instrument audit, fragment verify, blind replication, and more.",
+      "version": "1.4.0",
       "author": {
         "name": "Raicho Minev",
         "url": "https://github.com/raichominev"
@@ -27,6 +27,10 @@
         "openai",
         "gpt",
         "kimi",
+        "grok",
+        "xai",
+        "idea-generation",
+        "brainstorming",
         "second-opinion",
         "verification"
       ]

@@ -42,6 +42,14 @@ CLI's built-in default is an older generation than the flagship, and nothing in 
   demonstrably escaped. Verify any such check against a known escape before relying on it, and
   never watch a path the tool itself needs — it reads its own stored credential every run.
 
+## Reasoning boost: ON by default for this seat
+
+The wrappers append `reasoning-boost.md` to the contract unless you pass `REASONING_BOOST=0` /
+`-NoReasoningBoost`. This seat was the panel's most credulous on the prediction packet — a 93.3%
+false-alarm rate, i.e. it called WIN on almost every change that actually failed — and the block cut
+that to 66.7% (d′ −0.66 → 0.19, accuracy +10.0 pp). It shifts the decision criterion rather than
+improving reasoning; see the mode caveat in SKILL.md and the per-seat table in `setup.md`.
+
 ## Why it earns a place anyway
 
 A third lineage rescues items the other two miss together. Measured on prediction packets, the

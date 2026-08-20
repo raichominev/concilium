@@ -1,24 +1,146 @@
 # Concilium
 
-**Cross-model adversarial review for Claude Code — on your existing ChatGPT subscription. No API key.**
+**Cross-model adversarial review and idea generation for Claude Code, Codex, Kimi and Grok. All
+models work with subscriptions. No API keys needed.**
 
-Concilium puts two frontier-model lineages on the same problem: a frontier **Claude** model —
-**Opus 5 or Fable 5** — orchestrates, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra** and
-**gpt-5.5** review adversarially through the official `codex` CLI. The reviewer **proposes** a
-verdict; the orchestrator **ratifies** it by checking the probe itself. That split is the method —
-it is what catches wrong-join-key "refutations", scope mismatches, and stale-vs-wrong conflations
-that either model alone would confidently ship.
+Concilium puts more than one frontier-model lineage on the same problem. A frontier **Claude**
+model — **Opus 5 or Fable 5** — orchestrates, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra** and
+**gpt-5.5** work the other side through the official `codex` CLI. Two further families can join as
+opt-in seats: **Kimi** (Moonshot) and **Grok** (xAI), each on its own subscription CLI. In review,
+the second model **proposes** a verdict and the orchestrator **ratifies** it by checking the probe
+itself. That split is the method — it is what catches wrong-join-key "refutations", scope
+mismatches, and stale-vs-wrong conflations that either model alone would confidently ship.
 
 It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
-research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust.
-Different lineage means different blind spots.
+research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust — and
+for the tasks where the problem is that nobody has had the good idea yet. Different lineage means
+different blind spots, and that is the only lever here that has ever measured as real.
 
-> **If this seems complicated — it isn't.** After install just fire `/concilium` and state your
-> problem.
+> **If this seems complicated — it isn't.** After install, fire **`/concilium`** and state your
+> problem. It runs a review by default — and if your problem is one of the few shapes another mode
+> handles better, it says so in a line and lets you pick. See [the commands](#the-commands) for
+> extended use.
 
 <!-- DEMO GIF GOES HERE — record one real round (claim in → PROBE → verdict flip), ~30s,
      asciinema or terminal GIF, and drop it directly under this comment. This is the highest-
      converting asset the page can carry; everything below is secondary to it. -->
+
+## Examples
+
+Typed into a normal Claude Code session. The slash commands take arguments; everything else is
+plain English.
+
+**Just describe the problem.** This is the one to reach for when you don't want to think about
+which mode you need:
+
+```
+/concilium Our data dropped right after the cache change. Find the Cause.
+```
+
+**Or mention it mid-sentence.** It doesn't have to start the line:
+
+```
+We keep finding duplicate rows past the dedup pass. Use /concilium on this before I touch the matcher. Use all available models.
+```
+
+Either way it reviews by default, and tells you in a line if your problem is one of the shapes
+another mode handles better. "All available models" means every family you have a CLI logged in
+for — four *lineages* at most.
+
+**Review a specific claim.**
+
+```
+/concilium-review "Our data dropped right after the cache change. The deploy was the only thing that shipped today. Find the Cause."
+```
+
+Comes back with the five blocks. Read the probe, not the summary.
+
+**Review what you're about to commit.**
+
+```
+/concilium-review --diff
+/concilium-review --diff main        # against a branch instead of the working tree
+```
+
+**Generate ideas instead of checking them.**
+
+```
+/concilium-forge "Our dedup pass misses ~30% of true duplicates and we're out of ideas."
+```
+
+Round 1 in parallel across seats, you curate the register, round 2 builds on it. Nothing is scored
+or voted on.
+
+**Continue a forge you already started.**
+
+```
+/concilium-forge --continue path/to/REGISTER.md
+```
+
+**Ask for a mode by name.** No flags, no script — say what you want:
+
+```
+Run an instrument audit on the design.
+
+Fragment-verify this write-up — I want to know which parts survive.
+
+Blind-replicate this spec on two seats and show me only the diff between the implementations.
+
+Cross-examine this claim. I don't think it's wrong, maybe it's underdetermined.
+
+Frame-translate the problem before we try anything else — three fields, methods attached.
+```
+
+**Ask which mode fits, before running anything.** Useful when the problem is awkwardly shaped and
+you'd rather not guess:
+
+```
+Here's what I'm stuck on: <describe it>. Which concilium mode fits this best, and what would it
+give me that a plain review wouldn't? Recommend, don't run.
+```
+
+You get a short recommendation with the reason, and a chance to say no. Worth doing when a round is
+expensive or the framing is the thing you're unsure about — the wrong mode returns a competent
+answer to a question you weren't asking.
+
+**Run every mode that applies.** For a problem you want attacked from all sides:
+
+```
+Work out which concilium modes are genuinely applicable here, run each of them, and give me the
+union of what they found — not one merged verdict.
+```
+
+Two things to know before asking for this. It is **N rounds, not one**, at 5–15 minutes each, so it
+is an afternoon rather than a coffee break. And the modes answer *different questions* — an
+instrument audit and a fragment verify disagreeing is not a split to resolve, it is two findings.
+Ask for the union, never a merged verdict; a verdict welded out of answers to different questions
+means nothing. Expect some to be ruled out as inapplicable: blind replication needs a spec,
+instrument audit needs a measurement design, and a mode with nothing to bite on should be skipped
+rather than run empty.
+
+**Run the loop when a verdict is disputed.**
+
+```
+/concilium-review "The index rebuild is what fixed the query, not the new stats."
+…round comes back REFUTED…
+
+I disagree, and here's why: its probe measured the whole table, but the regression was only ever on
+the partitioned range. Loop it — new evidence path, keep going until it converges or goes dry.
+```
+
+Each round starts a fresh session and must bring a new evidence path. It stops on its own —
+converged, dry, or at the round cap — rather than arguing indefinitely.
+
+**Add an opt-in seat.** Never in a default round; ask explicitly, and say which:
+
+```
+Run that again with the Grok seat as well.
+
+Add the Kimi seat, isolated, and tell me where the two seats disagree.
+```
+
+Two seats disagreeing is a *result*, not a tie to break. Weigh it by family, and never by which
+seat sounded more certain.
 
 ## Install
 
@@ -31,11 +153,13 @@ Different lineage means different blind spots.
 
 No SSH key needed — the shorthand falls back to HTTPS on its own.
 
-**Or by hand** — Linux / macOS:
+**Or by hand**
+
+Linux / macOS:
 
 ```bash
 git clone https://github.com/raichominev/concilium.git ~/.claude/skills/concilium
-chmod +x ~/.claude/skills/concilium/scripts/concilium-review.sh
+chmod +x ~/.claude/skills/concilium/scripts/*.sh
 ```
 
 Windows (PowerShell):
@@ -44,39 +168,44 @@ Windows (PowerShell):
 git clone https://github.com/raichominev/concilium.git "$env:USERPROFILE\.claude\skills\concilium"
 ```
 
-Install one way or the other, not both — a hand-installed copy in `~/.claude/skills/` and the
-plugin will both load.
-
 You also need the [OpenAI codex CLI](https://github.com/openai/codex) logged in via a ChatGPT
-subscription — full [requirements](#requirements) below. Then, in any Claude Code session: ask for
-a cross-model review / second opinion, or invoke `/concilium`. First time in a new environment, let
-it run the calibration bootstrap ([`references/setup.md`](references/setup.md)) before trusting
-verdicts.
+subscription at minimum. Other families, if desired, need their own subscriptions — full
+[requirements](#requirements) below. First time in a new environment, let it run the calibration
+bootstrap ([`references/setup.md`](references/setup.md)) before trusting verdicts.
 
-## The process
+## The commands
 
 ```
-you (in Claude Code — Opus 5 or Fable 5 orchestrating)
- │
- ├─ 1. hand a claim or diff to the reviewer wrapper
- │        scripts/concilium-review.{sh,ps1}
- │
- ├─ 2. a GPT-side model reviews it ADVERSARIALLY under a binding contract
- │        (references/contract.md): ≥1 falsification probe, ≥1 alternative
- │        explanation, forced caveats. It is a full agent — it reads the
- │        repo and runs read-only commands/queries itself.
- │
- ├─ 3. it returns five blocks:
- │        PROBE / ALT / CAVEAT / VERDICT-PROPOSAL / PHASE-LOG
- │
- ├─ 4. the orchestrator RATIFIES: reads the actual probe (not just the
- │        prose), treats extremal results (0%/100%) as tripwires, checks
- │        scope and staleness, and assigns the final verdict itself.
- │
- └─ 5. if the round is DISPUTED, loop: feed the probe + a specific
-          objection into a fresh round (a new evidence path required),
-          until it converges, goes dry, or hits the round cap.
+/concilium-review "<claim>"           # is this true? one seat probes, you ratify
+/concilium-review --diff [base]       # same, pointed at your working-tree diff
+/concilium-forge   "<question>"       # what has nobody tried? seats generate, nothing is judged
+/concilium                            # the skill itself, when you're not sure which you want
 ```
+
+**Review** hands your claim to a different lineage under a binding contract. It comes back with five
+blocks — `PROBE / ALT / CAVEAT / VERDICT-PROPOSAL / PHASE-LOG` — and the last word is yours: read
+the actual probe, re-run its load-bearing step, assign the tag. 
+
+**Forge** is the opposite discipline. Seats produce original ideas against an open question, read
+each other's through a shared register and build on them, and **nothing is judged or voted on**.
+Round 1 tends to converge; round 2 is where the reframings appear.
+
+Reviews run long — **5–15 minutes at research tier is normal**, so run them in the background with
+a full timeout from the first call.
+
+### There are eight more modes
+
+Instrument audit, fragment verify, blind replication, cross-examination, frame translation,
+selective escalation, role rotation, calibration league. **You ask for one by name, in plain
+words** — nothing fires automatically, and `/concilium` will suggest one only when your problem is
+clearly a better fit for it than a review.
+
+The one worth knowing up front is the **instrument audit**: point it at a measurement design
+*before* you spend the runs, and it tells you whether the number that comes back can mean anything.
+Cheapest high-value call in the set.
+
+What each mode is for, what would kill it, and the approaches already measured **dead** (so nobody
+rebuilds them): [`references/modes.md`](references/modes.md).
 
 ### The loop — deliberate until it converges
 
@@ -87,17 +216,42 @@ converged, dry (no new evidence → escalate), or a round cap. Full protocol in
 [`SKILL.md`](SKILL.md). It's orchestrated by the Claude session, not a shell script — the
 ratification step is judgment, not automation.
 
+## Seats
+
+Two seats are standard. Two more are **experimental and opt-in — neither is part of a default
+round**, and an extra seat buys nothing unless it is genuinely independent, so weigh a panel by
+*family*, never by headcount.
+
+| Seat | Family | Transport | Status |
+|---|---|---|---|
+| Orchestrator | Anthropic | the Claude Code session itself | ratifies; never routed to |
+| Reviewer | OpenAI | `codex` CLI, ChatGPT subscription | standard |
+| Kimi | Moonshot | Kimi Code CLI, or Kimi Desktop on Windows | experimental, opt-in |
+| Grok | xAI | Cursor Agent CLI, Cursor subscription | experimental, opt-in |
+
+**Kimi** ([`references/kimi-seat.md`](references/kimi-seat.md)) is calibrated but flakier than the
+codex seat and weaker on isolation: no sandbox, and an exit code of 0 on failure.
+
+**Grok** ([`references/grok-seat.md`](references/grok-seat.md)) runs on Cursor-subscription auth —
+no xAI API key, no per-token bill. Effort is baked into the model id rather than passed as a flag.
+Isolation is better than the Kimi seat's but still not containment. It scored **below** the OpenAI
+seat on the calibration packet: seat it for a fourth lineage, not for accuracy.
+
+A fifth seat exists — the orchestrator's own family run in a throwaway guest, for rounds that must
+be blind. It has no wrapper and a good reason to exist:
+[`docs/in-depth.md`](docs/in-depth.md).
+
 ### Tiers — route work by weight
 
-| Tier | OpenAI (codex) | Moonshot (opt-in) | Effort | For |
-|---|---|---|---|---|
-| Research | `gpt-5.6-sol` | `k3` | max | open review rounds, adversarial verification |
-| Mechanical | `gpt-5.5` | — | medium | verifying a known claim with one probe |
-| Runner | `gpt-5.6-terra` | — | low | execute-and-report: run a script, babysit an import |
+| Tier | OpenAI (codex) | Effort | For |
+|---|---|---|---|
+| Research | `gpt-5.6-sol` | max | open review rounds, adversarial verification |
+| Mechanical | `gpt-5.5` | medium | verifying a known claim with one probe |
+| Runner | `gpt-5.6-terra` | low | execute-and-report: run a script, babysit an import |
 
 Anthropic's seat is not a tier: **Opus 5 or Fable 5** orchestrates and ratifies rather than being
-routed to. On the Kimi side only `k3` is worth a seat — always name it, because the CLI's default
-is an older generation.
+routed to. On the experimental seats, always name the model — at least one CLI's default is an
+older generation than its flagship and nothing in the output says so.
 
 ### Park-and-switch
 
@@ -105,67 +259,34 @@ A codex session can be parked and resumed under a *different* model with its con
 research on sol, mechanical follow-ups on a cheaper tier, one conversation. The full re-pin recipe
 (and why bare `resume` is dangerous) is in [`SKILL.md`](SKILL.md).
 
-The Kimi CLI exposes session resume of its own (`-S <id>`, `--continue`), but cross-model switching
-on resume is untested here — treat it as unproven rather than available. The Claude seat needs none
-of this: it is the session driving the round, not a reviewer being resumed into.
-
-### The optional third seat
-
-A third lineage — Moonshot's **Kimi** — is available as an **experimental, opt-in** seat, via
-either a locally installed Kimi Desktop (Windows) or the cross-platform Kimi Code CLI. It is not
-part of a default round, and its [caveats](references/kimi-seat.md) apply.
-
-## What it's tested to do
-
-The skill ships a behavioural eval set ([`evals/evals.json`](evals/evals.json)) — seven scenarios,
-each written around a specific way this kind of tool goes wrong:
-
-| # | Scenario | The failure it's testing for |
-|---|---|---|
-| 0 | Review a subtly overbroad claim | Rubber-stamping — the round must surface a caveat, not a flat confirm, and the orchestrator must ratify rather than relay |
-| 1 | Set up codex as a reviewer, no API key | Trying to build a router/proxy or an API-key bridge instead of using subscription auth |
-| 2 | Cheap mechanical follow-up in the same session | Bare `resume` or a fresh session, instead of the full re-pin recipe on a cheaper model |
-| 3 | An ordinary review request | Adding the experimental Kimi seat unbidden, or presenting a default round as three-seat |
-| 4 | Kimi seat explicitly requested | Leaving the model unnamed (silently the wrong generation), burying the isolation position, or trusting an exit code that is 0 on failure |
-| 5 | "Run it once on each seat and rank them" | Handing over a ranking built from single draws that sit inside the run-to-run noise |
-| 6 | "Crank every seat to max effort for coverage" | Complying silently — effort is not a coverage lever |
-
-## What we measured
-
-Findings from the origin project's own workload, not assumptions. Method in
-[`references/setup.md`](references/setup.md).
-
-- **Only a different lineage buys coverage.** Not more reasoning effort, and not a newer generation
-  of the same family — both resample the same blind spots. A spread of effort levels on one seat
-  covered no more than two runs at the *same* effort; accuracy was not monotonic in effort, and
-  some items stayed unreachable at every level.
-- **One run is not a measurement.** Replicates at identical settings moved a seat's score by
-  several points and flipped a large share of items. Single-run rankings were retracted in favour
-  of stable profiles.
-- **Opus 5 and Fable 5 are at parity as ratification chairs** — blind chair benchmark, not
-  assumed.
-- **Chairs over-refute; predictors over-believe.** In adversarial adjudication, chairs reject true
-  claims at a substantial rate — some true claims get refuted by every chair independently. The
-  same models flip to over-credulous in outcome *prediction*, believing changes worked that did
-  not.
-- **Confidence is not a weight.** A seat can hold near-maximum confidence across a set it is often
-  wrong about.
-- **Don't benchmark on fact-retrieval.** Claims answerable from somewhere in the repo measure
-  retrieval, and frontier models are saturated there — every seat comes back near-perfect, which
-  says nothing about any of them. Use outcome prediction against a real experiment log.
-
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) — this skill is meant to be run from Claude
   Code with **Opus 5 or Fable 5 as the orchestrator** (any Claude model can drive it; those two
   are the measured ratification seats).
 - The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
-  (`codex login status` → "Logged in using ChatGPT"). No OpenAI API key — and a subscription
-  cannot be turned into one; the CLI *is* the transport.
-- *Optional, experimental:* the third-family seat — either **Kimi Desktop** on Windows or the
-  cross-platform **Kimi Code CLI**, each with its own wrapper. Not needed for a default round, and
-  it wants isolating: [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md)
-  builds a throwaway guest for it, and [`references/kimi-seat.md`](references/kimi-seat.md) is why.
+  (`codex login status` → "Logged in using ChatGPT").
+- *Optional, experimental:* the extra-family seats — **Kimi Desktop** on Windows or the
+  cross-platform **Kimi Code CLI**, and the **Cursor Agent CLI** for the xAI seat. Neither is
+  needed for a default round, and both want isolating:
+  [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md) builds a throwaway
+  guest.
+
+### What if I'd rather use API keys?
+
+Fine — **the skill never touches authentication.** The wrappers shell out to each vendor's own CLI
+and inherit whatever session that CLI already has, so a CLI logged in with a key behaves exactly
+like one logged in with a subscription. `codex login --with-api-key` reads an OpenAI key from
+stdin; `cursor-agent --api-key` (or `CURSOR_API_KEY`) covers the xAI seat, though note that is a
+*Cursor* key rather than an xAI one. Check the Kimi CLI's own help for its equivalent.
+
+The trade is the obvious one: keys bill per token, and a research-tier round is 5–15 minutes of a
+frontier model reasoning at maximum effort, run across two or more families. Subscriptions are the
+default here because that cost is what made a multi-seat panel routine enough to measure.
+
+**The one direction that does not work** is the reverse — a subscription cannot be turned into an
+API key. Proxy and router bridges that claim to do it are outside every provider's terms; don't
+build one.
 
 Two things worth knowing up front:
 
@@ -178,44 +299,34 @@ Two things worth knowing up front:
   listening port. codex's *interactive* app-server may bind a loopback port, but this skill never
   uses it. Details in [`references/setup.md`](references/setup.md).
 
-## Caveats — read before trusting a round
-
-**Everything a reviewer reads goes to that reviewer's provider.** True of every seat. Don't point
-a review at a tree holding credentials or material that must not leave the machine.
-
-**A reviewer's verdict is a hypothesis, not a result.** Never flip a claim on a reviewer's
-say-so; reproduce the probe's load-bearing step. And never weight a vote by its own stated
-confidence. The measurements behind both rules are in [What we measured](#what-we-measured).
-
-**The experimental Kimi seat is the weakest link — treat it accordingly.** Opt-in, never in a
-default round. It has no sandbox and does not stay where you put it, it exits 0 on failure, and its
-arithmetic needs re-deriving. Run it isolated. The full handling rules, and the case for keeping it
-anyway, are in [`references/kimi-seat.md`](references/kimi-seat.md).
-
-**Reviews run long** — 5–15 minutes at research tier is normal. Run them in the background with a
-full timeout from the first call; a foreground timeout kills the probe mid-flight.
-
 > **Note**: experimental — extracted from a working research-project loop, where every rule was
-> earned by a real failure. Feedback is warmly welcome: issues, PRs, or war stories of your own
-> (see the [maintenance rule](#maintenance-rule-docs--examples) before adding examples).
-
-## Layout
-
-| Path | What |
-|---|---|
-| `SKILL.md` | The method — tiers, invocation, ratification, resume recipe |
-| `references/contract.md` | The review contract (single source of truth — edit here) |
-| `scripts/concilium-review.sh` | Reviewer wrapper, Linux/macOS (bash) |
-| `scripts/concilium-review.ps1` | Reviewer wrapper, Windows (PowerShell 5.1+) |
-| `references/pitfalls.md` | Known issues and the rules that counter them |
-| `references/setup.md` | First-time setup, calibration, model head-to-head method |
-| `references/kimi-seat.md` | The experimental third seat: transports, handling rules, what testing it produced |
-| `references/isolated-guest-vmware.md` | Worked example: building a throwaway guest for the Kimi seat |
-| `scripts/concilium-review-kimi.sh` | Kimi seat wrapper, Linux/macOS (CLI transport) |
-| `scripts/concilium-review-kimi.ps1` | Kimi seat wrapper, Windows (desktop transport) |
-| `evals/evals.json` | Behavioural eval set for the skill |
+> earned by a real failure. Read the caveats in [`docs/in-depth.md`](docs/in-depth.md) before a
+> round you intend to act on; they, the measurements behind them, and what this skill has proven
+> *doesn't* work all live there. Feedback is warmly welcome: issues, PRs, or war stories of your
+> own (see that page's maintenance rule before adding examples).
 
 ## Release notes
+
+### v1.4 (2026-08-20)
+
+- **Forge mode** — the generative half. Seats produce original ideas against an open question and
+  build on each other through a shared register; nothing is judged or voted on.
+- **Eight further modes, and one generic driver.** A mode is now a markdown contract file, so
+  adding one is a doc change rather than a script: instrument audit, fragment verify, blind
+  replication, cross-examination, frame translation, selective escalation, role rotation,
+  calibration league. Catalogue: [`references/modes.md`](references/modes.md).
+- **`/concilium-review` and `/concilium-forge`** ship as commands.
+- **A fourth family: the xAI seat** on Cursor-subscription auth, plus a fifth seat that is the
+  orchestrator's own family run in a throwaway guest for blind rounds.
+- **A per-seat skepticism block**, on by default only where it measured positive — it *cost*
+  accuracy on the seats that were already discriminating.
+- **Measured: rank seats per task.** Blind originality and outcome prediction produce different,
+  partly inverted orderings, and a chaining round inverted it again.
+- **Several modes found their own defects on first use** — an escalation gate that read a label's
+  line instead of its block, a saturated file-access tripwire, a spec whose declared character
+  range excluded the mark it called decorative. Those write-ups are in
+  [`references/modes.md`](references/modes.md) and [`references/pitfalls.md`](references/pitfalls.md),
+  and they are the most useful pages here.
 
 ### v1.3 (2026-08-08)
 
@@ -264,16 +375,6 @@ reviews, all ratified):
 - Also landed: the request-construction guide (`references/request-template.md`) — front-load
   facts not conclusions, confidence-tag every input, never write "do not re-derive" over a
   load-bearing conclusion.
-
-## Maintenance rule (docs & examples)
-
-War stories stay, project specifics go. Every example in this repo must be self-contained and
-judgeable from the text alone — no figures, table names, or artifacts that can only be verified
-inside the origin project's private repo. The origin project keeps the full-detail originals in
-its own docs and syncs the generic form here. Contributor PRs adding examples are bound by the
-same rule — genericize your war story the same way. Release notes follow the same spirit:
-summarized and reader-relevant; details live in SKILL.md and references — the README points,
-it doesn't instruct.
 
 ## License
 

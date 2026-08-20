@@ -69,6 +69,7 @@ param(
   [string]$SandboxRoot,
   [switch]$KeepSandbox,
   [string]$WatchPaths,
+  [switch]$NoReasoningBoost,
   [switch]$ShowLog
 )
 
@@ -211,6 +212,16 @@ if ($RawPrompt) {
   $Prompt = $RawPrompt
 }
 else {
+  # Reasoning boost - ON by default for THIS seat. Measured 2026-08-19 on the 14-item prediction
+  # packet: this seat was the panel's most credulous (false-alarm rate 93.3%), and the block cut
+  # that to 66.7% (d-prime -0.66 to 0.19, +10.0 pp accuracy). -NoReasoningBoost to skip.
+  # WARNING: measured in PREDICTION mode; these wrappers run ADJUDICATION mode, where chairs already
+  # over-refute (setup.md). If reviews turn reflexively negative, turn it off and say so.
+  $BoostPath = Join-Path $PSScriptRoot "..\references\reasoning-boost.md"
+  if (-not $NoReasoningBoost -and (Test-Path $BoostPath)) {
+    $Contract += "`n`n" + (Get-Content -Raw -Encoding UTF8 $BoostPath)
+    Write-Host ">> reasoning boost ON (-NoReasoningBoost to disable)" -ForegroundColor DarkGray
+  }
   $ContractFull = $Contract + "`n`nRuntime provenance (use in PHASE-LOG): model=$Model, effort=$Effort, seat=kimi."
   if ($Diff) {
     Push-Location $RepoDir
