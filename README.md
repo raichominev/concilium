@@ -1,15 +1,18 @@
 # Concilium
 
-**Cross-model adversarial review and idea generation for Claude Code, Codex, Kimi and Grok. All
-models work with subscriptions. No API keys needed.**
+**Cross-model adversarial review and idea generation for Claude Code — eight model families, one per
+vendor: Claude, Codex, Kimi, Grok, GLM, DeepSeek, Qwen and Gemini. Mostly on subscriptions and
+the core loop needs no API key at all.**
 
 Concilium puts more than one frontier-model lineage on the same problem. A frontier **Claude**
 model — **Opus 5 or Fable 5** — orchestrates, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra** and
-**gpt-5.5** work the other side through the official `codex` CLI. Two further families can join as
-opt-in seats: **Kimi** (Moonshot) and **Grok** (xAI), each on its own subscription CLI. In review,
-the second model **proposes** a verdict and the orchestrator **ratifies** it by checking the probe
-itself. That split is the method — it is what catches wrong-join-key "refutations", scope
-mismatches, and stale-vs-wrong conflations that either model alone would confidently ship.
+**gpt-5.5** work the other side through the official `codex` CLI. Further families can join as
+opt-in seats: **Kimi** (Moonshot), **Grok** (xAI), **GLM** (Z.ai), **DeepSeek**, **Qwen** (Alibaba)
+and **Gemini** (Google) — three of them reusing the Claude Code CLI, via Anthropic-compatible 
+endpoints. In review, the second model **proposes** a verdict and the orchestrator **ratifies**
+it by checking the probe itself. That split is the method — it is what catches wrong-join-key 
+"refutations", scope mismatches, and stale-vs-wrong conflations that either model alone would 
+confidently ship.
 
 It exists for the tasks where a single model's confident answer isn't good enough: load-bearing
 research claims, benchmark numbers, subtle schema/data questions, diffs you're about to trust — and
@@ -45,7 +48,7 @@ We keep finding duplicate rows past the dedup pass. Use /concilium on this befor
 
 Either way it reviews by default, and tells you in a line if your problem is one of the shapes
 another mode handles better. "All available models" means every family you have a CLI logged in
-for — four *lineages* at most.
+for — up to **eight lineages**.
 
 **Review a specific claim.**
 
@@ -228,6 +231,10 @@ round**, and an extra seat buys nothing unless it is genuinely independent, so w
 | Reviewer | OpenAI | `codex` CLI, ChatGPT subscription | standard |
 | Kimi | Moonshot | Kimi Code CLI, or Kimi Desktop on Windows | experimental, opt-in |
 | Grok | xAI | Cursor Agent CLI, Cursor subscription | experimental, opt-in |
+| GLM | Z.ai | Claude Code CLI, Anthropic-compatible endpoint | opt-in |
+| DeepSeek | DeepSeek | Claude Code CLI, Anthropic-compatible endpoint | opt-in |
+| Qwen | Alibaba | Claude Code CLI, Anthropic-compatible endpoint | opt-in |
+| Gemini | Google | Antigravity CLI, Google AI Pro | opt-in |
 
 **Kimi** ([`references/kimi-seat.md`](references/kimi-seat.md)) is calibrated but flakier than the
 codex seat and weaker on isolation: no sandbox, and an exit code of 0 on failure.
@@ -237,7 +244,18 @@ no xAI API key, no per-token bill. Effort is baked into the model id rather than
 Isolation is better than the Kimi seat's but still not containment. It scored **below** the OpenAI
 seat on the calibration packet: seat it for a fourth lineage, not for accuracy.
 
-A fifth seat exists — the orchestrator's own family run in a throwaway guest, for rounds that must
+**Four more families need no new transport** ([`references/compat-seats.md`](references/compat-seats.md)).
+Z.ai, DeepSeek and Alibaba all expose an **Anthropic-compatible endpoint**, so one wrapper drives
+them through the Claude Code CLI; Google rides its own Antigravity CLI on its own plan.
+Each gets its own config directory so seats cannot read one another.
+
+**Seats differ in how readily they refute**, which matters more than their accuracy when picking one
+for review. On an 18-claim adjudication packet whose base rate is 55.6% REFUTED, Kimi came in at
+53.7% and GLM at 59.3% — the best-calibrated of the cross-family seats, and the two of those that
+recognised the most true claims — while one seat refuted 76.9% of everything and recognised 42% of
+true claims. Per-seat figures: [`references/compat-seats.md`](references/compat-seats.md).
+
+A further seat exists — the orchestrator's own family run in a throwaway guest, for rounds that must
 be blind. It has no wrapper and a good reason to exist:
 [`docs/in-depth.md`](docs/in-depth.md).
 

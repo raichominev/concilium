@@ -14,6 +14,7 @@ already been measured and are dead (bottom section).
 | **Review** | is this claim true? | one seat probes and PROPOSES, orchestrator ratifies | `concilium-review*.{sh,ps1}` |
 | **Loop** | is this *disputed* claim true? | fresh session per round, new evidence path each time, dry-stop | same + `PRIOR_ROUNDS` |
 | **Forge** | what has nobody pointed at yet? | nobody judges anybody; shared register; originality scored | `concilium-forge.{sh,ps1}` |
+| ↳ *grounding* | does handing over the repo anchor the seats? | **measured 2026-08-23: null at panel level, reproducible PER SEAT** — see `forge-mode.md` §Blindness | |
 | **Instrument audit** | could this measurement produce a number that is not an answer? | attacks the fixture, never the claim | `concilium-mode.sh instrument-audit` |
 | **Fragment verify** | which PARTS of this survive? | atomise, rule per fragment, salvage the supported core | `concilium-mode.sh fragment-verify` |
 | **Blind replication** | is this spec unambiguous? | two seats implement blind; the DIFF is the deliverable | `concilium-mode.sh blind-replication` |
@@ -100,6 +101,80 @@ pairs chosen for architectural spread. **Treat as a fallback, not an equal:** ev
 has measured says prompt variation within one family resamples that family's blind spots. Use it
 when a cross-family seat is genuinely unavailable, and say so in the write-up.
 
+## Measured — the ALT amendment (proposed 2026-08-20, run 2026-08-22)
+
+**Outcome first: the pre-registered primary metric was vacuous by construction, and the
+pre-registered confabulation watch-item fired.** The amendment stayed in the contract, but for a
+different reason than it was proposed for, and with a quote requirement bolted on. What follows is
+the original design, kept because the way it failed is the finding. Jump to **What it actually
+measured** at the end for the result.
+
+Review mode's `ALT` block was changed from "one alternative causal explanation you considered" to
+**the strongest rival you rejected, plus the single observation that separated it from your
+conclusion** — with an explicit "nothing separated them" answer that caps the verdict at `[C]`.
+Ratification gained a matching step. Prompted by external feedback that the round preserves the
+ingredients of a disagreement but never elevates the strongest rejected reading into the final
+artifact; the feedback was right, and the defect is sharper than stated: ALT was **unranked and
+unlinked**, so a reviewer optimising for a clean verdict was quietly rewarded for picking a weak
+rival, and nothing obliged the verdict to reference it.
+
+**Why it should work, from measured data rather than intuition.** Chairs over-refute: on the
+18-claim adjudication packet, refuted-recall runs 7/10 while upheld-recall is 4–6 of 8, and some
+true claims are refuted by every chair independently. So on an `[X]` proposal the rejected
+alternative is disproportionately likely to be the correct one. One claim on that packet was
+refuted by all three original chairs and recovered only when two further families were added —
+three near-miss records would have flagged it **without** buying two more lineages, which is the
+expensive remedy this is meant to substitute for.
+
+**The falsification design**, using the harness that already exists:
+
+- Instrument: the 18-claim adjudication packet (ground truth established by executing each claim).
+  ⚠ Do not confuse it with the saturated language-gotcha packet whose A/B was a null result — this
+  one produces real errors (upheld-recall 4–6 of 8), so it has measurement capacity.
+- Arms: current contract vs amended contract, one paragraph different. 3 seats x 3 replicates x
+  2 arms = 18 runs.
+- **Primary metric — recoverable-by-ALT rate:** on items the chair *wrongly refutes*, does ALT
+  contain the true reading? Compare against the same rate on items it *correctly* refutes.
+- **Kill it if:** those two rates are equal. Then ALT carries no signal about which refutations are
+  wrong, and the block is overhead on every future round.
+- **Watch for confabulation:** asking for "the strongest rival" invites inventing an impressive
+  one. The discriminator requirement is the detector — an invented rival has no observation behind
+  it, so count the rounds whose separation is argued rather than observed. If that share is large,
+  the amendment is manufacturing prose, not preserving disagreement.
+- Secondary: verdict accuracy should move *little*. This is a disclosure change, not a reasoning
+  change; a large accuracy swing would mean the paragraph is acting as a criterion knob (see
+  `reasoning-boost.md`) and would need separating from the disclosure effect.
+
+### What it actually measured
+
+**The primary metric could never have discriminated.** On a `REFUTED` verdict the strongest rejected
+rival *is definitionally the claim under review*, so "does ALT contain the true reading on wrongly
+refuted items?" is true almost by construction — and the control set confirms it: correctly-refuted
+ALTs say the same kind of thing as wrongly-refuted ones ("the payoff could be real", "would yield
+some local gains"). The kill condition was met and the metric is reported as a negative result. The
+lesson generalises past this mode: **a metric can be pre-registered and still be untestable, and the
+only way to find out is to build the control set.**
+
+**The confabulation watch-item fired, in the opposite direction from the one assumed.** The
+amendment was designed on the premise that a discriminator would be *missing* when the reviewer had
+merely preferred. It is not missing — it is confidently present and sometimes invented:
+
+- **The honest escape hatch was never taken.** `NOTHING-SEPARATED-THEM` was made cheap and
+  explicitly non-penalised, and across the full corpus it was used **1 time in 315 refutations**
+  (0.3%), against 6.1% on upholds. Asking "what separated them?" reliably produces an answer whether
+  or not one exists. Quote it as 1/315, never as zero.
+- **Some manufactured discriminators are fabricated experimental results.** Two chairs cited
+  post-hoc measurements that appear nowhere in their closed-book input — "after enabling, zero X
+  were written" — and used them to refute claims that were **true**. A third, subtler pattern is
+  more common still: a true system fact aimed at the wrong object.
+
+**The fix that followed, and what is still open.** `contract.md` now requires the separating
+observation to be **quoted** — a file:line, a line of output, a query result — precisely so an
+invented one has nowhere to hide. That requirement is itself unmeasured. Two ALT rewordings have now
+failed to recover wrongly-refuted claims, which points at a design-level answer rather than another
+rewording: a **first-class abstain verdict**, structured the way role rotation's `CANNOT-TELL` is.
+Treat the amendment as retained-and-narrowed, not vindicated.
+
 ## Refuted — do not rebuild these
 
 - **Effort sweep as a pseudo-panel.** Six runs of one seat across five effort levels covered no more
@@ -114,6 +189,25 @@ when a cross-family seat is genuinely unavailable, and say so in the write-up.
 - **Majority voting across same-lineage chairs.** Independent of the above: a published study of
   three heterogeneous agents found 2:1 divergences on 39% of questions, and in 25% of those the
   *minority* was right. Keep dissent with its evidence attached.
+
+- **Giving a review seat the repository of the project whose claims it is reviewing** (measured
+  2026-08-23, and the reason generalises). The intuition is that access converts deduction into
+  checking. What it actually converts it into is *retrieval*: a project's repository is its
+  experiment ledger's downstream artifact, so "is the proposed mechanism shipped and enabled?" and
+  "did the claim hold?" are the same question asked twice. On an 18-claim packet whose ground truth
+  was established by execution, that one-grep heuristic scores **83.3%** against seats measured at
+  **70.8%** on the identical packet — and **3/4** on the four items every seat gets wrong, where the
+  seats manage 19%. The answers sit in identifiers, defaults and **test function names**
+  (`test_jotated_iti_past_active_doublet` settles one of them outright).
+  **Sanitisation does not rescue it, on either horn.** Stripping comments and docstrings leaves
+  prose inside string literals that are part of live data structures, and no strip touches an
+  identifier without destroying the artifact under review. Checking out the tree from *before* the
+  experiments removes the leak completely — and removes the substrate with it: the config module
+  the claims are about does not exist yet, and 13 of 18 claims become unanswerable. **Clean or
+  checkable, never both.**
+  **What to do instead:** use a codebase the project has never published claims about, so the repo
+  is evidence rather than ledger. **And before spending a batch, run the heuristic yourself** — if
+  "is it in the code?" predicts your key, the arm is measuring retrieval and the runs are wasted.
 
 ## Sources for the published claims above
 

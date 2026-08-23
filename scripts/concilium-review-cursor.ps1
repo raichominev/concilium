@@ -71,7 +71,7 @@ param(
   [string]$PriorRounds,
   [switch]$AutoRules,
   [switch]$NoHomeIsolation,
-  [switch]$NoReasoningBoost,
+  [switch]$ReasoningBoost,
   [string]$RepoDir = "",
   [string]$WatchPaths
 )
@@ -158,15 +158,16 @@ if ($PriorRounds -and (Test-Path $PriorRounds)) {
   $Contract += "`n`n--- PRIOR ROUNDS (do NOT repeat these probes; take a new evidence path; address the objection) ---`n" + (Get-Content -Raw $PriorRounds)
 }
 
-# Reasoning boost - ON by default for THIS seat. Measured 2026-08-19 on the 14-item prediction
-# packet: this seat over-called WIN, and the block cut its false-alarm rate 33.3% to 6.7%
-# (d-prime 0.51 to 1.58, +13.3 pp accuracy), the largest gain of any seat. -NoReasoningBoost to skip.
-# WARNING: measured in PREDICTION mode; these wrappers run ADJUDICATION mode, where chairs already
-# over-refute (setup.md). If reviews turn reflexively negative, turn it off and say so.
+# Reasoning boost - OFF by default since 2026-08-22 on EVERY seat; opt in with -ReasoningBoost.
+# It was ON for this seat on a PREDICTION-mode result (false alarms 33.3% -> 6.7%, d-prime 0.51 ->
+# 1.58). That did NOT transfer: re-measured in ADJUDICATION mode, which is what these wrappers run,
+# it is a pure criterion shift toward refutation - pooled refute rate 61.0% -> 73.4%, true claims
+# recognised 61.1% -> 43.5%, accuracy slightly DOWN. Rose in 7 of 8 seats on replication (p = 0.035;
+# Qwen a counterexample). Chairs already over-refute, so do not enable it for review work.
 $BoostPath = Join-Path $PSScriptRoot "..\references\reasoning-boost.md"
-if (-not $NoReasoningBoost -and (Test-Path $BoostPath)) {
+if ($ReasoningBoost -and (Test-Path $BoostPath)) {
   $Contract += "`n`n" + (Get-Content -Raw -Encoding UTF8 $BoostPath)
-  Write-Host ">> reasoning boost ON (-NoReasoningBoost to disable)" -ForegroundColor DarkGray
+  Write-Host ">> reasoning boost ON (measured to INCREASE false refutation in review mode)" -ForegroundColor DarkGray
 }
 
 $AgentVersion = (& $Agent --version 2>$null | Select-Object -First 1)

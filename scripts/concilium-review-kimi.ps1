@@ -69,7 +69,7 @@ param(
   [string]$SandboxRoot,
   [switch]$KeepSandbox,
   [string]$WatchPaths,
-  [switch]$NoReasoningBoost,
+  [switch]$ReasoningBoost,
   [switch]$ShowLog
 )
 
@@ -212,15 +212,16 @@ if ($RawPrompt) {
   $Prompt = $RawPrompt
 }
 else {
-  # Reasoning boost - ON by default for THIS seat. Measured 2026-08-19 on the 14-item prediction
-  # packet: this seat was the panel's most credulous (false-alarm rate 93.3%), and the block cut
-  # that to 66.7% (d-prime -0.66 to 0.19, +10.0 pp accuracy). -NoReasoningBoost to skip.
-  # WARNING: measured in PREDICTION mode; these wrappers run ADJUDICATION mode, where chairs already
-  # over-refute (setup.md). If reviews turn reflexively negative, turn it off and say so.
+  # Reasoning boost - OFF by default since 2026-08-22 on EVERY seat; opt in with -ReasoningBoost.
+  # It was ON for this seat on a PREDICTION-mode result (this seat was the panel's most credulous,
+  # false alarms 93.3% -> 66.7%). That did NOT transfer: re-measured in ADJUDICATION mode, which is
+  # what these wrappers run, it is a pure criterion shift toward refutation - pooled refute rate
+  # 61.0% -> 73.4%, true claims recognised 61.1% -> 43.5%, accuracy slightly DOWN. Rose in 7 of 8
+  # seats on replication (p = 0.035; Qwen a counterexample). Do not enable it for review work.
   $BoostPath = Join-Path $PSScriptRoot "..\references\reasoning-boost.md"
-  if (-not $NoReasoningBoost -and (Test-Path $BoostPath)) {
+  if ($ReasoningBoost -and (Test-Path $BoostPath)) {
     $Contract += "`n`n" + (Get-Content -Raw -Encoding UTF8 $BoostPath)
-    Write-Host ">> reasoning boost ON (-NoReasoningBoost to disable)" -ForegroundColor DarkGray
+    Write-Host ">> reasoning boost ON (measured to INCREASE false refutation in review mode)" -ForegroundColor DarkGray
   }
   $ContractFull = $Contract + "`n`nRuntime provenance (use in PHASE-LOG): model=$Model, effort=$Effort, seat=kimi."
   if ($Diff) {

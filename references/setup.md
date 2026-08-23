@@ -20,6 +20,11 @@ with `KIMI_CODE_HOME`. Auth is device-code OAuth (authorise on any device) or a 
 so it works headless. Verified against v0.34.0:
 - **Always pass `--model`.** The shipped `default_model` is an older generation than the flagship,
   and nothing in the output tells you which model answered. A seat you did not choose is not a seat.
+- ⚠ **The alias is namespaced, and the bare name fails.** `-m k3` errors with `Model "k3" is not
+  configured in config.toml`; the working form is the provider-qualified alias, `-m kimi-code/k3`.
+  Read the aliases out of the `[models."…"]` table headers in `config.toml` rather than guessing —
+  and note the file is not necessarily under `~`: `kimi doctor` prints the path it actually loaded
+  (on one install, `/var/lib/…`, where a `find ~ -name config.toml` finds nothing at all).
 - **Reasoning effort is config-only** — there is no `--effort` flag. It lives per model alias in
   `config.toml` as `default_effort`, alongside the `support_efforts` list for that alias.
 - **Prompt goes in via `-p` as an argv argument.** Piping to stdin without `-p` hangs on a TTY wait;
@@ -44,6 +49,49 @@ so it works headless. Verified against v0.34.0:
   `-s read-only`; assume the reviewer can read anything under its workDir).
 - CLAUDE.md auto-bridging is **off by default** for this seat (opt in with `-AutoRules`; prefer
   `-ProjectRules`) — see pitfalls #18. Pass multi-line prompts only through the wrapper (#19).
+
+### Z.ai seat (optional, a fifth family) — reuses the Claude Code CLI
+
+The GLM Coding Plan exposes an **Anthropic-compatible endpoint**, so this seat needs no new
+transport: point Claude Code at it.
+
+```
+export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
+export ANTHROPIC_AUTH_TOKEN="<coding-plan key>"
+claude -p "<prompt>" --model glm-5.3
+```
+
+- Usage meters against the **subscription quota**, not per token (`credits = (in x mult + cached x
+  mult + out x mult) / 10000`). Take the **Coding Plan** key, not a general API-platform key — the
+  latter is pay-per-token and bills separately.
+- Give it its own `CLAUDE_CONFIG_DIR` so it cannot share transcripts with a real Anthropic seat.
+- Claude Code warns `"glm-5.3" is not a model this version recognizes` and assumes a 200k window.
+  Harmless for short packets; append `[1m]` to the model id or set `CLAUDE_CODE_MAX_CONTEXT_TOKENS`
+  for long ones.
+- ⚠ A third-party CLI roster may lag the vendor's own: one editor CLI's list topped out at 5.2 with
+  no path to 5.3. **Check the vendor's plan, not the reseller's model list**, before concluding a
+  generation is unavailable.
+
+### Google seat (optional, a sixth family) — Antigravity, NOT the Gemini CLI
+
+⚠ **Google's own Gemini CLI stopped serving individual accounts on 2026-06-18**, including paid AI
+Pro and Ultra. Browser login still appears to succeed and the token exchange is refused server-side,
+so reinstalling never helps. The supported successor is the **Antigravity CLI**, which the same AI
+Pro plan covers:
+
+```
+curl -fsSL https://antigravity.google/cli/install.sh | bash     # installs ~/.local/bin/agy
+agy                                                            # device-code login, SSH-aware
+agy -p "<prompt>" --model gemini-3.1-pro-high
+```
+
+- The device-code paste prompt closes after **~30 seconds** — far too short to relay a code through
+  a chat or ticket. Authenticate in a shell where you can paste it yourself.
+- `agy models` lists what your tier actually exposes. **`gemini-3.1-pro-high` is the strongest
+  CLI-reachable reasoning tier**; Deep Think is Ultra-gated and API access is early-access only, so
+  it is not reachable from any CLI you can buy today. Describe the seat precisely rather than
+  calling it "frontier".
+- Antigravity shares the IDE's credit pool, so CLI volume eats the desktop allowance.
 
 ### Grok seat (optional fourth family)
 
@@ -249,6 +297,40 @@ The cause is the saturation rule below wearing a second costume: the items were 
 gotchas, which are **memorized facts, not derivations** — self-contained is not the same property as
 unsaturated. A packet that could measure this needs claims computed from invented data, plus
 true-but-surprising claims to bait refutation.
+
+## Measured: back-filling two later seats onto the frozen chair packets (2026-08-20)
+
+The Moonshot and xAI seats were adopted after the original chair benchmarks, so they were re-run on
+the **same frozen packets and keys**, three replicates each, in an isolated guest holding the packet
+and nothing else. Two results matter more than the scores.
+
+**Replication dissolved both published rankings.** On the 39-item prediction packet the xAI seat
+scored 31 / 27 / 33 at identical settings — a **6-item, 15.4 pp spread**, covering three quarters of
+the range the original four-chair ranking (64.1–84.6%) was reporting as differences *between*
+models, where the top three sat inside a 1–2 item gap measured once each. On the 18-item
+adjudication packet the Moonshot seat scored 12 / 13 / 10 against an original between-chair result
+of 66.7 / 66.7 / 61.1 — a one-item gap inside a three-item noise band. Neither ranking was wrong; both
+were **unresolvable**, and a single-run table cannot show you that. Replicate before you rank.
+
+**Panel width buys real but partial coverage.** Of the items every original chair got wrong:
+adjudication CLAIM-14 was **rescued** by both new families (kimi 3/3, grok 2/3) while CLAIM-16
+stayed wrong for **all five**; on prediction, ITEM-04 and ITEM-05 — already characterised as generic
+evidence-breadth priors — stayed wrong for all five. Some joint failures are lineage artifacts a new
+family fixes for free; others are shared priors that panel width will never touch.
+
+⚠ **Error overlap tracks skill as well as lineage.** With six chairs on one packet the highest
+overlap is still the same-family pair (0.62) and the lowest a cross-family one (0.18), but two
+*cross*-family pairs land at 0.50–0.57 — all involving the weakest chairs, which fail together on
+merely-hard items. Restricted to the four chairs scoring 31–33/39, same-family 0.62 vs cross-family
+mean 0.29: the effect survives at ~2x, not the ~3x an uncontrolled reading gives. **Different vendor
+does not imply decorrelated** — the two newest seats overlap each other (0.50) more than either
+overlaps the codex seat.
+
+**Operational note:** 3 of the 12 runs failed and none reported it — two truncated the 39-item JSON
+mid-object (at items 36 and 38), and one returned `"subtype":"success","is_error":false` with an
+**empty** result after 30k generated output tokens. Check the artifact — parse it and count the
+items against what the packet asked for. A packet whose answer nears the output ceiling is also
+*biased*, because truncation always eats the last items.
 
 ## Measured: blind originality ranking of the seats (2026-08-19)
 

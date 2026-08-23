@@ -149,11 +149,11 @@ fi
 # ⚠ That measurement is PREDICTION mode; these wrappers run ADJUDICATION mode, where chairs already
 # over-refute (setup.md). If reviews start reading as reflexively negative, turn it off and say so.
 BOOST_PATH="$HERE/../references/reasoning-boost.md"
-if [ "${REASONING_BOOST:-1}" != 0 ] && [ -f "$BOOST_PATH" ]; then
+if [ "${REASONING_BOOST:-0}" != 0 ] && [ -f "$BOOST_PATH" ]; then
   CONTRACT="$CONTRACT
 
 $(cat "$BOOST_PATH")"
-  echo ">> reasoning boost ON (REASONING_BOOST=0 to disable)" >&2
+  echo ">> reasoning boost ON (measured to INCREASE false refutation in review mode - setup.md)" >&2
 fi
 
 AGENT_VERSION="$("$AGENT" --version < /dev/null 2>/dev/null | tr -d '\r' | head -1)"

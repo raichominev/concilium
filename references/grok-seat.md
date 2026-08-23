@@ -74,13 +74,41 @@ Both are in pitfalls #22–23 with the evidence:
    arrives truncated at line one, and the model answers a question you never asked — it does not
    error, it confabulates a reply about an empty request.
 
-## Reasoning boost: ON by default for this seat
+## Reasoning boost — OFF by default since 2026-08-22 (SUPERSEDED result below)
 
-The wrappers append `reasoning-boost.md` to the contract unless you pass `REASONING_BOOST=0` /
-`-NoReasoningBoost`. Measured on the prediction packet, it was this seat's largest single
+The prediction-mode gain below did NOT transfer to review work. Re-measured in adjudication mode on
+a non-saturated packet (6 seats, 5 vendors, 36 runs), the block is a pure criterion shift toward
+refutation: pooled refute rate 61.0% -> 73.4%, upheld-recall 61.1% -> 43.5%, accuracy slightly DOWN.
+The refute rate rose in all six, and in 7 of 8 seats once two further vendors were replicated
+(sign test p = 0.035; Qwen is a counterexample at -8.5 pp, so do not write "every seat"). Chairs
+already over-refute, so it worsens the dominant error and buys nothing — and this seat is one of the
+two that shipped it ON and degrade under it. Enable only with `REASONING_BOOST=1` /
+`-ReasoningBoost`, and not for reviews. Detail: setup.md.
+
+### The superseded prediction-mode result
+
+This was measured when the wrappers appended `reasoning-boost.md` by default. Measured on the prediction packet, it was this seat's largest single
 improvement: false alarms 33.3% → **6.7%**, d′ 0.51 → 1.58, accuracy +13.3 pp. The mechanism is a
 criterion shift toward refutation, not better reasoning — see the mode caveat in SKILL.md, and
 `setup.md` for the full five-seat table.
+
+## ⚠ Empty success: this CLI can bill a full run and return nothing
+
+Measured 2026-08-20 on a long structured answer. Twice on the same task the CLI returned
+
+```
+{"type":"result","subtype":"success","is_error":false,"duration_ms":490043,
+ "result":"","usage":{"outputTokens":29946,...}}
+```
+
+— eight minutes of work, ~30k generated output tokens, **`is_error` false, and an empty
+`result`**. It succeeded on retry, so it is intermittent rather than a hard limit. Separately, a
+39-item JSON answer truncated mid-object at item 38 and was emitted as a normal result.
+
+Neither an exit code nor the CLI's own error field distinguishes these from a good run. **Validate
+the artifact**: parse the output and count the items against what you asked for, then retry on
+mismatch. And keep a long structured answer clear of the output ceiling — truncation always eats
+the *last* items, so it biases whatever sits at the end of your packet.
 
 ## What the calibration measured (2026-08-19)
 

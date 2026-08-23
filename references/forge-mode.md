@@ -63,6 +63,48 @@ therefore not a blind chair.
 Do include an **already tried** section in the brief. It is worth more than any instruction: it
 stops seats scoring on dead arms, and it is the cheapest way to push them toward empty cells.
 
+### Measured: handing the seats the repository is a PER-SEAT knob, not a panel-wide setting (2026-08-23)
+
+The obvious worry about grounding is that the codebase is an anchor: hand it over and seats climb
+back into the occupied cells the ALREADY-TRIED block exists to push them out of. Tested directly —
+brief-only versus brief-plus-source-tree, arms byte-identical apart from the working directory and
+one appended paragraph; 2 replicates × 4 seats × 2 arms = 16 runs, 96 ideas, each replicate pooled
+and blind-ranked by 5 rankers with self- **and** same-family ratings dropped.
+
+| pooled, both replicates | brief only | brief + repo |
+|---|---:|---:|
+| IN-K rate (ideas a blind ranker calls a restatement of a known method) | 14.6% | 12.0% |
+| top-12 placement rate | 25.5% | 24.0% |
+| originality points per eligible rating | 160.4% | 153.1% |
+
+**The anchoring effect is not there at the panel level — and one replicate would have told you it
+was.** IN-K ran **−9.4 pp in replicate 1 and +4.2 pp in replicate 2** at identical settings, so the
+between-arm delta does not clear the between-replicate spread. In replicate 1 the top-12 placements
+split *exactly* 24/24 between the arms.
+
+**What IS reproducible is per seat.** Originality points per idea, two independent replicates:
+opus 10.33→12.17 then 12.00→**21.00**; glm 0.00→7.83 then 0.83→3.33; deepseek 11.17→3.83 then
+8.17→0.67; qwen 4.17→0.17 then 4.67→0.00. **Every seat kept its own sign — two gain from the repo,
+two lose — so the panel average is null by cancellation, not by absence.** (n = 4 seats,
+P = 0.0625 under a coin-flip null: a hypothesis with a reproducible direction, not a settled effect.)
+Second intervention measured to behave this way; the reasoning boost was the first, and
+`reasoning-boost.md` already says to apply that one per seat.
+
+**Practical reading.** Ship the self-contained brief — it costs nothing in originality and keeps the
+round reproducible. If you *do* attach the repo, attach it for the seats it helps, and establish
+which those are the way you would for any other criterion knob: two replicates, per seat, before you
+believe the sign. The one hard rule above is unchanged and independent of all this — seats must
+never see the recorded outcome of an experiment the register proposes.
+
+⚠ Scope: one brief, one question, one round, source tree only (no database). Round-2 chaining was
+not tested, and the 2026-08-19 forge found solo-originality rank order **inverts** under chaining —
+so none of this transfers to the build-on-others round without measuring it there.
+
+⚠ **Ship a manipulation check with the arm.** This null is credible only because the repo arm
+demonstrably used the repo: 11/24 and 13/24 of its ideas named real source symbols against **0/24**
+in both control arms. Without that count, "grounding had no effect" and "the grounding never
+arrived" are the same result.
+
 ## Cost
 
 One model call per seat per round; no probes, no re-runs. A 4-seat 2-round forge is 8 calls, which

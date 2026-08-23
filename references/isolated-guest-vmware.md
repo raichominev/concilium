@@ -16,6 +16,15 @@ guest is not to *confine* the agent — you cannot, from inside — but to make 
 if the guest holds the payload and nothing else, "it reads everything it can reach" stops being a
 problem. That is a much cheaper property to guarantee than containment.
 
+⚠ **"Holds the payload and nothing else" is a property you must keep re-establishing — revert to
+snapshot between campaigns, not just between runs.** Measured 2026-08-20: a careful per-run harness
+(fresh empty cwd per run, every result pulled off the box and deleted before the next one started)
+still left the guest dirty, because the agent CLIs keep their **own transcript stores** under
+`~/.cursor/projects/` and `~/.claude/projects/`, outside any working directory you clean — so a
+later run of the same CLI can reach an earlier one's whole conversation. The previous campaign's
+packets and answers were also still sitting in the home directory. Per-run hygiene inside a guest
+you never reverted is theatre; the snapshot is the boundary.
+
 ## Two ways to get the guest
 
 **A — prebuilt appliance.** The image used here was an Ubuntu 24.04 VMware `.ova` from

@@ -82,7 +82,9 @@ scenarios, each written around a specific way this kind of tool goes wrong:
 ## What we measured
 
 Findings from the origin project's own workload, not assumptions. Method in
-[`references/setup.md`](../references/setup.md).
+[`references/setup.md`](../references/setup.md); the campaigns behind these one-liners — four
+instruments, five model families, the tables and the caveats — are written up in
+[`measuring-the-seats.md`](measuring-the-seats.md).
 
 - **Only a different lineage buys coverage.** Not more reasoning effort, and not a newer generation
   of the same family — both resample the same blind spots. A spread of effort levels on one seat

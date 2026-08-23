@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="390" viewBox="0 0 1200 390" role="img" aria-labelledby="title desc">
+  <title id="title">A simple Concilium operational workflow</title>
+  <desc id="desc">Frame the question, collect independent first readings, compare disagreements, check the evidence, and let the human ratify and record the result.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b9afc6"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="390" rx="30" fill="#17131f"/>
+  <text x="64" y="64" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="30" font-weight="700">The operational cycle</text>
+  <text x="64" y="98" fill="#b9afc6" font-family="Inter, Segoe UI, sans-serif" font-size="18">Loop, Review and Forge change the purpose of the round—not this discipline.</text>
+
+  <g stroke="#b9afc6" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <path d="M250 222 H278"/>
+    <path d="M468 222 H496"/>
+    <path d="M686 222 H714"/>
+    <path d="M904 222 H932"/>
+  </g>
+
+  <g font-family="Inter, Segoe UI, sans-serif">
+    <g>
+      <rect x="60" y="150" width="190" height="144" rx="20" fill="#241c2e" stroke="#e26d5a" stroke-width="2"/>
+      <text x="86" y="184" fill="#e26d5a" font-size="15" font-weight="700">01</text>
+      <text x="86" y="219" fill="#f4f0e8" font-size="22" font-weight="700">Frame</text>
+      <text x="86" y="248" fill="#d8d0df" font-size="16">Question, scope</text>
+      <text x="86" y="271" fill="#d8d0df" font-size="16">and success test</text>
+    </g>
+
+    <g>
+      <rect x="278" y="150" width="190" height="144" rx="20" fill="#241c2e" stroke="#7fdbb6" stroke-width="2"/>
+      <text x="304" y="184" fill="#7fdbb6" font-size="15" font-weight="700">02</text>
+      <text x="304" y="219" fill="#f4f0e8" font-size="22" font-weight="700">Read blind</text>
+      <text x="304" y="248" fill="#d8d0df" font-size="16">Independent first</text>
+      <text x="304" y="271" fill="#d8d0df" font-size="16">views from seats</text>
+    </g>
+
+    <g>
+      <rect x="496" y="150" width="190" height="144" rx="20" fill="#241c2e" stroke="#c9d45c" stroke-width="2"/>
+      <text x="522" y="184" fill="#c9d45c" font-size="15" font-weight="700">03</text>
+      <text x="522" y="219" fill="#f4f0e8" font-size="22" font-weight="700">Compare</text>
+      <text x="522" y="248" fill="#d8d0df" font-size="16">Expose different</text>
+      <text x="522" y="271" fill="#d8d0df" font-size="16">assumptions</text>
+    </g>
+
+    <g>
+      <rect x="714" y="150" width="190" height="144" rx="20" fill="#241c2e" stroke="#8b83f6" stroke-width="2"/>
+      <text x="740" y="184" fill="#8b83f6" font-size="15" font-weight="700">04</text>
+      <text x="740" y="219" fill="#f4f0e8" font-size="22" font-weight="700">Check</text>
+      <text x="740" y="248" fill="#d8d0df" font-size="16">Run the decisive</text>
+      <text x="740" y="271" fill="#d8d0df" font-size="16">probe or experiment</text>
+    </g>
+
+    <g>
+      <rect x="932" y="150" width="208" height="144" rx="20" fill="#f2c14e"/>
+      <text x="958" y="184" fill="#4b3a17" font-size="15" font-weight="700">05</text>
+      <text x="958" y="219" fill="#17131f" font-size="22" font-weight="800">Ratify</text>
+      <text x="958" y="248" fill="#4b3a17" font-size="16">Human decides and</text>
+      <text x="958" y="271" fill="#4b3a17" font-size="16">records the evidence</text>
+    </g>
+  </g>
+
+  <path d="M1036 318 C1036 350 155 350 155 312" fill="none" stroke="#5d526b" stroke-width="2" stroke-dasharray="7 8" marker-end="url(#arrow)"/>
+  <text x="596" y="374" text-anchor="middle" fill="#8f839e" font-family="Inter, Segoe UI, sans-serif" font-size="14">If the result opens a new question, begin another bounded round.</text>
+</svg>

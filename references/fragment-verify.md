@@ -9,10 +9,17 @@ responses — an operation whole-answer selection cannot perform.
 
 Procedure:
 
-1. **Atomise.** Split the material into the smallest claims that could independently be true or
-   false. A number, a causal statement, a scope quantifier and a recommendation are four different
-   claims even in one sentence. Aim for granularity where a single defect can only invalidate one
-   fragment.
+1. **Atomise — but only what is ASSERTED.** Split the material into the smallest claims that could
+   independently be true or false. A number, a causal statement, a scope quantifier and a
+   recommendation are four different claims even in one sentence. Aim for granularity where a single
+   defect can only invalidate one fragment.
+   ⚠ **Do NOT atomise the given background.** Stipulated context — system descriptions, definitions,
+   constants the material supplies as premises — is not under review. Ruling `SUPPORTED` on "the unit
+   is a token" or "exact matches score 0.90" adds nothing and buries the findings. Measured
+   2026-08-22: on a write-up with five asserted sub-claims this mode returned **112 fragments**, most
+   of them stipulated scaffolding marked SUPPORTED, against **94 genuinely UNSUPPORTED** rulings
+   across twelve runs. State the premises you are taking as given in one line, then rule only on what
+   the author actually claims.
 2. **Classify each fragment by TYPE before judging it**: `measured` (a number the author says was
    observed), `derived` (follows from other fragments), `interpretive` (a reading of what the
    numbers mean), `recommendation` (what to do next), `assumption` (relied on, not stated).

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" role="img" aria-labelledby="title desc">
+  <title id="title">Four model families around one hard question</title>
+  <desc id="desc">Claude, Codex, Kimi and Grok contribute different perspectives to one question. Their roles can rotate, and a human remains responsible for the evidence.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b0810" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="640" rx="30" fill="#17131f"/>
+
+  <text x="64" y="66" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="30" font-weight="700">One question, several model lineages</text>
+  <text x="64" y="100" fill="#b9afc6" font-family="Inter, Segoe UI, sans-serif" font-size="18">Typical contributions—not fixed personalities or a vote.</text>
+
+  <path d="M342 218 C450 218 453 277 520 292" fill="none" stroke="#e26d5a" stroke-width="3" stroke-opacity="0.75"/>
+  <path d="M858 218 C750 218 747 277 680 292" fill="none" stroke="#7fdbb6" stroke-width="3" stroke-opacity="0.75"/>
+  <path d="M342 472 C450 472 453 363 520 348" fill="none" stroke="#c9d45c" stroke-width="3" stroke-opacity="0.75"/>
+  <path d="M858 472 C750 472 747 363 680 348" fill="none" stroke="#8b83f6" stroke-width="3" stroke-opacity="0.75"/>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="146" width="278" height="144" rx="20" fill="#241c2e" stroke="#e26d5a" stroke-width="2"/>
+    <circle cx="102" cy="184" r="12" fill="#e26d5a"/>
+    <text x="126" y="193" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="28" font-weight="700">Claude</text>
+    <text x="92" y="232" fill="#e26d5a" font-family="Inter, Segoe UI, sans-serif" font-size="16" font-weight="600">ANTHROPIC</text>
+    <text x="92" y="263" fill="#d8d0df" font-family="Inter, Segoe UI, sans-serif" font-size="18">Orchestrate · synthesize</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="858" y="146" width="278" height="144" rx="20" fill="#241c2e" stroke="#7fdbb6" stroke-width="2"/>
+    <circle cx="896" cy="184" r="12" fill="#7fdbb6"/>
+    <text x="920" y="193" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="28" font-weight="700">Codex</text>
+    <text x="886" y="232" fill="#7fdbb6" font-family="Inter, Segoe UI, sans-serif" font-size="16" font-weight="600">OPENAI</text>
+    <text x="886" y="263" fill="#d8d0df" font-family="Inter, Segoe UI, sans-serif" font-size="18">Probe · verify</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="400" width="278" height="144" rx="20" fill="#241c2e" stroke="#c9d45c" stroke-width="2"/>
+    <circle cx="102" cy="438" r="12" fill="#c9d45c"/>
+    <text x="126" y="447" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="28" font-weight="700">Kimi</text>
+    <text x="92" y="486" fill="#c9d45c" font-family="Inter, Segoe UI, sans-serif" font-size="16" font-weight="600">MOONSHOT</text>
+    <text x="92" y="517" fill="#d8d0df" font-family="Inter, Segoe UI, sans-serif" font-size="18">Extend · contrast</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="858" y="400" width="278" height="144" rx="20" fill="#241c2e" stroke="#8b83f6" stroke-width="2"/>
+    <circle cx="896" cy="438" r="12" fill="#8b83f6"/>
+    <text x="920" y="447" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="28" font-weight="700">Grok</text>
+    <text x="886" y="486" fill="#8b83f6" font-family="Inter, Segoe UI, sans-serif" font-size="16" font-weight="600">xAI</text>
+    <text x="886" y="517" fill="#d8d0df" font-family="Inter, Segoe UI, sans-serif" font-size="18">Challenge · reframe</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <circle cx="600" cy="320" r="112" fill="#f2c14e"/>
+    <text x="600" y="300" text-anchor="middle" fill="#17131f" font-family="Inter, Segoe UI, sans-serif" font-size="17" font-weight="700" letter-spacing="2">ONE HARD</text>
+    <text x="600" y="337" text-anchor="middle" fill="#17131f" font-family="Inter, Segoe UI, sans-serif" font-size="30" font-weight="800">QUESTION</text>
+    <text x="600" y="367" text-anchor="middle" fill="#4b3a17" font-family="Inter, Segoe UI, sans-serif" font-size="15">shared evidence</text>
+  </g>
+
+  <rect x="342" y="574" width="516" height="38" rx="19" fill="#2e2638"/>
+  <text x="600" y="599" text-anchor="middle" fill="#f4f0e8" font-family="Inter, Segoe UI, sans-serif" font-size="16">Roles can rotate · the human decides what the evidence supports</text>
+</svg>

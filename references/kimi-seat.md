@@ -42,10 +42,30 @@ CLI's built-in default is an older generation than the flagship, and nothing in 
   demonstrably escaped. Verify any such check against a known escape before relying on it, and
   never watch a path the tool itself needs — it reads its own stored credential every run.
 
-## Reasoning boost: ON by default for this seat
+## Two things that bite on a long structured answer
 
-The wrappers append `reasoning-boost.md` to the contract unless you pass `REASONING_BOOST=0` /
-`-NoReasoningBoost`. This seat was the panel's most credulous on the prediction packet — a 93.3%
+- **The model alias is namespaced.** `-m k3` fails with `Model "k3" is not configured in
+  config.toml`; the working form is `-m kimi-code/k3`. Read the aliases from the `[models."…"]`
+  table headers, and get the config path from `kimi doctor` — it is not necessarily under `~`.
+- **A long JSON answer truncates mid-object and is emitted as a normal result.** Measured
+  2026-08-20: a 39-item answer stopped at item 36, with no error and a zero exit code. Parse the
+  output and count the items against what you asked for; a run that returns 92% of an answer is a
+  failed run, not a partial success.
+
+## Reasoning boost — OFF by default since 2026-08-22 (SUPERSEDED result below)
+
+The prediction-mode gain below did NOT transfer to review work. Re-measured in adjudication mode on
+a non-saturated packet (6 seats, 5 vendors, 36 runs), the block is a pure criterion shift toward
+refutation: pooled refute rate 61.0% -> 73.4%, upheld-recall 61.1% -> 43.5%, accuracy slightly DOWN.
+The refute rate rose in all six, and in 7 of 8 seats once two further vendors were replicated
+(sign test p = 0.035; Qwen is a counterexample at -8.5 pp, so do not write "every seat"). Chairs
+already over-refute, so it worsens the dominant error and buys nothing — and this seat is one of the
+two that shipped it ON and degrade under it. Enable only with `REASONING_BOOST=1` /
+`-ReasoningBoost`, and not for reviews. Detail: setup.md.
+
+### The superseded prediction-mode result
+
+This was measured when the wrappers appended `reasoning-boost.md` by default. This seat was the panel's most credulous on the prediction packet — a 93.3%
 false-alarm rate, i.e. it called WIN on almost every change that actually failed — and the block cut
 that to 66.7% (d′ −0.66 → 0.19, accuracy +10.0 pp). It shifts the decision criterion rather than
 improving reasoning; see the mode caveat in SKILL.md and the per-seat table in `setup.md`.

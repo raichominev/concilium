@@ -65,6 +65,54 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
    calibration packet — seat it for fourth-lineage coverage, not accuracy. Full detail, numbers and
    two Windows-only traps that silently break it: references/grok-seat.md, pitfalls #22–26.
 
+## Seats beyond codex, kimi and grok — four more families, no new transport
+
+Three vendors expose an **Anthropic-compatible endpoint**, so one wrapper drives all of them through
+the Claude Code CLI; the fourth (Google) has its own CLI. Two run on a subscription, two on a
+pay-as-you-go key — see the `plan` column before assuming a seat is free:
+
+```
+scripts/concilium-review-compat.sh <glm|deepseek|qwen> {claim|diff|raw} [...]
+scripts/concilium-review-agy.sh {claim|diff|raw} [...]        # Google, via Antigravity
+```
+
+| seat | vendor | model | credential | plan |
+|---|---|---|---|---|
+| `glm` | Z.ai | `glm-5.3` | `ZAI_TOKEN` | GLM Coding Plan Lite, quota-metered not per-token |
+| `deepseek` | DeepSeek | `deepseek-v4-pro` | `DEEPSEEK_TOKEN` | pay-as-you-go key |
+| `qwen` | Alibaba | `qwen3.8-max` | `QWEN_TOKEN` | pay-as-you-go DashScope key |
+| `agy` | Google | `gemini-3.1-pro-high` | Antigravity OAuth | Google AI Pro subscription |
+
+Each compat seat gets its **own `CLAUDE_CONFIG_DIR`** (`~/.claude-<vendor>`) so it cannot share
+session state with a real Anthropic seat or another vendor. ⚠ **A Claude-Code transport does not
+mean a Claude model or Anthropic data handling** — everything the seat reads goes to that vendor.
+
+**Which seat to pick for review — measured, and it inverts raw accuracy.** Eight seats on an
+18-claim adjudication packet (48 runs, 108 scored decisions per seat) landed within 6 points of each
+other on accuracy — seven of the eight do; only `qwen` falls outside — so ranking by accuracy is
+noise. **Calibration separates them.** Against a 55.6% base rate:
+
+| seat | refute rate | recognises TRUE claims |
+|---|---:|---:|
+| kimi | **53.7%** | **68.8%** |
+| glm | 59.3% | 62.5% |
+| fable | 56.5% | 64.6% |
+| grok | 66.7% | 56.2% |
+| opus / deepseek | 68.5% | 50.0% / 47.9% |
+| gemini | **76.9%** | **41.7%** |
+| qwen | 67.6% | 37.5% |
+
+Since the measured baseline failure of review is **over-refutation**, prefer the seats nearest the
+base rate. `fable` is nearest of all (56.5%), but it shares the orchestrator's lineage, and
+same-family agreement is weak evidence — so among the cross-family seats prefer **kimi, then glm**.
+The Google seat refutes three-quarters of everything and recognises 42% of true claims — seat it for
+lineage diversity, not as a trusted reviewer.
+
+Setup, cost, runtime and the full calibration for all four: `references/compat-seats.md` — it is the
+single home for these seats. `references/setup.md` carries the Z.ai and Google walk-throughs
+alongside the other seats'; `deepseek` and `qwen` need no walk-through beyond the table above, since
+the same wrapper drives them.
+
 ## Tier matrix (defaults are current-day models — override per installation)
 
 | Tier | Default | Effort | Use for |
@@ -196,15 +244,28 @@ run. Validated against a known escape in both directions; read pitfalls #21 befo
 including why an enumeration-based version of the same check reported "clean" on a run that had
 demonstrably escaped.
 
-**Reasoning boost — per-seat, measured, not a global switch.** `references/reasoning-boost.md` is a
-short "hunt the non-obvious, take the strong position" block the wrappers can append to the contract.
-It is **ON by default for the grok and kimi seats** and **OFF for codex**, because that is what was
-measured: on a 14-item prediction packet it cut false alarms 33%→7% for grok (+13.3 pp) and 93%→67%
-for kimi (+10.0 pp), while making codex *worse* (−6.7 pp, d′ 0.34→0.00). Override per round with
-`REASONING_BOOST=0|1` / `-NoReasoningBoost` / `-ReasoningBoost`. It moves the decision criterion
-toward refutation rather than improving reasoning, so ⚠ **it was measured in prediction mode while
-these wrappers run adjudication mode, where chairs already over-refute** — if reviews start reading
-as reflexively negative, turn it off. Detail and the per-seat table: `references/setup.md`.
+**Reasoning boost — now OFF by default on EVERY seat (changed 2026-08-22, measured).**
+`references/reasoning-boost.md` is a short "hunt the non-obvious, take the strong position" block the
+wrappers can append to the contract. Enable per round with `REASONING_BOOST=1` / `-ReasoningBoost`.
+
+⚠ **Do not turn it on for review work.** It was ON for the grok and kimi seats on the strength of a
+*prediction*-mode result (false alarms 33%→7% and 93%→67%). Re-measured in **adjudication** mode on
+a packet with proven measurement capacity — 6 seats, 5 vendors, 36 runs — it is a pure criterion
+shift toward refutation with no accuracy benefit:
+
+| | base | boost |
+|---|---:|---:|
+| refute rate | 61.0% | **73.4%** (+12.4 pp, 95% CI [+5.5, +19.3]) |
+| upheld-recall (true claims recognised) | 61.1% | **43.5%** |
+| accuracy | 70.8% | 67.7% |
+
+Within those six seats the refute rate rose in all six and upheld-recall fell in five. **Replicated
+on two further vendors afterwards, the direction holds for the population but not for every seat:
+the sign test is 7 of 8 (p = 0.035), and Qwen is a measured counterexample at −8.5 pp.** Do not
+write "every seat". The production default still flips OFF — the two seats that shipped it ON both
+degrade — and since chairs already over-refute (rejecting true claims at a high rate is the measured
+baseline failure), the boost makes the dominant error worse while buying nothing. One seat went to a
+96% refute rate and recognised 4% of true claims. Detail: `references/setup.md`.
 
 Operational rules (each one is a measured failure — the why is in references/pitfalls.md):
 
@@ -247,10 +308,26 @@ Before relaying or acting:
    (one table vs DB-wide, one source vs all sources). Name the scope before comparing numbers.
 4. **Distinguish refuted / stale / incomplete.** "The numbers differ today" does not mean the
    claim was wrong when written — check history/timestamps before saying "refuted".
-5. Assign the final verdict tag yourself: `[V-code]` (verified vs source, cite file:line) /
+5. **Read ALT before you read the verdict, and check its discriminator.** The block carries the
+   strongest reading the reviewer rejected plus the observation that killed it. Two failure modes
+   to catch: a **strawman** rival (weak, easily dismissed — the reviewer optimised for a clean
+   verdict, so treat the round as having attempted no alternative at all), and a **missing
+   discriminator** (the separation is argued rather than observed — then the reviewer preferred
+   rather than verified, and the tag caps at `[C]` however confident the sentence sounds).
+   ⚠ **In practice the discriminator is almost never missing — it is manufactured.** Measured over
+   315 refutations, the honest "nothing separated them" escape was taken **once**, and some of the
+   invented separations were fabricated experimental results, cited to refute claims that were
+   TRUE. So the check that pays is not "is there a discriminator?" but **"can I follow its quote
+   back to the input the reviewer was given?"** If the observation is not in that material, the
+   refutation is worth nothing however specific it sounds.
+   ⚠ **Weight this most when the proposal is `[X]`.** Chairs measurably over-refute — they reject
+   true claims at a substantial rate, and some true claims get refuted by every chair
+   independently — so on a refutation the rejected alternative is disproportionately likely to be
+   the correct one. It is the cheapest available substitute for adding another model family.
+6. Assign the final verdict tag yourself: `[V-code]` (verified vs source, cite file:line) /
    `[V-db]` (read-only query, cite it) / `[V-probe]` (re-runnable script) / `[C]` (unverified) /
    `[X]` (refuted — name what supersedes it). The proposal is input, not the answer.
-6. **Weigh agreement by lineage.** Same-family confirmation (a Claude chair agreeing with a
+7. **Weigh agreement by lineage.** Same-family confirmation (a Claude chair agreeing with a
    Claude orchestrator) is weak evidence — same-lineage chairs measurably share wrong answers,
    down to independently producing the identical wrong inference. A cross-family confirmation
    or refutation outweighs any count of same-lineage votes; never settle a dispute by majority
@@ -276,8 +353,8 @@ Each round:
 | Outcome | Condition | Action |
 |---|---|---|
 | **Converged** | You verified the probe's load-bearing step and it holds | STOP — emit the final tag. |
-| **Dispute** | The probe has a gap, wrong scope, or you have a specific, *evidence-backed* objection | Write this round's PROBE + your objection to a rounds file; run the next round with `-PriorRounds`/`PRIOR_ROUNDS` pointing at it. |
-| **Dry** | A round adds no new checkable evidence — the reviewer re-asserts, or says (in CAVEAT) it has no new path | STOP — escalate to the owner as `[C]`/`[POLICY]` with the open question. This is the anti-oscillation guard. |
+| **Dispute** | The probe has a gap, wrong scope, or you have a specific, *evidence-backed* objection | Write this round's PROBE **and ALT** + your objection to a rounds file; run the next round with `-PriorRounds`/`PRIOR_ROUNDS` pointing at it. Carrying ALT forward stops the next round re-rejecting the same near-miss without knowing it was already the runner-up. |
+| **Dry** | A round adds no new checkable evidence — the reviewer re-asserts, or says (in CAVEAT) it has no new path | STOP — escalate to the owner as `[C]`/`[POLICY]` with the open question **and the surviving ALT**. A dry round means the rivals were never separated, so the strongest one is the substance of what you are handing over. This is the anti-oscillation guard. |
 | **Cap** | Round limit reached (default **3**) without converging | STOP — present the state and escalate; a real dispute is a finding, not a failure. |
 
 Design rules (they follow directly from the pitfalls):
