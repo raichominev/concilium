@@ -1,8 +1,9 @@
 # Pitfalls — known issues and the rules that counter them
 
 Each entry: the issue as you'll encounter it, then the rule. All of them were hit for real
-while building this loop; none are theoretical. (Adding an entry? The README's maintenance rule
-binds: generic, self-contained, judgeable from the text alone.)
+while building this loop; none are theoretical. Before adding an entry, follow the
+[documentation and example maintenance rule](maintenance.md): make it generic, self-contained and
+judgeable from the text alone.
 
 ## 1. Bare `codex exec resume` resets model AND sandbox
 `resume` re-resolves model and sandbox from `~/.codex/config.toml`, silently discarding the

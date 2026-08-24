@@ -54,8 +54,9 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
      a precaution. ⚠ Always pass `--model`: the CLI's built-in default is an older generation than
      the flagship and nothing in the output names it.
 
-   Calibrated but flakier than codex, and weaker on isolation: paths, models, sandboxing and the
-   caveats are in references/setup.md and pitfalls #18–21.
+   Calibrated but flakier than codex, and weaker on isolation. Installation paths and model
+   selection are in references/setup.md; operating caveats are in references/kimi-seat.md and
+   pitfalls #18–21.
 5. Grok seat (xAI, fourth family) — **EXPERIMENTAL and opt-in; never part of a default round.**
    `scripts/concilium-review-cursor.{sh,ps1}` drive the **Cursor Agent CLI** on Cursor-subscription
    auth (no xAI API key, no per-token bill), default model `cursor-grok-4.6-xhigh`. Effort is baked
@@ -265,7 +266,7 @@ the sign test is 7 of 8 (p = 0.035), and Qwen is a measured counterexample at �
 write "every seat". The production default still flips OFF — the two seats that shipped it ON both
 degrade — and since chairs already over-refute (rejecting true claims at a high rate is the measured
 baseline failure), the boost makes the dominant error worse while buying nothing. One seat went to a
-96% refute rate and recognised 4% of true claims. Detail: `references/setup.md`.
+96% refute rate and recognised 4% of true claims. Detail: `references/benchmarks.md`.
 
 Operational rules (each one is a measured failure — the why is in references/pitfalls.md):
 
@@ -334,7 +335,7 @@ Before relaying or acting:
    across chairs that share a lineage. Two further families are available as experimental opt-in
    seats — Moonshot (kimi) and xAI (grok) — and an extra seat buys nothing unless it is
    *independent*, so weigh by family, not by headcount; note that a unanimous panel may simply mean
-   the item was easy (setup.md). **Weigh a dissent by lineage, never by stated confidence** —
+   the item was easy (references/benchmarks.md). **Weigh a dissent by lineage, never by stated confidence** —
    measured, seats differ enormously in how much doubt they express (codex 99.7 mean vs grok 70.9
    on items they got right), so a confident vote and a hedged one are not comparable quantities.
 
@@ -418,7 +419,9 @@ If you keep both files but let them drift, the reviewer sees the `AGENTS.md` ver
   load it at runtime).
 - `references/pitfalls.md` — known issues and the rules that counter them (read when a rule
   seems overcautious, or when debugging reviewer misbehavior).
-- `references/setup.md` — first-time setup, calibration bootstrap, and the head-to-head method
-  for picking tier models.
+- `references/setup.md` — first-time installation, authentication and calibration bootstrap.
+- `references/benchmarks.md` — head-to-head model selection, panel benchmarking methods and the
+  measured results behind the defaults.
+- `references/maintenance.md` — public documentation, example and release-note sanitization.
 - `references/kimi-seat.md` / `references/grok-seat.md` — the two experimental extra-family seats:
   transports, measured limits, and what each one's testing produced for the skill as a whole.

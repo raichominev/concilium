@@ -15,7 +15,7 @@ with the rest of the skill are in [`pitfalls.md`](pitfalls.md) #18–21.
 Both load the same review contract and return the same five blocks. **Always name the model**: the
 CLI's built-in default is an older generation than the flagship, and nothing in the output says so.
 
-## Why it is the weakest seat
+## Caveats and operating limits
 
 - **No sandbox, and it does not stay where you put it.** codex runs under `-s read-only`; this seat
   has no equivalent, and its working directory is *not* a boundary — a canary file outside it was
@@ -61,14 +61,15 @@ The refute rate rose in all six, and in 7 of 8 seats once two further vendors we
 (sign test p = 0.035; Qwen is a counterexample at -8.5 pp, so do not write "every seat"). Chairs
 already over-refute, so it worsens the dominant error and buys nothing — and this seat is one of the
 two that shipped it ON and degrade under it. Enable only with `REASONING_BOOST=1` /
-`-ReasoningBoost`, and not for reviews. Detail: setup.md.
+`-ReasoningBoost`, and not for reviews. Detail: [`benchmarks.md`](benchmarks.md).
 
 ### The superseded prediction-mode result
 
 This was measured when the wrappers appended `reasoning-boost.md` by default. This seat was the panel's most credulous on the prediction packet — a 93.3%
 false-alarm rate, i.e. it called WIN on almost every change that actually failed — and the block cut
 that to 66.7% (d′ −0.66 → 0.19, accuracy +10.0 pp). It shifts the decision criterion rather than
-improving reasoning; see the mode caveat in SKILL.md and the per-seat table in `setup.md`.
+improving reasoning; see the mode caveat in SKILL.md and the per-seat table in
+[`benchmarks.md`](benchmarks.md).
 
 ## Why it earns a place anyway
 
@@ -90,7 +91,7 @@ Three results, all of which generalise beyond Kimi:
   only a different lineage moves them.
 - **One run is not a measurement.** Three replicates per seat at identical settings moved scores by
   up to 4 points, with a large share of items flipping between runs. Single-run rankings and
-  pair-coverage figures sit inside that noise; [`setup.md`](setup.md) now reports **stable
+  pair-coverage figures sit inside that noise; [`benchmarks.md`](benchmarks.md) reports **stable
   profiles** instead — what a seat gets right, or wrong, in *every* replicate. Three runs is enough
   to see it and cheap to get.
 

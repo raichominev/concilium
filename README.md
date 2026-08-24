@@ -28,6 +28,9 @@ different blind spots, and that is the only lever here that has ever measured as
      asciinema or terminal GIF, and drop it directly under this comment. This is the highest-
      converting asset the page can carry; everything below is secondary to it. -->
 
+Read the public introductions and method notes on
+[Concilium GitHub Pages](https://raichominev.github.io/concilium/).
+
 ## Examples
 
 Typed into a normal Claude Code session. The slash commands take arguments; everything else is
@@ -321,7 +324,8 @@ Two things worth knowing up front:
 > earned by a real failure. Read the caveats in [`docs/in-depth.md`](docs/in-depth.md) before a
 > round you intend to act on; they, the measurements behind them, and what this skill has proven
 > *doesn't* work all live there. Feedback is warmly welcome: issues, PRs, or war stories of your
-> own (see that page's maintenance rule before adding examples).
+> own. Follow the [documentation and example maintenance rule](references/maintenance.md) before
+> adding examples.
 
 ## Release notes
 
@@ -359,14 +363,14 @@ Two things worth knowing up front:
   generation of the same family — both resample the same blind spots.
 - **Measured: one run is not a measurement.** Replicates moved a seat's score by several points, so
   single-run rankings were retracted in favour of stable profiles
-  ([`references/setup.md`](references/setup.md)).
+  ([`references/benchmarks.md`](references/benchmarks.md)).
 
 ### v1.2 (2026-07-25)
 
 - **Opus 5 joins Fable 5 as an orchestrator seat.** Both are first-class ratification
   seats throughout the skill — measured, not assumed: a blind chair benchmark against the
   origin project's own workload put Opus 5 at parity with Fable 5. Reusable method:
-  [`references/setup.md`](references/setup.md).
+  [`references/benchmarks.md`](references/benchmarks.md).
 - **Lineage-aware ratification.** Same-family agreement counts for less; cross-family
   evidence settles disputes — SKILL.md, ratification rule 6.
 - **Blind rounds are structurally isolated.** Instructing an in-context model to ignore

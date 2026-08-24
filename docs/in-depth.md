@@ -88,7 +88,7 @@ scenarios, each written around a specific way this kind of tool goes wrong:
 ## What we measured
 
 Findings from the origin project's own workload, not assumptions. Method in
-[`references/setup.md`](../references/setup.md); the campaigns behind these one-liners — four
+[`references/benchmarks.md`](../references/benchmarks.md); the campaigns behind these one-liners — four
 instruments, five model families, the tables and the caveats — are written up in
 [`measuring-the-seats.md`](measuring-the-seats.md).
 
@@ -157,7 +157,7 @@ one machine flagged every watched file on every run — including a control with
 all, because the filesystem updated access times on its own. Run the tripwire's control *before*
 the round, not after; a saturated tripwire is indistinguishable from a broken one.
 
-**The experimental seats are the weakest links.** Opt-in, never in a default round. One has no
+**The experimental seats require stricter isolation.** Opt-in, never in a default round. One has no
 sandbox, does not stay where you put it, and exits 0 on failure; the other imports your Claude Code
 hooks and, if one of them breaks, will review without running a single probe and mention it only in
 prose you have to read. Run them isolated. The handling rules — and the case for keeping them — are
@@ -166,13 +166,3 @@ in [`references/kimi-seat.md`](../references/kimi-seat.md) and
 
 **Reviews run long** — 5–15 minutes at research tier is normal. Run them in the background with a
 full timeout from the first call; a foreground timeout kills the probe mid-flight.
-
-## Maintenance rule (docs & examples)
-
-War stories stay, project specifics go. Every example in this repo must be self-contained and
-judgeable from the text alone — no figures, table names, or artifacts that can only be verified
-inside the origin project's private repo. The origin project keeps the full-detail originals in
-its own docs and syncs the generic form here. Contributor PRs adding examples are bound by the
-same rule — genericize your war story the same way. Release notes follow the same spirit:
-summarized and reader-relevant; details live in SKILL.md and references — the README points,
-it doesn't instruct.

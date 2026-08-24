@@ -83,14 +83,14 @@ The refute rate rose in all six, and in 7 of 8 seats once two further vendors we
 (sign test p = 0.035; Qwen is a counterexample at -8.5 pp, so do not write "every seat"). Chairs
 already over-refute, so it worsens the dominant error and buys nothing — and this seat is one of the
 two that shipped it ON and degrade under it. Enable only with `REASONING_BOOST=1` /
-`-ReasoningBoost`, and not for reviews. Detail: setup.md.
+`-ReasoningBoost`, and not for reviews. Detail: [`benchmarks.md`](benchmarks.md).
 
 ### The superseded prediction-mode result
 
 This was measured when the wrappers appended `reasoning-boost.md` by default. Measured on the prediction packet, it was this seat's largest single
 improvement: false alarms 33.3% → **6.7%**, d′ 0.51 → 1.58, accuracy +13.3 pp. The mechanism is a
 criterion shift toward refutation, not better reasoning — see the mode caveat in SKILL.md, and
-`setup.md` for the full five-seat table.
+[`benchmarks.md`](benchmarks.md) for the full five-seat table.
 
 ## ⚠ Empty success: this CLI can bill a full run and return nothing
 

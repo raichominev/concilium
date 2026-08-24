@@ -89,7 +89,8 @@ every replicate / flipping) at the arm each seat runs by default:
 Three things this bought that a single-run total could not:
 
 - **The ordering is task-specific, and it inverts.** The OpenAI seat ranks 4th here on prediction
-  while ranking **first by a factor of two** on blind originality (setup.md). Rank seats per task;
+  while ranking **first by a factor of two** on blind originality
+  ([`benchmarks.md`](benchmarks.md)). Rank seats per task;
   a general "best seat" does not exist in this data.
 - **The stable-wrong set is the seat's prior, not its noise** — and the sets barely overlap. Four
   items are stably wrong for the OpenAI seat, one for the top seat, and they are different items.
