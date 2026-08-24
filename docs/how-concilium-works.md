@@ -86,3 +86,5 @@ Concilium is available through the Claude Code plugin marketplace: add
 `raichominev/concilium`, then install `concilium@raicho-skills`. Its source, documentation and
 manual installation instructions are public in the
 [Concilium GitHub repository](https://github.com/raichominev/concilium).
+
+[Next: Beyond the AI Second Opinion](beyond-the-ai-second-opinion.html)
