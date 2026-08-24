@@ -1,0 +1,278 @@
+:root {
+  color-scheme: light;
+  --ink: #273444;
+  --heading: #1f2d3d;
+  --muted: #667386;
+  --line: #dce3eb;
+  --soft: #f6f8fb;
+  --brand: #3478f6;
+  --brand-dark: #2458b7;
+  --paper: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+}
+
+body {
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.68;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--brand-dark);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--brand);
+}
+
+.page {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 760px);
+  gap: 64px;
+  width: min(1130px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 58px 0 80px;
+}
+
+.site {
+  position: sticky;
+  top: 32px;
+  align-self: start;
+}
+
+.site-name {
+  margin: 0 0 8px;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.site-name a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-description {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.article-nav,
+.project-nav {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.nav-heading {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.article-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.article-list li {
+  margin: 0 0 9px;
+  line-height: 1.4;
+}
+
+.article-list a {
+  display: block;
+  padding-left: 10px;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+
+.article-list a[aria-current="page"] {
+  color: var(--ink);
+  border-left-color: var(--brand);
+  font-weight: 650;
+}
+
+.project-nav {
+  margin-top: 20px;
+}
+
+main,
+article {
+  min-width: 0;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--heading);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  max-width: 720px;
+  margin: 0 0 28px;
+  font-size: clamp(36px, 5vw, 48px);
+  font-weight: 750;
+}
+
+h2 {
+  margin: 46px 0 15px;
+  padding-top: 8px;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+h3 {
+  margin: 34px 0 12px;
+  font-size: 20px;
+}
+
+p,
+ul,
+ol,
+blockquote,
+table,
+pre {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+article > p:first-of-type > em:only-child {
+  display: block;
+  margin-top: -16px;
+  margin-bottom: 34px;
+  color: var(--muted);
+  font-size: 19px;
+  line-height: 1.5;
+}
+
+article img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 38px auto 12px;
+  border: 1px solid var(--line);
+}
+
+article img + em {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+code {
+  padding: 0.16em 0.35em;
+  color: #293849;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  padding: 16px;
+  overflow: auto;
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+
+pre code {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+blockquote {
+  margin-left: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  border-left: 3px solid var(--line);
+}
+
+table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+@media (max-width: 900px) {
+  .page {
+    display: block;
+    width: min(760px, calc(100% - 36px));
+    padding-top: 36px;
+  }
+
+  .site {
+    position: static;
+    margin-bottom: 46px;
+  }
+
+  .site-description {
+    margin-bottom: 18px;
+  }
+
+  .article-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 22px;
+  }
+
+  .article-list li {
+    margin: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .page {
+    width: min(100% - 28px, 760px);
+    padding: 28px 0 56px;
+  }
+
+  .article-list {
+    display: block;
+  }
+
+  .article-list li {
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 35px;
+  }
+
+  h2 {
+    margin-top: 38px;
+    font-size: 23px;
+  }
+}

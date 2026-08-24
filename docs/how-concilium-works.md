@@ -1,3 +1,9 @@
+---
+layout: article
+title: "How Concilium Works"
+description: "A practical introduction to Concilium's multi-model modes and workflow."
+---
+
 # How Concilium Works
 
 More people are beginning to use AI models as a small team rather than as a single assistant. One

@@ -1,3 +1,9 @@
+---
+layout: article
+title: "What happens when you actually measure the models"
+description: "What repeated measurements reveal about model families, seats and research workflows."
+---
+
 # What happens when you actually measure the models
 
 *Five families, four instruments, about 150 scored runs. Almost every intuition the orchestrator

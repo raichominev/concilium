@@ -1,0 +1,19 @@
+<p class="site-name"><a href="{{ '/' | relative_url }}">Concilium</a></p>
+<p class="site-description">{{ site.description }}</p>
+
+<nav class="article-nav" aria-label="Articles">
+  <p class="nav-heading">Articles</p>
+  <ol class="article-list">
+    {% for article in site.data.articles %}
+      <li>
+        <a href="{{ article.url | relative_url }}"{% if page.url == article.url %} aria-current="page"{% endif %}>
+          {{ article.title }}
+        </a>
+      </li>
+    {% endfor %}
+  </ol>
+</nav>
+
+<nav class="project-nav" aria-label="Project links">
+  <a href="https://github.com/raichominev/concilium">GitHub repository</a>
+</nav>

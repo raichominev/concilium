@@ -1,3 +1,9 @@
+---
+layout: article
+title: "Believe in yourself: a multi-agent research parallel"
+description: "A methodological parallel about multi-agent research and the value of sustained exploration."
+---
+
 # “Believe in yourself”: a multi-agent research parallel
 
 There is a recent story about Claude and the

@@ -1,3 +1,9 @@
+---
+layout: article
+title: "Concilium in depth"
+description: "The modes, seats, measurements and practical limits behind Concilium."
+---
+
 # Concilium in depth
 
 *What the ten modes are for, which seats are worth having, what was actually measured, and what
