@@ -15,6 +15,7 @@ already been measured and are dead (bottom section).
 | **Loop** | is this *disputed* claim true? | fresh session per round, new evidence path each time, dry-stop | same + `PRIOR_ROUNDS` |
 | **Forge** | what has nobody pointed at yet? | nobody judges anybody; shared register; originality scored | `concilium-forge.{sh,ps1}` |
 | ↳ *grounding* | does handing over the repo anchor the seats? | **measured 2026-08-23: null at panel level, reproducible PER SEAT** — see `forge-mode.md` §Blindness | |
+| **Brainstorming** | crazy ideas against a system whose conventional methods are exhausted | OPEN-BOOK forge inversion: a live read-only copy of the system per seat (data and/or source, if applicable), volume quota, evidence replayed; ideas flow to human-reviewed dossiers through peer-comment/build rounds, never through orchestrator curation | [`brainstorming-mode.md`](brainstorming-mode.md) — formed 2026-08-24 from one full 8-seat campaign, every claim evidence-tiered |
 | **Instrument audit** | could this measurement produce a number that is not an answer? | attacks the fixture, never the claim | `concilium-mode.sh instrument-audit` |
 | **Fragment verify** | which PARTS of this survive? | atomise, rule per fragment, salvage the supported core | `concilium-mode.sh fragment-verify` |
 | **Blind replication** | is this spec unambiguous? | two seats implement blind; the DIFF is the deliverable | `concilium-mode.sh blind-replication` |
@@ -23,6 +24,122 @@ already been measured and are dead (bottom section).
 | **Selective escalation** | is the cheap seat enough? | gate on what tier 1 SAYS, escalate cross-family | `concilium-escalate.sh` |
 | **Role rotation** | calibrated labels from N seats | each generates once, others adjudicate; union by lineage | `concilium-mode.sh role-rotation` |
 | **Calibration league** | whose forecasts deserve weight? | replay a frozen packet; score stable profiles, not totals | `calibration-league.md` (half killed — read it) |
+
+## A research session does NOT implement — plan the implementation sessions up front
+
+**Added 2026-08-23, owner-directed. His words: *"the intermix of changes and the continuation of
+research in one session is overwhelming."*** He is right, and the failure is structural rather than
+a matter of discipline: a panel round produces findings *faster than one session can act on them*,
+so the acting crowds out the research, and neither is done well.
+
+**The rule.** The session that runs a panel round stays on research: it briefs the seats, runs them,
+verifies the artifacts, writes the synthesis, and stops. **It does not fix what the round found.**
+
+**Plan the implementation sessions as part of the round, not as an afterthought.** Before reporting,
+partition the synthesis into work packages and spawn one session per package. Always plan at least
+one; there is usually more than one, because findings cluster by subsystem and by who must approve
+them. Good partition lines, in order of usefulness:
+
+- **by subsystem**, so two sessions never edit the same files;
+- **by approval class** — a data-integrity fix is a session's to make, an analyzer change (a floor,
+  an arm default, a cap) needs the owner and a measured before/after ledger row, so those must not
+  share a session;
+- **by dependency**, when one fix changes what another can even measure.
+
+**Tell each implementation session it may spawn further sessions itself.** A package that turns out
+to be three packages should split rather than sprawl, and the session doing the work is better placed
+to see that than the one that wrote the brief.
+
+**What the research session hands each implementation session:** the verified measurement, not the
+seat's phrasing; the cause where it is known; the hazards that apply (in this project: never run the
+harvest+generate-paradigms pair as housekeeping, never change an analyzer default without owner
+approval, only gold is ground truth); and what is explicitly out of scope. A finding handed over as a
+quote rather than as a verified measurement will be re-investigated from scratch.
+
+⚠ **Where verification lives (owner-directed, 2026-08-24).** Split it by what it touches:
+
+- **Fixture-side sanity stays with the research session**: does the finding reproduce on the data
+  the seats were actually given? This is cheap, read-only, and catches fixture artifacts — at least
+  one convergent, three-vendor finding in this project was an artifact of a stale snapshot, and
+  handing that downstream would have spent a whole session on a non-problem.
+- **Verification AGAINST LIVE SYSTEMS is implementation-session work, always.** When a finding
+  needs checking against the live database, the current source tree, or anything another session
+  may be mutating, the research session spawns the implementation session and hands it the claim —
+  it does not run the live check itself "just this once". The reasons are the same ones behind the
+  no-implementing rule: the live side is where other sessions work (collision risk), a live check
+  routinely grows into a diagnosis and then a fix (scope creep is the observed failure, not a
+  hypothetical), and the research session's fixture-based framing is exactly the wrong lens for
+  live state.
+
+## IDEAS are never synthesised by the orchestrator — dossiers, peer comments, human review
+
+**Added 2026-08-23, owner-directed, and it OVERRIDES the synthesis rule below for the idea half of
+any generating round.** His words: *"By applying the current method (the orchestrator synthesizes)
+you are destroying the possibility to build over the craziness. This implies that you have the best
+view and you don't. Actually nobody does. This is a shot in the dark."*
+
+The synthesis rule below applies to **findings and claims** — checkable statements about data, where
+convergence and contradiction are the signal. It does **not** apply to ideas. On a
+shot-in-the-dark research question, curation is destruction: every ranking the orchestrator imposes
+encodes the orchestrator's priors over a space where nobody's priors are informative, and the tail
+it cuts is the part the round existed to produce.
+
+**The idea pipeline instead:**
+
+1. **Raw first.** Every idea, verbatim, in the authors' own words. This document is the deliverable,
+   not an appendix.
+2. **Mechanical curation only, and it is conservative by construction:**
+   - *Dedup that GROUPS but never merges.* Near-identical ideas are clustered; every member's own
+     wording is preserved (a sentence or two each). Whether two ideas are "really duplicates or
+     still keep a variation" is treated as a hard question — when in doubt, do not group.
+   - *Filter only ideas premised on issues already resolved or ruled out*, each with its id and a
+     one-line reason, in a visible FILTERED list the human can veto.
+3. **Peer-comment rounds.** Each seat receives ALL other seats' ideas (its own marked and excluded
+   from commenting) and comments on each — constructively: what would make it work, what it
+   combines with, the sharpest risk, a better cheapest-test. **No verdicts, no scores, no votes.**
+   Comments are appended to each idea's dossier.
+4. **The human reviews the dossiers.** Not a shortlist. Not a top-N.
+5. **Iterate 2–3×**, each round feeding every seat everything said so far — the point of giving all
+   ideas at once is to trigger inter-idea signals inside each model, and that only happens if
+   nothing was cut on the way.
+
+**Why craziness is the point, in the owner's framing:** when a system has hit the same wall many
+times, conventional methods are exhausted by definition — every "reasonable" idea has been had. The
+human experts succeed at scale because the data is systematic, not because of magic; their
+irreplaceable expertise covers only the hardest few percent. So the automation headroom is real,
+nobody knows where the door is, and a panel's value is the width of its search, which curation
+narrows at exactly the wrong moment.
+
+## Every multi-seat round ends in a SYNTHESIS — this is not optional
+
+**Added 2026-08-23, owner-directed, after it was identified as the process's weak point.**
+
+A multi-seat round produces a pile of per-seat outputs. The pile is not the deliverable. Whoever ran
+the round must write **one synthesis document** before reporting, structured by *how many independent
+seats reached each claim*:
+
+1. **CONVERGENT** — reached by ≥2 seats independently, with the seat names and each one's own
+   measurement. Convergence raises priority; it does not establish truth (see the warning below).
+2. **DISAGREEMENTS** — where seats contradict each other, stated as a contradiction and left open
+   if unresolved. **This section is the most valuable one and the one that gets skipped.**
+3. **SINGLE-SEAT** — unreplicated leads, marked as such.
+4. **RETRACTED / RESOLVED** — claims that died, and why.
+
+⚠ **Why the disagreement section is mandatory.** On the round that produced this rule, four seats
+made incompatible statements about where a system's error actually lived — one reporting a metric at
+96.7% and another reporting the opposite conclusion from a different denominator. **Nothing in the
+round surfaced it.** It was found only when a synthesis was written by hand afterwards, and it turned
+out to be the single most important open question the panel had produced. A panel that is never asked
+to disagree with itself reports its agreements and buries its contradictions.
+
+⚠ **Convergence measures shared INPUT as readily as shared insight.** In the same round, three seats
+across three vendors independently reached the same confident headline, which was an artifact of all
+of them reading a fixture two days older than a schema change. Always record what the seats had in
+common. Cross-model agreement on a shared corpus is evidence about the corpus.
+
+**Practical note:** the cheapest way to surface a disagreement is to look for two seats quoting
+different denominators for the same quantity — that is what D1 turned out to be. Ask of every
+convergent-looking pair: *are these two numbers over the same population?*
 
 ## Proposed — worth building, in rough order of expected value
 

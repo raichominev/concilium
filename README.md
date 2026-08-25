@@ -31,6 +31,8 @@ different blind spots, and that is the only lever here that has ever measured as
 Read the public introductions and method notes on
 [Concilium GitHub Pages](https://raichominev.github.io/concilium/).
 
+![Beyond a second opinion](docs/assets/beyond-second-opinion.svg)
+
 ## Examples
 
 Typed into a normal Claude Code session. The slash commands take arguments; everything else is
@@ -82,6 +84,31 @@ or voted on.
 ```
 /concilium-forge --continue path/to/REGISTER.md
 ```
+
+**Brainstorm with the system's real data open — when conventional methods are exhausted.**
+
+```
+/concilium-brainstorm "Our address-matching engine has been stuck at ~70% for a year. Crazy ideas welcome."
+```
+
+Each seat gets a live **read-only** copy of the system under discussion plus its source tree (if
+applicable), and must return twelve ideas under a boldness quota — four incremental, four
+aggressive, four "would get you laughed out of the room" — **plus findings**: checkable claims
+about the real data, each carrying the query or command it ran and the result it got, both
+re-executed by the harness afterwards. A flavour of what comes back:
+
+> **finding** — "34% of your unmatched addresses fail because the reference data stores house
+> numbers as `12-14` ranges your normaliser splits into two rows; 91% of those already have the
+> correct row present under the range form." `evidence: SELECT count(*) ... WHERE house_no ~ '^[0-9]+-[0-9]+$'` → replayed ✓
+>
+> **tier-3 idea** — "Stop matching addresses; match the *postman's route*: cluster deliveries by
+> historical co-delivery and assign an unmatched address to the cluster whose members it co-occurs
+> with. *Why absurd:* it abandons the address entirely. *Works if:* co-delivery clusters are
+> stabler than spellings — checkable in one afternoon against your delivery log."
+
+Ideas then flow through peer-comment and build rounds (each seat reads all the others and must
+cite parents) into **dossiers you review yourself** — the orchestrator never ranks, shortlists or
+synthesises them.
 
 **Ask for a mode by name.** No flags, no script — say what you want:
 
@@ -182,10 +209,12 @@ bootstrap ([`references/setup.md`](references/setup.md)) before trusting verdict
 ## The commands
 
 ```
+/concilium                            # the skill itself, decides mode automatically
+
 /concilium-review "<claim>"           # is this true? one seat probes, you ratify
 /concilium-review --diff [base]       # same, pointed at your working-tree diff
 /concilium-forge   "<question>"       # what has nobody tried? seats generate, nothing is judged
-/concilium                            # the skill itself, when you're not sure which you want
+/concilium-brainstorm "<question>"    # same discipline, OPEN-BOOK: seats explore the real system, findings replayed
 ```
 
 **Review** hands your claim to a different lineage under a binding contract. It comes back with five
@@ -195,6 +224,12 @@ the actual probe, re-run its load-bearing step, assign the tag.
 **Forge** is the opposite discipline. Seats produce original ideas against an open question, read
 each other's through a shared register and build on them, and **nothing is judged or voted on**.
 Round 1 tends to converge; round 2 is where the reframings appear.
+
+**Brainstorming** is forge with the books open. Use it when the system under discussion can be
+replicated read-only into an isolated environment and the ask is range plus grounding: seats
+explore the copy themselves, findings are replayed before they are believed, and the ideas end in
+human-reviewed dossiers. Method, with every rule tiered by the evidence behind it:
+`references/brainstorming-mode.md`.
 
 Reviews run long — **5–15 minutes at research tier is normal**, so run them in the background with
 a full timeout from the first call.
@@ -329,24 +364,29 @@ Two things worth knowing up front:
 
 ## Release notes
 
+### v1.5 (2026-08-25 and in-progress)
+
+- **Brainstorming mode** (`/concilium-brainstorm`) — forge with the books open. Each seat gets a
+  live **read-only** copy of the system under discussion plus its source tree (if applicable) and
+  returns ideas under a boldness quota
+- **The dossier pipeline.** Ideas distillation after Brainstorming
+- **Four new seats/families** — nine seats across eight model families total: **GLM-5.3** (Z.ai
+  Coding Plan), **Gemini 3.1 Pro** (Google AI Pro), **DeepSeek V4 Pro** and **Qwen3.8-Max**
+- Fixed a bit of AI slop. Machine-readable instructions stay.
+
 ### v1.4 (2026-08-20)
 
 - **Forge mode** — the generative half. Seats produce original ideas against an open question and
-  build on each other through a shared register; nothing is judged or voted on.
-- **Eight further modes, and one generic driver.** A mode is now a markdown contract file, so
-  adding one is a doc change rather than a script: instrument audit, fragment verify, blind
-  replication, cross-examination, frame translation, selective escalation, role rotation,
+  build on each other through a shared register;
+- **Eight further modes, and one generic driver.** A mode is now a markdown contract file: instrument audit,
+  fragment verify, blind replication, cross-examination, frame translation, selective escalation, role rotation,
   calibration league. Catalogue: [`references/modes.md`](references/modes.md).
-- **`/concilium-review` and `/concilium-forge`** ship as commands.
+- **`/concilium-review` and `/concilium-forge`** - new commands.
 - **A fourth family: the xAI seat** on Cursor-subscription auth, plus a fifth seat that is the
   orchestrator's own family run in a throwaway guest for blind rounds.
 - **A per-seat skepticism block**, on by default only where it measured positive — it *cost*
   accuracy on the seats that were already discriminating.
-- **Measured: rank seats per task.** Blind originality and outcome prediction produce different,
-  partly inverted orderings, and a chaining round inverted it again.
-- **Several modes found their own defects on first use** — an escalation gate that read a label's
-  line instead of its block, a saturated file-access tripwire, a spec whose declared character
-  range excluded the mark it called decorative. Those write-ups are in
+- **Measured: rank seats per task.** Blind originality requested.
   [`references/modes.md`](references/modes.md) and [`references/pitfalls.md`](references/pitfalls.md),
   and they are the most useful pages here.
 
@@ -354,15 +394,14 @@ Two things worth knowing up front:
 
 - **An experimental third-family seat: Kimi, opt-in.** A Moonshot model can sit as a third reviewer
   alongside the Claude orchestrator and the GPT reviewer, over either transport, each with its own
-  wrapper. **Not part of a default round** — ask for it explicitly, and read
+  wrapper — ask for it explicitly
   [`references/kimi-seat.md`](references/kimi-seat.md) first.
-- **Isolation tooling for it.** A disposable working copy that reports what it touched, a
+- **Isolation tooling for kimi.** A disposable working copy that reports what it touched, a
   blind-round tripwire, and a worked throwaway-guest build:
   [`references/isolated-guest-vmware.md`](references/isolated-guest-vmware.md).
 - **Measured: only a different lineage buys coverage.** Not more reasoning effort, and not a newer
   generation of the same family — both resample the same blind spots.
-- **Measured: one run is not a measurement.** Replicates moved a seat's score by several points, so
-  single-run rankings were retracted in favour of stable profiles
+- **Measured: one run is not a measurement.** 
   ([`references/benchmarks.md`](references/benchmarks.md)).
 
 ### v1.2 (2026-07-25)
@@ -382,20 +421,15 @@ Two things worth knowing up front:
 Lessons from a 5-round field deliberation (a methods-transfer review + two parallel design
 reviews, all ratified):
 
-- **Blind-first two-pass, validated in practice** (`references/request-template.md`): the blind
-  round independently converged on the researcher's top transfers AND contributed two candidates
-  the researcher missed — genuine independence, measured. Default to it for framing-critical
-  rounds.
-- **Ratify by verifying one load-bearing citation per round**: every round's decisive claim
-  (a witness row, a delete-and-reinsert code path, an extremal concentration) was checkable in
-  under a minute — and checking it is what makes the verdict yours, not the reviewer's.
+- **Blind-first two-pass, validated in practice** (`references/request-template.md`)
+- **Ratify by verifying one load-bearing citation per round**
 - **Parallel reviews work**: two concurrent read-only reviewer sessions on sibling claims, no
   interference.
 - **New pitfalls 12–15** (`references/pitfalls.md`): rebuilt-table id instability; iterated
   gating turning an oracle into training signal; derived-by-subtraction counts; non-Latin
   case-folding/console-literal traps.
-- Also landed: the request-construction guide (`references/request-template.md`) — front-load
-  facts not conclusions, confidence-tag every input, never write "do not re-derive" over a
+- A request-construction guide (`references/request-template.md`) — front-load
+  facts only, confidence-tag every input, never write "do not re-derive" over a
   load-bearing conclusion.
 
 ## License

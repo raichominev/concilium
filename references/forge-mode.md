@@ -105,6 +105,14 @@ demonstrably used the repo: 11/24 and 13/24 of its ideas named real source symbo
 in both control arms. Without that count, "grounding had no effect" and "the grounding never
 arrived" are the same result.
 
+## The round is not finished until the synthesis is written
+
+A forge or brainstorming round hands back N per-seat files. **Those are raw material, not the
+deliverable.** Write one synthesis grouped by how many independent seats reached each claim —
+convergent / **disagreements** / single-seat / retracted — before reporting anything upward. The
+contract is in `modes.md` §"Every multi-seat round ends in a SYNTHESIS", and the disagreements
+section is the half that gets skipped and the half that pays.
+
 ## Cost
 
 One model call per seat per round; no probes, no re-runs. A 4-seat 2-round forge is 8 calls, which

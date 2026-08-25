@@ -16,7 +16,12 @@ description: >-
   covers FORGE mode — cross-model idea GENERATION against an open research question, where seats
   build on each other's ideas through a shared register and nothing is judged or voted on — so use
   it when the user wants original ideas, a research plan, brainstorming across models, or asks what
-  nobody has tried yet; and it catalogues the other multi-model modes worth running.
+  nobody has tried yet. Also covers BRAINSTORMING mode — forge's OPEN-BOOK inversion, where each seat
+  gets a live read-only copy of the system under discussion (its data and/or source tree, whatever
+  it has) and generates high-volume tiered ideas plus checkable FINDINGS with replayable evidence —
+  so use it when the user wants crazy ideas grounded in the real system, an open-book brainstorm,
+  or says conventional methods are exhausted; and it catalogues the other multi-model modes worth
+  running.
 ---
 
 # Concilium — cross-model adversarial review
@@ -153,6 +158,12 @@ might be wrong.
 
 - Forge: `scripts/concilium-forge.{sh,ps1}`, method in `references/forge-mode.md`, brief template in
   `references/forge-brief-template.md`.
+- **Brainstorming** (`/concilium-brainstorm`): forge's open-book inversion — a live read-only copy
+  of the system under discussion per seat (data and/or source tree, if applicable), boldness-tier
+  quotas, evidence replayed, findings synthesised, ideas flowing to HUMAN-reviewed dossiers that
+  the orchestrator never curates. Method, evidence-tiered: `references/brainstorming-mode.md`. Use
+  brainstorming over forge when the system can be safely replicated read-only into an isolated
+  environment and the ask is range plus grounding rather than closed-book originality.
 - The wider catalogue of multi-model modes — fragment verification, selective escalation, role
   rotation, blind replication, instrument audit, and the ones measured DEAD (effort sweeps,
   generation sweeps, instructed blindness, judge-over-transcripts, same-lineage majority votes) —
@@ -174,6 +185,7 @@ task is an ordinary "is this true?" — an unwanted menu is worse than no menu.
 | settle something that looks underdetermined rather than wrong | **cross-examination** | returns the question list that has to be answered before a verdict means anything |
 | stuck on framing, or the same approach keeps failing | **frame translation** | restates the problem in other fields' terms and imports their method |
 | generate options, plans or research directions | **forge** | review's duty to refute kills a half-formed idea; forge is the opposite discipline |
+| generate ideas with the real system open in front of the seats, when conventional methods are exhausted | **brainstorming** | open-book: findings come out checkable and replayable; ideas go to human-reviewed dossiers, never an orchestrator shortlist |
 
 Everything else — including all of `references/modes.md`'s remaining entries — is run only when the
 user asks for it by name. Nothing here fires automatically.
