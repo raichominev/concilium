@@ -30,7 +30,7 @@ within the text.
 This does not make review ineffective. It is the right tool when a concrete claim must
 survive pressure. A model can be strongly critical without reconsidering the frame it was given.
 
-![The concept.](assets/beyond-second-opinion.svg)
+![The concept.](assets/beyond-second-opinion.png)
 
 *The concept*
 
