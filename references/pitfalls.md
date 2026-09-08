@@ -319,3 +319,17 @@ confidences in the 60s.
 **Rule**: grade the *reasons*, not just the score. Retrieved numbers and unusually high confidence
 are the tell, and a packet whose answers exist anywhere on the machine is not blind no matter how
 empty the working directory is.
+
+**The check that settles it is a perturbation test** (measured 2026-09-07, when a new seat scored
+17/18 on a packet whose previous ceiling was 15 and whose key is public on the web). Edit the
+supporting evidence of a handful of items so that the *correct* verdict flips, and re-run the seat
+on the edited packet. A memoriser answers the original key. A reader follows the text. The seat in
+question followed the text on 5 of 5 flipped items at confidence 0.90–0.99, quoting the edited
+evidence in its flaw statements, and left 10 of the 13 unperturbed verdicts unchanged. **Run a
+control**: an ordinary seat on the same perturbed packet also followed the text 5 of 5, which
+proves the perturbation was readable — a perturbation nobody can read proves nothing. Do the cheap
+structural checks first and keep them as evidence: the transcript must show no tool call between
+prompt and answer, an access-time tripwire over the material that must stay unread must be clean
+during the run (NTFS last-access times work when a file you touched yourself registers), and a
+recognition probe ("name the project, quote the recorded figures") is worth asking but weak — a
+model can deny what it memorised. A perfect score that survives all four is a result.

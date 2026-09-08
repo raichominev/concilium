@@ -59,7 +59,7 @@ Write-Host ">> forge seat=$Seat round=$Round prompt=$($Prompt.Length) chars -> $
 
 switch ($Seat) {
   "codex" {
-    if (-not $Model) { $Model = "gpt-5.6-sol" }
+    if (-not $Model) { $Model = "gpt-6-astra" }   # since 2026-09-07; gpt-5.6-sol led the last originality ranking, pass -Model to reproduce it
     $Prompt | & codex exec -m $Model -s read-only --skip-git-repo-check -c model_reasoning_effort=$Effort |
       Out-File -Encoding UTF8 $dest
   }

@@ -85,7 +85,7 @@ echo ">> mode=$MODE seat=$SEAT prompt=${#PROMPT} chars -> $DEST" >&2
 
 case "$SEAT" in
   codex)
-    printf '%s' "$PROMPT" | codex exec -m "${MODEL:-gpt-5.6-sol}" -s read-only --skip-git-repo-check \
+    printf '%s' "$PROMPT" | codex exec -m "${MODEL:-gpt-6-astra}" -s read-only --skip-git-repo-check \
       -c model_reasoning_effort="${EFFORT:-max}" > "$DEST" 2> "$ERR" ;;
   cursor|grok)
     "$HERE/concilium-review-cursor.sh" raw "$PROMPT" > "$DEST" 2> "$ERR" ;;

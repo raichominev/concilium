@@ -109,8 +109,11 @@ echo ">> forge seat=$SEAT round=$ROUND prompt=${#PROMPT} chars cwd=$SEAT_CWD -> 
 
 case "$SEAT" in
   codex)
-    # research tier, read-only, empty cwd is the caller's job if the round must be blind
-    printf '%s' "$PROMPT" | codex exec -m "${MODEL:-gpt-5.6-sol}" -s read-only --skip-git-repo-check \
+    # research tier, read-only, empty cwd is the caller's job if the round must be blind.
+    # gpt-6-astra since 2026-09-07 (owner decision, same default as review). Its forge originality
+    # is unmeasured; gpt-5.6-sol led the last blind ranking (benchmarks.md) — MODEL=gpt-5.6-sol
+    # reproduces that setup.
+    printf '%s' "$PROMPT" | codex exec -m "${MODEL:-gpt-6-astra}" -s read-only --skip-git-repo-check \
       -c model_reasoning_effort="${EFFORT:-max}" > "$DEST" 2> "$ERR" ;;
   cursor|grok)
     "$HERE/concilium-review-cursor.sh" raw "$PROMPT" > "$DEST" 2> "$ERR" ;;

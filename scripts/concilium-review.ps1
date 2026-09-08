@@ -16,8 +16,9 @@
 #   -NoAutoRules           : skip auto-bridging the project's CLAUDE.md into the contract when no
 #                            AGENTS.md is present (codex reads AGENTS.md natively, never CLAUDE.md)
 #
-# Defaults are models current at authoring time (2026-07) — check `codex debug models` and
-# override with -Model, or edit for your installation.
+# Defaults: research tier gpt-6-astra at max (measured 2026-09-07 — best accuracy AND best
+# calibration on the adjudication packet; needs codex 0.153+), mechanical tier gpt-5.5 at medium.
+# Check `codex debug models` and override with -Model/-Effort, or edit for your installation.
 #
 # Prompt goes via STDIN (npm codex shims word-split multi-line args). Do NOT set
 # $ErrorActionPreference='Stop' (codex writes progress to stderr; PS5.1 would abort).
@@ -33,7 +34,7 @@ param(
   [string]$PriorRounds,
   [switch]$NoAutoRules,
   [switch]$ReasoningBoost,
-  [string]$Model  = "gpt-5.6-sol",
+  [string]$Model  = "gpt-6-astra",
   [string]$Effort = "max",
   [string]$RepoDir = ""
 )

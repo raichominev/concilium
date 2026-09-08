@@ -12,7 +12,9 @@
 #      PRIOR_ROUNDS (file path — loop mode: prior probes + objection; reviewer takes a new path),
 #      NO_AUTO_RULES=1 (skip auto-bridging CLAUDE.md when no AGENTS.md — codex reads AGENTS.md only).
 #
-# Defaults are models current at authoring time (2026-07) — check `codex debug models`.
+# Defaults: research tier gpt-6-astra at max (measured 2026-09-07 — best accuracy AND best
+# calibration on the adjudication packet; needs codex 0.153+), mechanical tier gpt-5.5 at medium.
+# Check `codex debug models`; override with MODEL/EFFORT.
 # Resume ONLY with the full re-pin:
 #   codex exec resume -m <model> -c sandbox_mode="read-only" -c model_reasoning_effort=<tier> <id> -
 set -euo pipefail
@@ -22,7 +24,7 @@ if [ -n "${MECHANICAL:-}" ]; then
   MODEL="${MODEL:-gpt-5.5}"
   EFFORT="${EFFORT:-medium}"
 else
-  MODEL="${MODEL:-gpt-5.6-sol}"
+  MODEL="${MODEL:-gpt-6-astra}"
   EFFORT="${EFFORT:-max}"
 fi
 REPO_DIR="${REPO_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"

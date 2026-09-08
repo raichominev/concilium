@@ -67,23 +67,32 @@ Z.ai model through a third-party CLI, so it is a reference set, not this vendor'
 
 | seat | vendor | accuracy | refute rate | recognises TRUE claims |
 |---|---|---:|---:|---:|
-| kimi | Moonshot | 70.4% | **53.7%** | **68.8%** |
+| astra (codex seat, for comparison; 2026-09-07) | OpenAI | **88.9%** | **57.4%** | **85.4%** |
+| kimi | Moonshot | 70.4% | **53.7%** | 68.8% |
 | **glm** | **Z.ai** | 70.4% | 59.3% | 62.5% |
-| fable | Anthropic | 69.4% | 56.5% | 64.6% |
+| fable 5 | Anthropic | 69.4% | 56.5% | 64.6% |
+| fable 5.1 (2026-09-07) | Anthropic | 64.8% | 74.1% | 39.6% |
 | grok | xAI | 72.2% | 66.7% | 56.2% |
 | opus | Anthropic | 69.4% | 68.5% | 50.0% |
 | **deepseek** | **DeepSeek** | 66.7% | 68.5% | 47.9% |
 | **Google** | **Google** | 69.4% | **76.9%** | **41.7%** |
 | **qwen** | **Alibaba** | 63.0% | 67.6% | 37.5% |
 
-**Read the refute rate, not the accuracy column.** Seven of the eight seats sit within 6 points on
-accuracy while per-seat replicate spread runs 1–5 items, so the accuracy ordering is inside the
-noise and should not be used to rank anything. The refute rate against the 55.6% base rate is the
-column that separates them.
+**Read the refute rate, not the accuracy column.** Seven of the eight original seats sit within
+6 points on accuracy while per-seat replicate spread runs 1–5 items, so the accuracy ordering is
+inside the noise and should not be used to rank anything among them. The refute rate against the
+55.6% base rate is the column that separates them. The one exception is `astra`, which sits
+fifteen points above the band with a replicate spread of 3 — a difference no amount of replicate
+noise produces on this packet.
 
-- **`glm` is the best of the four for review work** — and third-best calibration in the whole panel,
-  behind `fable` (56.5%) and `kimi` (53.7%). Since `fable` shares the orchestrator's lineage, `glm`
-  is the second-best *cross-family* seat on this measure.
+- **`glm` is the best of the four for review work** — and fourth-best calibration in the whole
+  panel, behind `fable 5` (56.5%), `astra` (57.4%) and `kimi` (53.7%). Since `fable 5` shares the
+  orchestrator's lineage, `glm` is the third-best *cross-family* seat on this measure, after the
+  codex seat `astra` and `kimi`.
+- The two rows dated 2026-09-07 come from the same packet and protocol (three base + three treat
+  runs, fresh empty cwd, closed book), scored with the same denominator. `astra` is the codex seat,
+  not a compat seat; its row is here so the table reads as one panel. Detail, controls and the
+  contamination checks behind the astra figure: `benchmarks.md`.
 - **The Google seat refutes three-quarters of everything** and recognises 42% of true claims. It buys
   a high refuted-recall by rejecting nearly everything. Seat it for lineage diversity; do not treat
   its `[X]` as informative.

@@ -5,7 +5,8 @@
 - `codex login status` → "Logged in using ChatGPT". If not: `codex login` (user does this — it's
   an OAuth flow). No API key involved anywhere.
 - Model inventory: `codex debug models` (or `~/.codex/models_cache.json`). A 400 "requires a
-  newer version of Codex" on a listed model → `codex update`.
+  newer version of Codex" on a listed model → `codex update`. `gpt-6-astra` (the research-tier
+  default since 2026-09-07) needs codex 0.153 or newer; 0.144 lists it nowhere and refuses it.
 - Usage telemetry: session rollouts under `~/.codex/sessions/**.jsonl` embed `rate_limits`
   snapshots (`used_percent`, `window_minutes`, `resets_at`, `plan_type`) — useful when the user
   asks "how much of my quota did this eat?" (windows are typically weekly, so drains look small).
@@ -141,7 +142,11 @@ the historical measurements explain the shipped defaults and their limits.
 
 ## Wrapper defaults
 
-`scripts/concilium-review.ps1` / `.sh` default to models current at authoring time. Check the
+`scripts/concilium-review.ps1` / `.sh` default to `gpt-6-astra` at max effort for the research
+tier and `gpt-5.5` at medium for the mechanical tier (set 2026-09-07 on measurement, see
+`benchmarks.md`); `concilium-forge` defaults to `gpt-6-astra` as well (owner decision, same date —
+its forge originality is unmeasured, and `gpt-5.6-sol`, which led the last blind originality
+ranking, is one `MODEL`/`-Model` away). Check the
 tier table in SKILL.md against `codex debug models` on first use and override via
 `-Model`/`MODEL` or edit the defaults for your installation.
 

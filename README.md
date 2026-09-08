@@ -5,8 +5,8 @@ vendor: Claude, Codex, Kimi, Grok, GLM, DeepSeek, Qwen and Gemini. Mostly on sub
 the core loop needs no API key at all.**
 
 Concilium puts more than one frontier-model lineage on the same problem. A frontier **Claude**
-model — **Opus 5 or Fable 5** — orchestrates, and OpenAI's **gpt-5.6-sol**, **gpt-5.6-terra** and
-**gpt-5.5** work the other side through the official `codex` CLI. Further families can join as
+model — **Opus 5 or Fable 5.1** — orchestrates, and OpenAI's **gpt-6-astra**, **gpt-5.6-sol**,
+**gpt-5.6-terra** and **gpt-5.5** work the other side through the official `codex` CLI. Further families can join as
 opt-in seats: **Kimi** (Moonshot), **Grok** (xAI), **GLM** (Z.ai), **DeepSeek**, **Qwen** (Alibaba)
 and **Gemini** (Google) — three of them reusing the Claude Code CLI, via Anthropic-compatible 
 endpoints. In review, the second model **proposes** a verdict and the orchestrator **ratifies**
@@ -301,11 +301,11 @@ be blind. It has no wrapper and a good reason to exist:
 
 | Tier | OpenAI (codex) | Effort | For |
 |---|---|---|---|
-| Research | `gpt-5.6-sol` | max | open review rounds, adversarial verification |
+| Research | `gpt-6-astra` | max | open review rounds, adversarial verification |
 | Mechanical | `gpt-5.5` | medium | verifying a known claim with one probe |
 | Runner | `gpt-5.6-terra` | low | execute-and-report: run a script, babysit an import |
 
-Anthropic's seat is not a tier: **Opus 5 or Fable 5** orchestrates and ratifies rather than being
+Anthropic's seat is not a tier: **Opus 5 or Fable 5.1** orchestrates and ratifies rather than being
 routed to. On the experimental seats, always name the model — at least one CLI's default is an
 older generation than its flagship and nothing in the output says so.
 
@@ -318,7 +318,7 @@ research on sol, mechanical follow-ups on a cheaper tier, one conversation. The 
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) — this skill is meant to be run from Claude
-  Code with **Opus 5 or Fable 5 as the orchestrator** (any Claude model can drive it; those two
+  Code with **Opus 5 or Fable 5.1 as the orchestrator** (any Claude model can drive it; those two
   are the measured ratification seats).
 - The [OpenAI codex CLI](https://github.com/openai/codex), logged in via a ChatGPT subscription
   (`codex login status` → "Logged in using ChatGPT").
@@ -373,6 +373,9 @@ Two things worth knowing up front:
 - **Four new seats/families** — nine seats across eight model families total: **GLM-5.3** (Z.ai
   Coding Plan), **Gemini 3.1 Pro** (Google AI Pro), **DeepSeek V4 Pro** and **Qwen3.8-Max**
 - Fixed a bit of AI slop. Machine-readable instructions stay.
+- **GPT-6 Astra is the research-tier default.** Measured on the calibration packet: best accuracy
+  and best calibration against every other seat, and the leap is notably significant; verified
+  against memorisation with a perturbation test
 
 ### v1.4 (2026-08-20)
 

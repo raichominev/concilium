@@ -102,7 +102,11 @@ apart. Their stable blind spots overlap on four items and **neither rescues a si
 other stably misses** — in either direction. Cross-*family* seats do rescue items from both. So
 generation behaves like reasoning effort: it resamples the same blind spots
 rather than moving them. **Only a different lineage moves them** — that is now three independent
-measurements pointing the same way (effort, repetition, generation).
+measurements pointing the same way (effort, repetition, generation). ⚠ **Measured once, so not a
+law**: a later generation pair in the same family (Fable 5 → Fable 5.1, 2026-09-07, adjudication
+packet) *did* move the blind spots — the two overlap less with each other (0.40) than Fable 5
+overlaps its own runs a month apart (0.63). Read the section for 2026-09-07 below before quoting
+this paragraph as "a generation is never a second seat".
 
 Scored on stable profiles rather than single runs, the four-seat panel leaves exactly **one item
 stably wrong for every seat**. That item is the one where a mechanism is obviously sound and every
@@ -186,7 +190,8 @@ were **unresolvable**, and a single-run table cannot show you that. Replicate be
 
 **Panel width buys real but partial coverage.** Of the items every original chair got wrong:
 adjudication CLAIM-14 was **rescued** by both new families (kimi 3/3, grok 2/3) while CLAIM-16
-stayed wrong for **all five**; on prediction, ITEM-04 and ITEM-05 — already characterised as generic
+stayed wrong for **all five** (and for eight vendors by 2026-08-23 — then a new-generation seat
+answered it 6/6 on 2026-09-07; see that section); on prediction, ITEM-04 and ITEM-05 — already characterised as generic
 evidence-breadth priors — stayed wrong for all five. Some joint failures are lineage artifacts a new
 family fixes for free; others are shared priors that panel width will never touch.
 
@@ -256,3 +261,72 @@ floor**.
 **Varying effort resamples the same blind spots; a different lineage moves them.** If you want
 coverage, add a family, not compute. If you want a cheap variance estimate, just run the same seat
 twice — that is what an effort spread is actually measuring.
+
+## Measured: a new-generation seat broke the panel's ceiling, and how the score was checked (2026-09-07)
+
+Two models released in the first week of September 2026 were run on the frozen 18-claim
+adjudication packet behind the eight-seat calibration table, under the same protocol: fresh empty
+working directory outside every instruction-file ancestry, packet on stdin, closed book, tools off
+for the Claude seat and a read-only sandbox for the codex seat, three runs on the base packet and
+three on the treat packet. Two same-day controls ran beside them: the previous codex flagship at
+max effort and Fable 5 at default effort, three base runs each. Base refute rate 55.6%.
+
+| seat | runs | accuracy | refute rate | recognises TRUE claims | the four universal blind spots |
+|---|---:|---:|---:|---:|---:|
+| gpt-6-astra, max | 6 | **88.9%** | **57.4%** | **85.4%** | **22/24** |
+| gpt-5.6-sol, max (control) | 3 | 70.4% | 48.1% | 75.0% | 3/12 |
+| Fable 5, default (control) | 3 | 68.5% | 50.0% | 70.8% | 4/12 |
+| Fable 5, archived August runs | 6 | 69.4% | 56.5% | 64.6% | 7/24 |
+| Fable 5.1, default | 6 | 64.8% | 74.1% | 39.6% | 6/24 |
+
+**A new ceiling.** The previous seven-seat band was 68.5–73.5%. Astra's six runs scored 17, 17,
+16, 15, 14, 17 (spread 3), it has no stable-wrong item, and its error sets overlap every other
+seat's at 0.13 or less. Its one recurring miss is a structural claim phrased as an absolute
+("cannot change the output"), which it refutes on the ground that another mechanism could in
+principle do the job — right in 2 of 6 runs. The controls landed inside the old band, so the
+harness did not inflate anything.
+
+**The "universal blind spots" were a property of the models, not of the claims.** Four items were
+failed by every vendor measured (≥60% error across eight vendors), and the earlier reading was that
+panel width cannot fix them because they are item properties. Astra answers them 22 of 24 times,
+closed-book, with moderate confidence (0.60–0.68 on the hardest). "Adding another vendor from that
+set cannot fix them" stays true; "no seat can" is refuted. The remedy for a blind spot is still
+ground truth — but the ceiling was the panel's, not the packet's.
+
+**How the score was checked before it was believed** (pitfall #26 fires on a 17/18, and the packet
+key is public on the web): (1) every transcript shows the prompt, then the answer, and no tool call
+between them; (2) an NTFS access-time tripwire over the origin project's document tree was clean
+during the runs — the only accesses were the scorer's own reads, and a copy made by hand during the
+window registered, which proves the tripwire was live; (3) a recognition probe (name the project
+and repository, quote the recorded figures behind three claims, list the claims later upheld)
+returned UNKNOWN five times, which is weak evidence on its own; (4) a **perturbation test**: the
+supporting evidence of five claims was edited so that the correct verdict flips, and astra followed
+the text on 5 of 5 at confidence 0.90–0.99, quoting the edited evidence, with 10 of 13 unperturbed
+verdicts identical to its base runs. The control seat on the same perturbed packet also followed
+the text 5 of 5 (11 of 13 unchanged), so the perturbation was readable. A memoriser answers the
+original key. This is closed-book reasoning.
+
+**Reasons, not scores.** On the blind-spot items astra judges the claim as stated and upholds it
+with a scope caveat. Both Claude seats refute the same items by inferring that withheld evidence
+"must have" contradicted the claim ("the supporting note conspicuously cites that the count was
+run without stating its result, which suggests it contradicted the grammar") and by inventing a
+mechanism that the packet does not describe — the manufactured-discriminator pattern this skill
+already measured on refutations.
+
+**Fable 5.1 is a harsher refuter than Fable 5, and a worse reviewer seat.** Refute rate up 18
+points against the archived Fable 5 runs and 24 against the same-day control; true-claim
+recognition down 25 and 31 points. It gains two REFUTED items (now 6/6) and loses two UPHELD ones
+(now 0/6). Its error sets overlap Fable 5's at 0.40, less than Fable 5 overlaps its own runs a
+month apart (0.63): this generation moved the blind spots, which makes it a counterexample to the
+"a generation is not a second seat" paragraph above. Three runs per control, so the direction is
+established and the size is not.
+
+**Do not run Fable 5.1 headless at max effort on a closed-book packet.** One run of three answered
+(12/18, 657 s, 50k output tokens, 2.2× the default-effort cost). The other two thought for 128,000
+output tokens each, returned an error with no answer, and cost 5× a default run each. The CLI's
+dollar budget guard is checked between turns and did not bound the single turn.
+
+**Cost and runtime.** Astra at max: 545–854 s per run, 16k–34k tokens, about half a percent of a
+weekly Plus window per run. Fable 5.1 at default effort: about four minutes and about 1.2 dollars
+per run at list price, 8k cached input tokens and 12k thinking tokens. The origin project keeps the
+runs, transcripts, scorer, perturbed packet and key in its own record.

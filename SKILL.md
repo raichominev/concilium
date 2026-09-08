@@ -2,8 +2,8 @@
 name: concilium
 description: >-
   Adversarial cross-model review for hard, load-bearing tasks — combining frontier models: the
-  Claude session (Opus 5 or Fable 5 as the intended orchestrator) hands a claim, diff, or result to an
-  OpenAI model (gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
+  Claude session (Opus 5 or Fable 5.1 as the intended orchestrator) hands a claim, diff, or result to an
+  OpenAI model (gpt-6-astra / gpt-5.6-sol / gpt-5.6-terra / gpt-5.5, via the codex CLI on ChatGPT-subscription
   auth, no API key), which probes it with falsification attempts and PROPOSES a verdict; the
   orchestrator checks the probe and RATIFIES. Two EXPERIMENTAL, opt-in extra-family seats can be
   added when asked for — Kimi (Moonshot, via the Kimi Code CLI or the local Kimi Desktop runner)
@@ -30,10 +30,12 @@ A second, *different* model reviews your (or the user's) claims adversarially. D
 lineage means different blind spots — that's the value. The reviewer PROPOSES; the calling
 session RATIFIES. Never let either side's confidence substitute for evidence.
 
-Designed to be orchestrated from Claude Code — **Opus 5 and Fable 5 are both first-class
-ratification seats** (measured at chair parity on a blind outcome-prediction benchmark; any
-Claude model can drive the loop, but the ratifier should be one of the two). The GPT side
-(sol/terra/5.5 via codex) does the independent probing and mechanical execution — and that
+Designed to be orchestrated from Claude Code — **Opus 5 and Fable 5.1 are both first-class
+ratification seats** (Fable 5.1 is the standard Fable seat since 2026-09-07; the chair-parity
+measurement on the blind outcome-prediction benchmark was made on Opus 5 and Fable 5, and Fable
+5.1's weaker *reviewer* calibration below says nothing about the orchestrator role; any Claude
+model can drive the loop, but the ratifier should be one of the two). The GPT side
+(astra/sol/terra/5.5 via codex) does the independent probing and mechanical execution — and that
 cross-family seat is load-bearing: it measurably catches what same-family chairs jointly miss.
 
 ## Prerequisites (check once per environment)
@@ -44,7 +46,8 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
    work is the reverse: a subscription can NOT be used as an API key, so don't attempt proxy/router
    bridges.
 2. Discover available models: `codex debug models` or `~/.codex/models_cache.json`. If a model
-   errors "requires a newer version of Codex", run `codex update` and retry.
+   errors "requires a newer version of Codex", run `codex update` and retry — `gpt-6-astra`
+   (the research-tier default since 2026-09-07) needs codex 0.153 or newer.
 3. First time in a new environment, run the calibration bootstrap (references/setup.md) before
    trusting verdicts: a known-truth reasoning test, then one simple real task, then (optionally)
    a head-to-head to pick tier models.
@@ -96,23 +99,33 @@ mean a Claude model or Anthropic data handling** — everything the seat reads g
 **Which seat to pick for review — measured, and it inverts raw accuracy.** Eight seats on an
 18-claim adjudication packet (48 runs, 108 scored decisions per seat) landed within 6 points of each
 other on accuracy — seven of the eight do; only `qwen` falls outside — so ranking by accuracy is
-noise. **Calibration separates them.** Against a 55.6% base rate:
+noise inside that group. Two seats measured on 2026-09-07 with the same packet and protocol sit
+outside it: `astra` (gpt-6-astra, max effort) at **88.9%**, fifteen points above the band, and
+`fable 5.1` at 64.8% (`references/benchmarks.md`). **Calibration separates them.** Against a
+55.6% base rate:
 
 | seat | refute rate | recognises TRUE claims |
 |---|---:|---:|
-| kimi | **53.7%** | **68.8%** |
+| **astra** (gpt-6-astra) | **57.4%** | **85.4%** |
+| kimi | **53.7%** | 68.8% |
 | glm | 59.3% | 62.5% |
-| fable | 56.5% | 64.6% |
+| fable 5 | 56.5% | 64.6% |
 | grok | 66.7% | 56.2% |
 | opus / deepseek | 68.5% | 50.0% / 47.9% |
+| fable 5.1 | 74.1% | 39.6% |
 | gemini | **76.9%** | **41.7%** |
 | qwen | 67.6% | 37.5% |
 
 Since the measured baseline failure of review is **over-refutation**, prefer the seats nearest the
-base rate. `fable` is nearest of all (56.5%), but it shares the orchestrator's lineage, and
-same-family agreement is weak evidence — so among the cross-family seats prefer **kimi, then glm**.
-The Google seat refutes three-quarters of everything and recognises 42% of true claims — seat it for
-lineage diversity, not as a trusted reviewer.
+base rate. `astra` is the nearest cross-family seat (57.4%) and the only seat that also leads on
+accuracy, which is why it is the research-tier default. `fable 5` (56.5%) is as well calibrated
+but shares the orchestrator's lineage, and same-family agreement is weak evidence. `fable 5.1`
+refutes 74.1% of claims and recognises 40% of the true ones, so it is not a reviewer seat. After
+astra, among the cross-family seats prefer **kimi, then glm**. The Google seat refutes
+three-quarters of everything and recognises 42% of true claims — seat it for lineage diversity,
+not as a trusted reviewer. ⚠ A near-perfect score is a contamination alarm (pitfalls #26): the
+astra figure survived a tool-call audit, an access-time tripwire and a perturbation test before
+it was accepted.
 
 Setup, cost, runtime and the full calibration for all four: `references/compat-seats.md` — it is the
 single home for these seats. `references/setup.md` carries the Z.ai and Google walk-throughs
@@ -123,13 +136,16 @@ the same wrapper drives them.
 
 | Tier | Default | Effort | Use for |
 |---|---|---|---|
-| Research | flagship (e.g. `gpt-5.6-sol`) | **max** | open review rounds, adversarial verification |
+| Research | flagship (`gpt-6-astra`; codex 0.153+) | **max** | open review rounds, adversarial verification |
 | Mechanical | prev flagship (e.g. `gpt-5.5`) | medium | verify a known claim with one probe |
 | Runner | cheap tier (e.g. `gpt-5.6-terra`) | low | execute-and-report: run a script, babysit an import |
 
 Research-tier wrappers default to **max** on every seat. Effort vocabularies differ and are worth
 knowing exactly: codex accepts `none · minimal · low · medium · high · xhigh · max` (measured —
-the API rejects anything else and names the enum), the kimi seat accepts `low · high · max`.
+the API rejects anything else and names the enum), plus `ultra` on the models whose roster lists
+it (gpt-6-astra, gpt-5.6-sol, gpt-5.6-terra; measured 2026-09-07 — a one-word reply at `ultra`
+on astra consumed 16k tokens, and its accuracy is unmeasured), the kimi seat accepts
+`low · high · max`.
 
 **Effort is not a substitute for a second family — measured, with the control.** Six runs of one
 seat (gpt-5.6-sol) over the same 14-item prediction packet, at low/medium/high/xhigh/max plus a
