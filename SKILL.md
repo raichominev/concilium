@@ -31,7 +31,7 @@ lineage means different blind spots — that's the value. The reviewer PROPOSES;
 session RATIFIES. Never let either side's confidence substitute for evidence.
 
 Designed to be orchestrated from Claude Code — **Opus 5 and Fable 5.1 are both first-class
-ratification seats** (Fable 5.1 is the standard Fable seat since 2026-09-07; the chair-parity
+ratification seats** (Fable 5.1 is the standard Fable seat since 2026-09-08; the chair-parity
 measurement on the blind outcome-prediction benchmark was made on Opus 5 and Fable 5, and Fable
 5.1's weaker *reviewer* calibration below says nothing about the orchestrator role; any Claude
 model can drive the loop, but the ratifier should be one of the two). The GPT side
@@ -47,7 +47,7 @@ cross-family seat is load-bearing: it measurably catches what same-family chairs
    bridges.
 2. Discover available models: `codex debug models` or `~/.codex/models_cache.json`. If a model
    errors "requires a newer version of Codex", run `codex update` and retry — `gpt-6-astra`
-   (the research-tier default since 2026-09-07) needs codex 0.153 or newer.
+   (the research-tier default since 2026-09-08) needs codex 0.153 or newer.
 3. First time in a new environment, run the calibration bootstrap (references/setup.md) before
    trusting verdicts: a known-truth reasoning test, then one simple real task, then (optionally)
    a head-to-head to pick tier models.
@@ -143,7 +143,7 @@ the same wrapper drives them.
 Research-tier wrappers default to **max** on every seat. Effort vocabularies differ and are worth
 knowing exactly: codex accepts `none · minimal · low · medium · high · xhigh · max` (measured —
 the API rejects anything else and names the enum), plus `ultra` on the models whose roster lists
-it (gpt-6-astra, gpt-5.6-sol, gpt-5.6-terra; measured 2026-09-07 — a one-word reply at `ultra`
+it (gpt-6-astra, gpt-5.6-sol, gpt-5.6-terra; measured 2026-09-08 — a one-word reply at `ultra`
 on astra consumed 16k tokens, and its accuracy is unmeasured), the kimi seat accepts
 `low · high · max`.
 
