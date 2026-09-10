@@ -364,7 +364,7 @@ Two things worth knowing up front:
 
 ## Release notes
 
-### v1.5 (2026-08-25 and in-progress)
+### v1.5 (2026-09-07)
 
 - **Brainstorming mode** (`/concilium-brainstorm`) — forge with the books open. Each seat gets a
   live **read-only** copy of the system under discussion plus its source tree (if applicable) and
