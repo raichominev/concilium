@@ -67,7 +67,7 @@
         "url": "https://github.com/raichominev/compaction-handoff.git"
       },
       "description": "Carry a long session across auto-compaction: the session writes a verified handoff before compaction, compaction waits for it, and the handoff's continuation prompt is pasted back into the context afterwards. Depends on deep-handoff.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Raicho Minev",
         "url": "https://github.com/raichominev"
