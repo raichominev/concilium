@@ -59,6 +59,29 @@
         "agent-skills",
         "prompt-engineering"
       ]
+    },
+    {
+      "name": "compaction-handoff",
+      "source": {
+        "source": "github",
+        "repo": "raichominev/compaction-handoff"
+      },
+      "description": "Carry a long session across auto-compaction: the session writes a verified handoff before compaction, compaction waits for it, and the handoff's continuation prompt is pasted back into the context afterwards. Depends on deep-handoff.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Raicho Minev",
+        "url": "https://github.com/raichominev"
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/raichominev/compaction-handoff",
+      "repository": "https://github.com/raichominev/compaction-handoff",
+      "keywords": [
+        "compaction",
+        "context-management",
+        "session-handoff",
+        "hooks",
+        "agent-skills"
+      ]
     }
   ]
 }
