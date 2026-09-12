@@ -179,3 +179,64 @@ the payload and nothing else — though the simpler explanation is that there wa
 interesting to go, which is precisely the property being engineered.
 
 Anything that must never reach the provider should not be in the guest at all.
+
+---
+
+## This installation — inventoried 2026-09-12
+
+Local facts, not general guidance. **The guest is not just the kimi seat's home — it is where every
+non-codex seat actually lives**, and nothing below exists on the Windows host.
+
+| | |
+|---|---|
+| SSH alias | `concilium-kimi` → `192.168.8.132`, user `concilium`, key `~/.ssh/concilium-kimi` |
+| VM files | `G:\vm\concilium-kimi\concilium-kimi.vmx` (VMware Workstation) |
+| Control | `"C:\Program Files (x86)\VMware\VMware Workstation\vmrun.exe" -T ws start <vmx> nogui` |
+| Snapshots | `Snapshot3`, `Snapshot4`, `Snapshot5` (latest 2026-08-26) |
+| Guest | Ubuntu, kernel 7.0.0-30-generic, user `concilium` (uid 1001, **no sudo**, no `adm`) |
+
+**Seats present in the guest, and their transports:**
+
+| Seat | Binary | Note |
+|---|---|---|
+| kimi | `~/.kimi-code/bin/kimi` | CLI transport, model `kimi-code/k3` |
+| grok | `~/.local/bin/cursor-agent` | authenticated; `cursor-agent status` confirms the account |
+| gemini | `~/.local/bin/agy` | Antigravity CLI, `gemini-3.1-pro-high` |
+| glm · deepseek · qwen | `~/.local/bin/claude` | Claude Code as an Anthropic-compatible transport |
+| opus · fable | same | present for lineage comparisons |
+
+**Where the compat tokens live.** `ZAI_TOKEN`, `DEEPSEEK_TOKEN` and `QWEN_TOKEN` are exported from
+the guest's `~/.profile` and **exist nowhere on the host**. A host-side check of those variables
+reports them unset, which means "not on the host", not "not configured" — do not conclude from a
+host check that these seats are unavailable.
+
+⚠ `~/.profile` is sourced by a **login** shell. `ssh host 'cmd'` is not one, so the tokens and the
+PATH are both absent. Always wrap: `ssh host 'bash -lc "…"'`.
+
+**Two runners already in the guest**, and they are the reference implementations:
+
+- `~/guest-run3.sh <seat> <arm> <replicate>` — one blind arm, any of
+  `kimi | grok | opus | fable | glm | gemini | glmcursor | deepseek | qwen`. Each Anthropic-family
+  seat gets its own `CLAUDE_CONFIG_DIR` so two seats can never read each other's transcripts. It
+  runs in a **fresh empty cwd** and passes the packet as the prompt.
+- `~/smoke-seat.sh <deepseek|qwen|glm>` — one-shot liveness check. Reads the token inside the
+  script so it never reaches a command line, `ps`, or an ssh argument vector.
+
+**`guest-run3.sh` suits a self-contained text packet, not a task that must read files.** Its empty
+cwd is the point for adjudication packets and the wrong thing when the seat has to inspect a tree.
+For a file-reading round, run the same seat dispatch with cwd set to the payload directory instead.
+
+**Launching: detach inside the guest.** `ssh host '<runner>'` backgrounded from the Windows side
+dies with the connection and leaves a zero-byte output and no process — observed 2026-09-12. Use
+`ssh -n host 'bash -lc "setsid nohup <runner> … > log 2>&1 < /dev/null & disown"'` and poll.
+
+### Two seat traps measured here, both silent
+
+1. **`agy -p` denies every tool call by default.** A file-reading task returns **zero bytes with
+   exit 0**, and the only trace is `permission check failed for command "pwd": user denied
+   permission`. `scripts/concilium-review-agy.sh:92` does not pass an approval flag, so that
+   wrapper works for text-only claims and silently returns nothing the moment the seat needs to
+   read anything. The flag is `--dangerously-skip-permissions` — acceptable **in the guest**,
+   which is what the guest is for.
+2. **`agy --print-timeout` defaults to 5m** and truncates a long round without saying so. Raise it
+   explicitly; an outer `timeout` does not substitute for it.

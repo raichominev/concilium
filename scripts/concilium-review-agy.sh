@@ -87,11 +87,30 @@ $D" ;;
   *)     echo "unknown mode: $MODE" >&2; exit 2 ;;
 esac
 
+# agy print mode DENIES every tool permission request by default: a review that needs to read a
+# file returns zero bytes with exit 0, and the only trace is a stderr line about a denied `pwd`.
+# AGY_APPROVE=1 auto-approves. Do NOT set it outside a disposable guest — it approves everything.
+AGY_APPROVE_FLAG=""
+if [ "${AGY_APPROVE:-0}" = "1" ]; then
+  AGY_APPROVE_FLAG="--dangerously-skip-permissions"
+  echo ">> AGY_APPROVE=1: tool calls auto-approved. Use only in an isolated guest." >&2
+fi
+# --print-timeout defaults to 5m and truncates a long round silently; the outer `timeout` does not
+# substitute for it, so keep it above AGY_TIMEOUT.
 echo ">> agy -p --model $MODEL (prompt ${#PROMPT} chars, cwd: $REPO_DIR)" >&2
 set +e
-RAW="$(cd "$REPO_DIR" && timeout "${AGY_TIMEOUT:-900}" agy -p "$PROMPT" --model "$MODEL" 2>/dev/null)"
+AGY_ERR="$(mktemp)"
+RAW="$(cd "$REPO_DIR" && timeout "${AGY_TIMEOUT:-900}" agy -p "$PROMPT" --model "$MODEL" \
+        --print-timeout "${AGY_PRINT_TIMEOUT:-30m}" $AGY_APPROVE_FLAG 2>"$AGY_ERR")"
 CODE=$?
 set -e
+if [ -z "$RAW" ]; then
+  echo ">> WARNING: agy returned 0 bytes (exit $CODE). First stderr lines:" >&2
+  head -3 "$AGY_ERR" >&2
+  grep -qi 'permission check failed' "$AGY_ERR" && \
+    echo ">> CAUSE: tool permission denied. Re-run with AGY_APPROVE=1 inside an isolated guest." >&2
+fi
+rm -f "$AGY_ERR"
 printf '%s\n' "$RAW"
 
 BLOCKS=$(printf '%s' "$RAW" | grep -oE '(^|[^A-Za-z-])(PROBE|ALT|CAVEAT|VERDICT-PROPOSAL|PHASE-LOG):' \

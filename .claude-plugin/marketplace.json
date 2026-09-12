@@ -10,7 +10,7 @@
       "name": "concilium",
       "source": "./",
       "description": "Cross-model adversarial review and idea generation. A Claude session orchestrates and ratifies; OpenAI (codex), Moonshot (kimi) and xAI (grok) seats probe, replicate and generate — all on subscription auth, no API key required. Ten modes: review, forge, instrument audit, fragment verify, blind replication, and more.",
-      "version": "1.5.0",
+      "version": "1.5.1",
       "author": {
         "name": "Raicho Minev",
         "url": "https://github.com/raichominev"
@@ -43,7 +43,7 @@
         "path": "."
       },
       "description": "Write a session-close handoff that survives: a handoff document, durable facts wired into the project's own docs, scripts smoke-tested, and a paste-ready continuation prompt — then verified in rounds, changing the probe each round.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Raicho Minev",
         "url": "https://github.com/raichominev"
@@ -67,7 +67,7 @@
         "url": "https://github.com/raichominev/compaction-handoff.git"
       },
       "description": "Carry a long session across auto-compaction: the session writes a verified handoff before compaction, compaction waits for it, and the handoff's continuation prompt is pasted back into the context afterwards. Depends on deep-handoff.",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "author": {
         "name": "Raicho Minev",
         "url": "https://github.com/raichominev"

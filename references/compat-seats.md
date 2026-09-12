@@ -22,6 +22,12 @@ before trusting a run.
 Base URLs live in the wrapper's vendor table; override with `COMPAT_BASE_URL` / `COMPAT_MODEL` /
 `COMPAT_TOKEN` for a vendor not listed.
 
+⚠ **On this machine these tokens are not on the host.** They are exported from the isolated guest's
+`~/.profile`, so a host-side check reports all three unset — which means *not on the host*, not
+*not configured*. The guest also carries the `agy`, `cursor-agent` and `kimi` binaries and two
+reference runners. Inventory, invocation and the login-shell trap:
+[isolated-guest-vmware.md](isolated-guest-vmware.md#this-installation--inventoried-2026-09-12).
+
 ## Why routing a non-Anthropic model through Claude Code is safe to do — and what it is not
 
 The transport is Anthropic's protocol; **the model, the provider and the data handling are the

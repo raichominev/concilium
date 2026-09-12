@@ -333,3 +333,33 @@ prompt and answer, an access-time tripwire over the material that must stay unre
 during the run (NTFS last-access times work when a file you touched yourself registers), and a
 recognition probe ("name the project, quote the recorded figures") is worth asking but weak — a
 model can deny what it memorised. A perfect score that survives all four is a result.
+
+## 27
+
+**A seat's output file can read 0 bytes for the entire run and still be working.** The bundled
+runners pipe the CLI's stream through an extractor that consumes it to the end before writing
+anything, so the destination file stays empty until the moment the run finishes. Polling it mid-flight
+and seeing zero bytes — even with no matching process visible at that instant — tells you nothing.
+
+Measured 2026-09-12: a grok round was declared failed on exactly that evidence and recorded as
+`INVALID`, then completed normally with **22,938 bytes**, the largest output of its round. The
+retraction cost more than the wait would have.
+
+**Wait for the task's own completion signal.** If you must check progress, read the seat's *stderr*
+transcript, which streams, not the output file, which does not. And note that a large prompt moves a
+seat's runtime by a lot — the same seat and transport returned in minutes on 5 KB and took far longer
+on 15 KB.
+
+## 28
+
+**Do not let the seat that proposed an idea be the seat that tests it.** In forge, round 1 generates
+and a later round is often used to check whether the idea survives contact with real material. Running
+that check on the proposing seat — or on any seat of the same lineage — is self-evaluation, and it is
+the same defect as an author scoring their own work, which this skill already warns about for the
+orchestrator.
+
+Measured 2026-09-12: a round-1 proposal was tested in round 2 by the same seat, which returned a
+favourable yield. The result was not wrong, but it carried no independent weight and the fixture it
+used turned out to contain its own answer (blind-replication.md). **Grade with a different family, and
+include a control arm whose correct answer is "no check applies"** — if the seat produces confident
+output at the same rate on the control as on the real items, it is pattern-matching, not deriving.

@@ -188,6 +188,17 @@ memorised-gotcha packet, a lemma-blind coverage metric), each caught only after 
 An instrument audit costs one call before a 30-run batch. **Highest ratio of value to effort on this
 page.**
 
+Confirmed again 2026-09-12, and this time the audit killed a design **before** any run was spent. One
+call returned `DO-NOT-RUN` with three fatal findings, the first being that the fixture was
+answer-bearing: the reference corpus sat in the same tree the seats would read, so retrieval would
+stand in for generation. It also prescribed a **zero-seat pilot** as the cheapest possible control —
+run the harness with no model at all and see whether the scorer still reports success. That pilot
+took one minute, scored **9/9 perfect agreement with nothing generated**, and refuted the design by
+demonstration rather than by argument. Eight to ten planned seat-runs were saved by one.
+
+**Ask it for the cheapest falsifying control, not only for a verdict.** A verdict you may argue with;
+a control you can run in a minute you cannot.
+
 ### 6. Calibration league — ✅ RUN; HALF OF IT KILLED (`calibration-league.md`)
 Score the *project's own forecasting*, not the seats'. **Run 2026-08-20 against a real 173-row
 ledger, and it split.** The project-level half is **dead on that ledger**: 0 of 173 rows existed in
