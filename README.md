@@ -364,7 +364,7 @@ Two things worth knowing up front:
 
 ## Release notes
 
-### Unreleased
+### v1.6 (2026-09-17)
 
 - **Ledger bridge** (`scripts/concilium-ledger.py`) — writes a ratified review as one row of a
   project-starter-kit `LEDGER.tsv`. Checked on review outputs and ledgers that were not read while

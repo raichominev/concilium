@@ -10,7 +10,7 @@
       "name": "concilium",
       "source": "./",
       "description": "Cross-model adversarial review and idea generation. A Claude session orchestrates and ratifies; OpenAI (codex), Moonshot (kimi) and xAI (grok) seats probe, replicate and generate — all on subscription auth, no API key required. Ten modes: review, forge, instrument audit, fragment verify, blind replication, and more.",
-      "version": "1.5.1",
+      "version": "1.6.0",
       "author": {
         "name": "Raicho Minev",
         "url": "https://github.com/raichominev"
