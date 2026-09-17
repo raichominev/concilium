@@ -434,6 +434,13 @@ If you keep both files but let them drift, the reviewer sees the `AGENTS.md` ver
   (`Phase N — <reviewer>(<model>) — <date> — <found> [proposed]`); append it only via the
   project's own hygiene rules (typically: owner or main session, append-only). No ledger → drop
   the block.
+- A project-starter-kit `LEDGER.tsv` takes the review as a row: `scripts/concilium-ledger.py append
+  <LEDGER.tsv> <review-output> --final "<ratified tag>" --claim "<claim>"` (`--parent ID`,
+  `--commit`, `--detail`, `--gate`, `--dry-run`). It records your ratified tag beside the proposed
+  one, turns a final `[X]` with `--parent` into a `retraction` of that row, and refuses a final
+  `[C]`. It refuses an output whose VERDICT-PROPOSAL holds more than one distinct tag (a per-part
+  verdict, or the contract's template text) instead of guessing. Measured on held-out outputs:
+  [benchmarks](references/benchmarks.md#measured-the-ledger-bridge-on-held-out-review-outputs-2026-09-17).
 - Storage: keep probe outputs and frozen samples in a durable project location, never in
   session-scoped temp dirs (they die with the session).
 

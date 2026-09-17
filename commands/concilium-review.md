@@ -39,8 +39,10 @@ tier for open questions. Extra-family seats are **opt-in** — use `concilium-re
    probe plus the objection to a rounds file and pass it as `-PriorRounds` / `PRIOR_ROUNDS`. Stop on
    convergence, on a dry round, or at the round cap.
 
-If the project keeps a claims ledger, hand over the PHASE-LOG line for the user to append. Do not
-append it, and do not commit anything, yourself.
+If the project keeps a project-starter-kit `LEDGER.tsv`, show the row with
+`python scripts/concilium-ledger.py append <LEDGER.tsv> <review-output> --final "<your tag>" --claim "<claim>" --dry-run`
+and hand over the same command without `--dry-run` for the user to run. For any other ledger, hand
+over the PHASE-LOG line. Do not append it, and do not commit anything, yourself.
 
 ## Other modes
 

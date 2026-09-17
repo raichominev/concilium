@@ -330,3 +330,26 @@ dollar budget guard is checked between turns and did not bound the single turn.
 weekly Plus window per run. Fable 5.1 at default effort: about four minutes and about 1.2 dollars
 per run at list price, 8k cached input tokens and 12k thinking tokens. The origin project keeps the
 runs, transcripts, scorer, perturbed packet and key in its own record.
+
+## Measured: the ledger bridge on held-out review outputs (2026-09-17)
+
+`scripts/concilium-ledger.py` was built against 3 review outputs from one project. Then its code
+was frozen by hash. After the freeze, it was run on 12 review outputs that nobody had read while it
+was built. They came from two projects, two seat families and four reviewer models. The pass criteria
+were written before the run.
+
+- **Parse.** 11 of 12 outputs parsed. For each of the 11, the tag, the model and the date matched
+  the text when checked by hand, so there were no silent wrong extractions. The twelfth output gave a
+  different tag for each part of the claim. The script refused it. It did not guess one tag.
+- **Layouts that were not seen while the script was built:** block names in bold (`**PHASE-LOG:**`),
+  a tag in bold (`**[X]**`), and extra seat annotations inside `reviewer(...)`. The script handled
+  all three.
+- **Contract echo.** When the output ends with the contract's template text, the parser refuses it
+  (5 distinct tags). It does not record `[V-code]`.
+- **Append.** The script made 33 attempts to append, into copies of three kit ledgers that were not
+  read while it was built. Two of the ledgers use `L-` ids and one uses `A-` ids. 27 rows were
+  written, and each one used the ledger's own id prefix. The 6 refusals were the final `[C]` cases,
+  which is the designed result. After the appends, the kit's validator found no new error. The bytes
+  before each new row were unchanged.
+- **Not measured:** a ratifier's final tag that differs from the proposed tag. The test used the
+  proposed tag as the final tag.

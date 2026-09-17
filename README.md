@@ -364,6 +364,12 @@ Two things worth knowing up front:
 
 ## Release notes
 
+### Unreleased
+
+- **Ledger bridge** (`scripts/concilium-ledger.py`) — writes a ratified review as one row of a
+  project-starter-kit `LEDGER.tsv`. Checked on review outputs and ledgers that were not read while
+  it was built
+
 ### v1.5 (2026-09-10)
 
 - **Brainstorming mode** (`/concilium-brainstorm`) — forge with the books open. Each seat gets a
